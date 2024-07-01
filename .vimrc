@@ -49,7 +49,8 @@ let g:airline_theme = 'powerlineish'
 let g:airline#extensions#tabline#enabled = 1
 " vim color settings
 colors default
-source $VIMRUNTIME/colors/ron.vim 
+set background=dark
+source ~/.vim/colors/iceberg.vim 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Shortcuts and remappings
