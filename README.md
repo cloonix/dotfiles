@@ -17,7 +17,7 @@ vim +PlugInstall +qa +silent
 For tmux:
 
 ```sh
-ln -s .tmux.conf ~/.tmux.conf
+ln -s $(pwd)/.tmux.conf ~/.tmux.conf
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 # start a server but don't attach to it
 tmux start-server
@@ -34,13 +34,13 @@ tmux kill-server
 For git:
 
 ```sh
-ln -s .gitconfig ~/.gitconfig
+ln -s $(pwd)/.gitconfig ~/.gitconfig
 ```
 
 For zsh:
 
 ```sh
-ln -s .zshrc ~/.zshrc
+ln -s $(pwd)/.zshrc ~/.zshrc
 git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
 setopt EXTENDED_GLOB
 for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
