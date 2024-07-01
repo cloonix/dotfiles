@@ -1,0 +1,16 @@
+[user]
+	email = 3120297+cloonix@users.noreply.github.com
+	name = Claus Malter
+
+[push]
+	default = simple
+
+[alias]
+	co = checkout
+  st = status
+
+[log]
+  date = relative
+[format]
+	pretty = format:%C(auto,yellow)%h%C(auto,magenta)% G? %C(auto,white)%>(12,trunc)%ad %C(auto,green)%<(12,trunc)%aN %C(auto,reset)%s%C(auto,red)% gD% D
+
