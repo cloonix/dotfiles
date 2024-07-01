@@ -12,9 +12,9 @@ Plug 'mattn/emmet-vim'
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 " A useful and good looking status and tab bar
-Plug 'itchyny/lightline.vim'
-" Plug 'vim-airline/vim-airline'
-" Plug 'vim-airline/vim-airline-themes'
+" Plug 'itchyny/lightline.vim'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 " Saves recently edited files
 Plug 'yegappan/mru'
 " Multiple cursors for inserting and refactoring
@@ -25,6 +25,8 @@ Plug 'tomtom/tcomment_vim'
 Plug 'jeetsukumaran/vim-buffergator'
 " fuzzy finder
 Plug 'kien/ctrlp.vim'
+" ALE (linter)
+" Plug 'dense-analysis/ale'
 call plug#end()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -54,7 +56,6 @@ source ~/.vim/colors/iceberg.vim
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Shortcuts and remappings
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let mapleader=","
 " writes the open buffer
