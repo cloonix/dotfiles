@@ -9,7 +9,7 @@ sudo apt install vim tmux git zsh
 For vim:
 
 ```sh
-ln -s .vimrc ~/.vimrc
+ln -s $(pwd)/.vimrc ~/.vimrc
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 vim +PlugInstall +qa +silent
 ```
