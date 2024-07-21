@@ -13,5 +13,10 @@ fi
 # Customize to your needs...
 
 # start ssh-agent on login
-/usr/bin/keychain --nogui $HOME/.ssh/id_ed25519
+if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
+  /usr/bin/keychain --nogui $HOME/.ssh/id_rsa
+else
+  /usr/bin/keychain --nogui $HOME/.ssh/id_ed25519
+fi
+
 source $HOME/.keychain/$(hostname)-sh

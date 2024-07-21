@@ -9,6 +9,9 @@ sudo apt install vim tmux git zsh
 For vim:
 
 ```sh
+git clone https://github.com/cocopon/iceberg.vim.git ../iceberg.vim
+mkdir -p ~/.vim/colors
+ln -s ~/git/iceberg.vim/colors/iceberg.vim ~/.vim/colors/iceberg.vim
 ln -fs $(pwd)/.vimrc ~/.vimrc
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 vim +PlugInstall +qa +silent
