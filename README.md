@@ -54,9 +54,4 @@ done
 chsh -s $(which zsh)
 ```	
 
-Manually execute for setting the theme:
-
-```
-source ~/.zshrc
-prompt -s agnoster
-```
+Manually set the theme in `~/.zpreztorc`. E. g. `agnoster`
