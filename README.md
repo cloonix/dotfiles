@@ -6,6 +6,12 @@
 sudo apt install vim tmux git zsh
 ```
 
+For git:
+
+```sh
+ln -fs $(pwd)/.gitconfig ~/.gitconfig
+```
+
 For vim:
 
 ```sh
@@ -34,12 +40,6 @@ tmux source ~/.tmux.conf
 tmux kill-server
 ```
 
-For git:
-
-```sh
-ln -fs $(pwd)/.gitconfig ~/.gitconfig
-```
-
 For zsh:
 
 Switch to zsh before executing. 
@@ -52,5 +52,11 @@ for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
     ln -s "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
 done
 chsh -s $(which zsh)
-prompt -s agnoster
 ```	
+
+Manually execute for setting the theme:
+
+```
+source ~/.zshrc
+prompt -s agnoster
+```
