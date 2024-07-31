@@ -3,7 +3,7 @@
 ## Requirements
 
 ```sh
-sudo apt install vim tmux git zsh
+sudo apt install vim tmux git zsh fonts-powerline
 ```
 
 For git:
