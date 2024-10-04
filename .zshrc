@@ -21,5 +21,5 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     /usr/bin/keychain --nogui $HOME/.ssh/id_ed25519
   fi
 
-  scource $HOME/.keychain/$(hostname)-sh
+  source $HOME/.keychain/$(hostname)-sh
 fi
