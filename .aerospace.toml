@@ -113,6 +113,8 @@ ctrl-alt-0 = 'workspace 0'
 ctrl-alt-1 = 'workspace 1'
 ctrl-alt-2 = 'workspace 2'
 ctrl-alt-3 = 'workspace 3'
+ctrl-alt-4 = 'workspace 4'
+ctrl-alt-5 = 'workspace 5'
 ctrl-alt-s = 'workspace Spotify'
 ctrl-alt-t = 'workspace iTerm'
 ctrl-alt-w = 'workspace Work'
@@ -123,6 +125,8 @@ alt-shift-0 = [ 'move-node-to-workspace 0', 'workspace 0' ]
 alt-shift-1 = [ 'move-node-to-workspace 1', 'workspace 1' ]
 alt-shift-2 = [ 'move-node-to-workspace 2', 'workspace 2' ]
 alt-shift-3 = [ 'move-node-to-workspace 3', 'workspace 3' ]
+alt-shift-4 = [ 'move-node-to-workspace 4', 'workspace 4' ]
+alt-shift-5 = [ 'move-node-to-workspace 5', 'workspace 5' ]
 alt-shift-t = [ 'move-node-to-workspace iTerm', 'workspace iTerm' ]
 alt-shift-w = [ 'move-node-to-workspace Work', 'workspace Work' ]
 
