@@ -14,3 +14,5 @@
 [format]
 	pretty = format:%C(auto,yellow)%h%C(auto,magenta)% G? %C(auto,white)%>(12,trunc)%ad %C(auto,green)%<(12,trunc)%aN %C(auto,reset)%s%C(auto,red)% gD% D
 
+[init]
+	defaultBranch = main

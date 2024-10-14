@@ -23,3 +23,11 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 
   source $HOME/.keychain/$(hostname)-sh
 fi
+
+if [[ -s "~/.local/bin" ]]; then
+  export PATH=$PATH:~/.local/bin
+fi
+
+if [[ -s "/home/linuxbrew" ]]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
