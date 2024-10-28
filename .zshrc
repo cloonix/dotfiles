@@ -1,3 +1,15 @@
+# start ssh-agent on login
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+
+  if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
+    /usr/bin/keychain --nogui $HOME/.ssh/id_rsa
+  else
+    /usr/bin/keychain --nogui $HOME/.ssh/id_ed25519
+  fi
+
+  source $HOME/.keychain/$(hostname)-sh
+fi
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -18,18 +30,6 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
 fi
 
 # Customize to your needs...
-
-# start ssh-agent on login
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-
-  if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
-    /usr/bin/keychain --nogui $HOME/.ssh/id_rsa
-  else
-    /usr/bin/keychain --nogui $HOME/.ssh/id_ed25519
-  fi
-
-  source $HOME/.keychain/$(hostname)-sh
-fi
 
 if [[ -d "$HOME/.local/bin" && ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
   export PATH=$PATH:$HOME/.local/bin
