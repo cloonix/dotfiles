@@ -5,7 +5,7 @@
 Install the packages and re-generate the fonts cache
 
 ```sh
-sudo apt install vim tmux git zsh fonts-powerline
+sudo apt install curl vim tmux git zsh fonts-powerline
 sudo fc-cache -fv
 ```
 
