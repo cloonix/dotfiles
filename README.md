@@ -57,4 +57,10 @@ done
 chsh -s $(which zsh)
 ```	
 
-Manually set the theme in `~/.zpreztorc`. E. g. `agnoster`
+Replace `~/.zpreztorc` with the version from the repository:
+
+```sh
+cd ~
+rm ~/.zpreztorc
+ln -s ~/git/dotfiles/.zprezto/runcoms/.zpreztorc
+```
