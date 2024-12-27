@@ -1,0 +1,3 @@
+# my aliases
+
+alias du='du -h -d 1 | sort -h'
