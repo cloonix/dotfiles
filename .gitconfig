@@ -16,3 +16,7 @@
 
 [init]
 	defaultBranch = main
+[core]
+	excludeFile = .gitignore
+[pull]
+	rebase = false
