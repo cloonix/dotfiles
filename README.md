@@ -11,13 +11,6 @@ sudo fc-cache -fv
 
 Fasfetch link: <https://github.com/fastfetch-cli/fastfetch/releases>
 
-For git and else:
-
-```sh
-cd ~
-ln -fs $(pwd)/.gitconfig ~/.gitconfig
-ln -fs $(pwd)/.aliases ~/.aliases
-```
 
 For vim:
 
@@ -67,4 +60,12 @@ Replace `~/.zpreztorc` with the version from the repository:
 cd ~
 rm ~/.zpreztorc
 ln -s ~/git/dotfiles/.zprezto/runcoms/.zpreztorc
+```
+
+For git and else:
+
+```sh
+cd ~
+ln -fs ./git/dotfiles/.gitconfig 
+ln -fs ./git/dotfiles/.aliases
 ```
