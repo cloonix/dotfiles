@@ -1,3 +1,4 @@
 # my aliases
 
 alias du='du -h -d 1 | sort -h'
+alias deb-update='sudo apt update && sudo apt -y upgrade && sudo apt -y autoremove && sudo apt clean'

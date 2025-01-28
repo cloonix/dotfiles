@@ -5,12 +5,14 @@
 Install the packages and re-generate the fonts cache
 
 ```sh
-sudo apt install curl vim tmux git zsh fonts-powerline keychain
+sudo apt install curl vim tmux git zsh keychain
+
+# if you need powerline fonts on desktop
+sudo apt install fonts-powerline
 sudo fc-cache -fv
 ```
 
 Fasfetch link: <https://github.com/fastfetch-cli/fastfetch/releases>
-
 
 For vim:
 
