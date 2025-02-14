@@ -45,3 +45,5 @@ fi
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 source $HOME/.aliases
+
+bindkey '^R' history-incremental-search-backward
