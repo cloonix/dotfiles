@@ -1,5 +1,7 @@
 # My dotfiles
 
+Personal dot files.
+
 ## Requirements
 
 Install the packages and re-generate the fonts cache
