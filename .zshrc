@@ -47,3 +47,5 @@ fi
 source $HOME/.aliases
 
 bindkey '^R' history-incremental-search-backward
+
+export TERM=xterm-256color
