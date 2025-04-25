@@ -51,5 +51,6 @@ done
 sudo chsh -s "$(which zsh)" claus
 
 ln -fs ./git/dotfiles/.zprezto/runcoms/.zpreztorc $HOME/.zpreztorc
+ln -fs ./git/dotfiles/.zshrc $HOME/.zshrc
 ln -fs ./git/dotfiles/.gitconfig $HOME/.gitconfig
 ln -fs ./git/dotfiles/.aliases $HOME/.aliases
