@@ -7,7 +7,7 @@ Personal dot files.
 Install the packages and re-generate the fonts cache
 
 ```sh
-sudo apt install curl vim tmux git zsh keychain
+sudo apt install curl vim tmux git zsh keychain vivid
 
 # if you need powerline fonts on desktop
 sudo apt install fonts-powerline
