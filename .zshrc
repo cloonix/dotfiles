@@ -49,4 +49,7 @@ source $HOME/.aliases
 bindkey '^R' history-incremental-search-backward
 
 export TERM=xterm-256color
-export LS_COLORS="$(vivid generate molokai)"
+
+if command -v vivid &> /dev/null; then
+  export LS_COLORS="$(vivid generate molokai)"
+fi
