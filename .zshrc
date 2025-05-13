@@ -45,3 +45,15 @@ fi
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 source $HOME/.aliases
+
+bindkey '^R' history-incremental-search-backward
+
+export TERM=xterm-256color
+
+if command -v vivid &> /dev/null; then
+  export LS_COLORS="$(vivid generate molokai)"
+fi
+
+if [[ "$OSTYPE" == "darwin"* ]] && [ -x "/opt/homebrew/bin/gls" ]; then
+  alias ls="/opt/homebrew/bin/gls --color"
+fi

@@ -57,19 +57,7 @@ else
   echo "zsh not found. Cannot change default shell."
 fi
 
-# Ensure symlinks for .zpreztorc, .gitconfig, .aliases are robust
-# This replaces older, potentially problematic symlink commands
-
-# Symlink custom prezto configuration if it exists in dotfiles
-# This will overwrite the default prezto symlink for .zpreztorc
-if [ -f "$(pwd)/.zpreztorc" ]; then
-  ln -fs "$(pwd)/.zpreztorc" "$HOME/.zpreztorc"
-fi
-
-# Symlink other config files from dotfiles repo
-if [ -f "$(pwd)/.gitconfig" ]; then
-  ln -fs "$(pwd)/.gitconfig" "$HOME/.gitconfig"
-fi
-if [ -f "$(pwd)/.aliases" ]; then
-  ln -fs "$(pwd)/.aliases" "$HOME/.aliases"
-fi
+ln -fs ./git/dotfiles/.zprezto/runcoms/.zpreztorc $HOME/.zpreztorc
+ln -fs ./git/dotfiles/.zshrc $HOME/.zshrc
+ln -fs ./git/dotfiles/.gitconfig $HOME/.gitconfig
+ln -fs ./git/dotfiles/.aliases $HOME/.aliases
