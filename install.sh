@@ -57,11 +57,6 @@ else
   echo "zsh not found. Cannot change default shell."
 fi
 
-<<<<<<< Updated upstream
-ln -fs ./git/dotfiles/.zprezto/runcoms/.zpreztorc $HOME/.zpreztorc
-ln -fs ./git/dotfiles/.gitconfig $HOME/.gitconfig
-ln -fs ./git/dotfiles/.aliases $HOME/.aliases
-=======
 # Ensure symlinks for .zpreztorc, .gitconfig, .aliases are robust
 # This replaces older, potentially problematic symlink commands
 
@@ -78,4 +73,3 @@ fi
 if [ -f "$(pwd)/.aliases" ]; then
   ln -fs "$(pwd)/.aliases" "$HOME/.aliases"
 fi
->>>>>>> Stashed changes
