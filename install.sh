@@ -49,15 +49,10 @@ for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
 done
 
 # Ensure chsh uses $USER and checks for zsh availability
-# Only change default shell to zsh if it is not already the default
+# This replaces any older hardcoded chsh command
+# Change default shell to zsh for user $USER without prompting
 if command -v zsh >/dev/null 2>&1; then
-  CURRENT_SHELL="$(getent passwd "$USER" | cut -d: -f7 2>/dev/null || grep "^$USER:" /etc/passwd | cut -d: -f7)"
-  ZSH_PATH="$(command -v zsh)"
-  if [ "$CURRENT_SHELL" != "$ZSH_PATH" ]; then
-    sudo chsh -s "$ZSH_PATH" "$USER"
-  else
-    echo "zsh is already the default shell."
-  fi
+  sudo chsh -s "$(which zsh)" "$USER"
 else
   echo "zsh not found. Cannot change default shell."
 fi
