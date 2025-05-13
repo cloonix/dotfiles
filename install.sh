@@ -1,7 +1,7 @@
 #!/bin/sh
 
-GIT_HOME="/home/claus/git"
-DOTFILES="/home/claus/git/dotfiles"
+GIT_HOME="$HOME/git"
+DOTFILES="$HOME/git/dotfiles"
 
 # Setting up vim ...
 cd $DOTFILES
@@ -10,7 +10,7 @@ if [ ! -d "$GIT_HOME/iceberg.vim" ]; then
   git clone https://github.com/cocopon/iceberg.vim.git ../iceberg.vim
 fi
 mkdir -p $HOME/.vim/colors
-ln -fs $HOME/git/iceberg.vim/colors/iceberg.vim $HOME/.vim/colors/iceberg.vim
+ln -fs $GIT_HOME/iceberg.vim/colors/iceberg.vim $HOME/.vim/colors/iceberg.vim
 ln -fs $(pwd)/.vimrc $HOME/.vimrc
 curl -fLo $HOME/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 vim +'PlugInstall --sync' +qa
@@ -42,15 +42,23 @@ if [ ! -d "${ZDOTDIR:-$HOME}/.zprezto" ]; then
   echo "Cloning prezto ..."
   git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
 fi
+# Ensure prezto runcoms are symlinked correctly after prezto clone
 setopt EXTENDED_GLOB
 for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
     ln -fs "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
 done
 
-# Change default shell to zsh for user claus without prompting
-sudo chsh -s "$(which zsh)" claus
+# Ensure chsh uses $USER and checks for zsh availability
+# This replaces any older hardcoded chsh command
+# Change default shell to zsh for user $USER without prompting
+if command -v zsh >/dev/null 2>&1; then
+  sudo chsh -s "$(which zsh)" "$USER"
+else
+  echo "zsh not found. Cannot change default shell."
+fi
 
 ln -fs ./git/dotfiles/.zprezto/runcoms/.zpreztorc $HOME/.zpreztorc
 ln -fs ./git/dotfiles/.zshrc $HOME/.zshrc
 ln -fs ./git/dotfiles/.gitconfig $HOME/.gitconfig
 ln -fs ./git/dotfiles/.aliases $HOME/.aliases
+ln -fs ./git/dotfiles/.p10k.zsh $HOME/.p10k.zsh
