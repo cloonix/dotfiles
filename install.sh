@@ -62,3 +62,9 @@ ln -fs ./git/dotfiles/.zshrc $HOME/.zshrc
 ln -fs ./git/dotfiles/.gitconfig $HOME/.gitconfig
 ln -fs ./git/dotfiles/.aliases $HOME/.aliases
 ln -fs ./git/dotfiles/.p10k.zsh $HOME/.p10k.zsh
+
+if [[ "$(uname)" == "Darwin" ]]; then
+  GHOSTTY_CONFIG_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
+  mkdir -p "$GHOSTTY_CONFIG_DIR"
+  ln -fs "$DOTFILES/ghostty/config" "$GHOSTTY_CONFIG_DIR/config"
+fi
