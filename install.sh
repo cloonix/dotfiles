@@ -3,6 +3,23 @@
 GIT_HOME="$HOME/git"
 DOTFILES="$HOME/git/dotfiles"
 
+# Check for required binaries
+required_binaries="git curl vim tmux sudo chsh zsh"
+missing_binaries=""
+
+for bin in $required_binaries; do
+  if ! command -v "$bin" >/dev/null 2>&1; then
+    missing_binaries="$missing_binaries $bin"
+  fi
+done
+
+if [ -n "$missing_binaries" ]; then
+  echo "Error: The following required binaries are not installed or not in PATH:"
+  echo "$missing_binaries"
+  echo "Please install them and try again."
+  exit 1
+fi
+
 # Setting up vim ...
 cd $DOTFILES
 if [ ! -d "$GIT_HOME/iceberg.vim" ]; then
@@ -48,14 +65,7 @@ for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
     ln -fs "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
 done
 
-# Ensure chsh uses $USER and checks for zsh availability
-# This replaces any older hardcoded chsh command
-# Change default shell to zsh for user $USER without prompting
-if command -v zsh >/dev/null 2>&1; then
-  sudo chsh -s "$(which zsh)" "$USER"
-else
-  echo "zsh not found. Cannot change default shell."
-fi
+sudo chsh -s "$(which zsh)" "$USER"
 
 ln -fs ./git/dotfiles/.zprezto/runcoms/.zpreztorc $HOME/.zpreztorc
 ln -fs ./git/dotfiles/.zshrc $HOME/.zshrc
