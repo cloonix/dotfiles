@@ -1,36 +1,30 @@
-#!/bin/sh
+#!/bin/zsh 
+echo "ZSH_VERSION is: '$ZSH_VERSION'" # Will be set if in zsh
 
 GIT_HOME="$HOME/git"
 DOTFILES="$HOME/git/dotfiles"
 
 # Check for required binaries
-required_binaries="git curl vim tmux sudo chsh zsh"
-missing_binaries=""
+# Use zsh array for robustness as this code runs in zsh
+required_binaries_list=(git curl vim tmux sudo chsh zsh)
+missing_binaries_list=() # Initialize as an empty zsh array
 
 echo "Checking for required binaries..."
-for bin in $required_binaries; do
-  if command -v "$bin" >/dev/null 2>&1; then
-    echo "✓ $bin found"
+for bin_to_check in "${required_binaries_list[@]}"; do
+  if command -v "$bin_to_check" >/dev/null 2>&1; then
+    echo "✓ $bin_to_check found"
   else
-    echo "✗ $bin missing"
-    if [ -z "$missing_binaries" ]; then
-      missing_binaries="$bin"
-    else
-      missing_binaries="$missing_binaries $bin"
-    fi
+    echo "✗ $bin_to_check missing"
+    missing_binaries_list+=("$bin_to_check")
   fi
 done
 
-if [ -n "$missing_binaries" ]; then
+if (( ${#missing_binaries_list[@]} > 0 )); then # Check if array is not empty
   echo ""
   echo "Error: The following required binaries are missing:"
-  for bin in $missing_binaries; do
-    echo "  - $bin"
+  for missing_bin in "${missing_binaries_list[@]}"; do # Iterate over array
+    echo "  - $missing_bin"
   done
-  echo ""
-  echo "Please install the missing binaries and try again."
-  echo "On Ubuntu/Debian: sudo apt update && sudo apt install $missing_binaries"
-  echo "On macOS: brew install $missing_binaries"
   exit 1
 fi
 
@@ -65,11 +59,6 @@ tmux source ~/.tmux.conf
 ~/.tmux/plugins/tpm/scripts/install_plugins.sh
 # kill server
 tmux kill-server
-
-if [ -z "$ZSH_VERSION" ]; then
-    echo "Switching to zsh..."
-    exec zsh "$0" "$@"
-fi
 
 ln -fs $(pwd)/.zshrc ~/.zshrc
 if [ ! -d "${ZDOTDIR:-$HOME}/.zprezto" ]; then
