@@ -7,18 +7,35 @@ DOTFILES="$HOME/git/dotfiles"
 required_binaries="git curl vim tmux sudo chsh zsh"
 missing_binaries=""
 
+echo "Checking for required binaries..."
 for bin in $required_binaries; do
-  if ! command -v "$bin" >/dev/null 2>&1; then
-    missing_binaries="$missing_binaries $bin"
+  if command -v "$bin" >/dev/null 2>&1; then
+    echo "✓ $bin found"
+  else
+    echo "✗ $bin missing"
+    if [ -z "$missing_binaries" ]; then
+      missing_binaries="$bin"
+    else
+      missing_binaries="$missing_binaries $bin"
+    fi
   fi
 done
 
 if [ -n "$missing_binaries" ]; then
-  echo "Error: The following required binaries are not installed or not in PATH:"
-  echo "$missing_binaries"
-  echo "Please install them and try again."
+  echo ""
+  echo "Error: The following required binaries are missing:"
+  for bin in $missing_binaries; do
+    echo "  - $bin"
+  done
+  echo ""
+  echo "Please install the missing binaries and try again."
+  echo "On Ubuntu/Debian: sudo apt update && sudo apt install $missing_binaries"
+  echo "On macOS: brew install $missing_binaries"
   exit 1
 fi
+
+echo "All required binaries found. Proceeding with installation..."
+echo ""
 
 # Setting up vim ...
 cd $DOTFILES
