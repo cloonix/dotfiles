@@ -1,6 +1,50 @@
 #!/bin/zsh 
 echo "ZSH_VERSION is: '$ZSH_VERSION'" # Will be set if in zsh
 
+# Prompt for GitHub username and setup SSH authorized keys
+echo "Setting up SSH authorized keys from GitHub..."
+read "github_username?Enter your GitHub username: "
+
+if [[ -n "$github_username" ]]; then
+  SSH_DIR="$HOME/.ssh"
+  AUTHORIZED_KEYS_FILE="$SSH_DIR/authorized_keys"
+  
+  # Create .ssh directory if it doesn't exist
+  mkdir -p "$SSH_DIR"
+  
+  # Download public keys from GitHub
+  echo "Downloading public keys for user: $github_username"
+  if curl -fsSL "https://github.com/$github_username.keys" -o /tmp/github_keys 2>/dev/null; then
+    if [[ -s /tmp/github_keys ]]; then
+      # Backup existing authorized_keys if it exists
+      if [[ -f "$AUTHORIZED_KEYS_FILE" ]]; then
+        cp "$AUTHORIZED_KEYS_FILE" "$AUTHORIZED_KEYS_FILE.backup.$(date +%Y%m%d_%H%M%S)"
+        echo "Backed up existing authorized_keys file"
+      fi
+      
+      # Append GitHub keys to authorized_keys
+      cat /tmp/github_keys >> "$AUTHORIZED_KEYS_FILE"
+      
+      # Set proper permissions
+      chmod 700 "$SSH_DIR"
+      chmod 600 "$AUTHORIZED_KEYS_FILE"
+      
+      echo "✓ Successfully added GitHub SSH keys to $AUTHORIZED_KEYS_FILE"
+    else
+      echo "⚠ No public keys found for GitHub user: $github_username"
+    fi
+  else
+    echo "✗ Failed to download keys for GitHub user: $github_username"
+  fi
+  
+  # Clean up temporary file
+  rm -f /tmp/github_keys
+else
+  echo "No GitHub username provided, skipping SSH key setup"
+fi
+
+echo ""
+
 GIT_HOME="$HOME/git"
 DOTFILES="$HOME/git/dotfiles"
 
