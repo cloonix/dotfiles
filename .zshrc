@@ -60,8 +60,10 @@ if [[ "$OSTYPE" == "darwin"* ]] && [ -x "/opt/homebrew/bin/gls" ]; then
   alias ls="/opt/homebrew/bin/gls --color"
 fi
 
-# Added by LM Studio CLI (lms)
-export PATH="$PATH:/Users/claus/.lmstudio/bin"
-# End of LM Studio CLI section
+if [[ -d "/Users/claus/.lmstudio/bin" ]]; then
+  export PATH="$PATH:/Users/claus/.lmstudio/bin"
+fi
 
-export PATH="/opt/homebrew/opt/node@22/bin:$PATH"
+if [[ -d "/opt/homebrew/opt/node@22/bin" ]]; then
+  export PATH="/opt/homebrew/opt/node@22/bin:$PATH"
+fi
