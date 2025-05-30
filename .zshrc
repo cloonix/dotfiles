@@ -67,3 +67,7 @@ fi
 if [[ -d "/opt/homebrew/opt/node@22/bin" ]]; then
   export PATH="/opt/homebrew/opt/node@22/bin:$PATH"
 fi
+
+if [[ -f "$HOME/.kube/config" ]]; then
+  export KUBECONFIG=$HOME/.kube/config
+fi
