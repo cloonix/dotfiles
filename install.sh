@@ -56,7 +56,7 @@ DOTFILES="$HOME/git/dotfiles"
 
 # Check for required binaries
 # Use zsh array for robustness as this code runs in zsh
-required_binaries_list=(git curl vim tmux sudo chsh zsh)
+required_binaries_list=(git curl vim tmux sudo keychain zsh)
 missing_binaries_list=() # Initialize as an empty zsh array
 
 echo "Checking for required binaries..."
