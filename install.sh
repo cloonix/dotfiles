@@ -22,14 +22,20 @@ if [[ -n "$github_username" ]]; then
         echo "Backed up existing authorized_keys file"
       fi
       
-      # Append GitHub keys to authorized_keys
-      cat /tmp/github_keys >> "$AUTHORIZED_KEYS_FILE"
+      # Check for duplicate keys and add only new ones
+      added_count=0
+      while IFS= read -r key; do
+        if [[ -n "$key" && ! -f "$AUTHORIZED_KEYS_FILE" ]] || ! grep -Fxq "$key" "$AUTHORIZED_KEYS_FILE" 2>/dev/null; then
+          echo "$key" >> "$AUTHORIZED_KEYS_FILE"
+          ((added_count++))
+        fi
+      done < /tmp/github_keys
       
       # Set proper permissions
       chmod 700 "$SSH_DIR"
       chmod 600 "$AUTHORIZED_KEYS_FILE"
       
-      echo "✓ Successfully added GitHub SSH keys to $AUTHORIZED_KEYS_FILE"
+      echo "✓ Successfully added $added_count new GitHub SSH keys to $AUTHORIZED_KEYS_FILE"
     else
       echo "⚠ No public keys found for GitHub user: $github_username"
     fi
