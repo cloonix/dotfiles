@@ -115,8 +115,9 @@ if [[ "$nvim_setup" == true ]]; then
   rm -rf ~/.cache/nvim
   echo "✅ Cleanup completed"
 
-  echo "📥 Cloning NvChad starter template..."
-  git clone https://github.com/NvChad/starter ~/.config/nvim
+  echo "📦 Setting up nvim configuration from dotfiles..."
+  mkdir -p ~/.config
+  ln -fs $GIT_HOME/dotfiles/nvim ~/.config/nvim
 
   # Install plugins and language servers
   echo "🔧 Installing plugins and language servers..."
