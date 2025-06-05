@@ -117,6 +117,7 @@ if [[ "$nvim_setup" == true ]]; then
 
   echo "📦 Setting up nvim configuration from dotfiles..."
   mkdir -p ~/.config
+  echo "🔗 Creating symlink for nvim config..."
   ln -fs $GIT_HOME/dotfiles/nvim ~/.config/nvim
 
   # Install plugins and language servers
@@ -128,8 +129,6 @@ if [[ "$nvim_setup" == true ]]; then
   sleep 2
   nvim --headless -c "MasonInstallAll" -c "qa"
 
-  echo "🔗 Creating symlink for nvim config..."
-  ln -fs $GIT_HOME/dotfiles/nvim/init.lua ~/.config/nvim/init.lua
 else
   echo "⏭️  Skipping nvim setup (version requirement not met)"
 fi
