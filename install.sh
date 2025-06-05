@@ -78,37 +78,60 @@ if (( ${#missing_binaries_list[@]} > 0 )); then # Check if array is not empty
   exit 1
 fi
 
+# Check nvim version requirement
+nvim_setup=false
+if command -v nvim >/dev/null 2>&1; then
+  nvim_version=$(nvim --version | head -n1 | grep -o 'v[0-9]\+\.[0-9]\+' | sed 's/v//')
+  if [[ -n "$nvim_version" ]]; then
+    major_version=$(echo "$nvim_version" | cut -d. -f1)
+    minor_version=$(echo "$nvim_version" | cut -d. -f2)
+    if (( major_version > 0 )) || (( major_version == 0 && minor_version >= 11 )); then
+      echo "✓ nvim version $nvim_version meets requirements (0.11+)"
+      nvim_setup=true
+    else
+      echo "⚠ nvim version $nvim_version found, but version 0.11+ required"
+    fi
+  else
+    echo "⚠ Could not determine nvim version"
+  fi
+else
+  echo "⚠ nvim not found"
+fi
+
 echo "All required binaries found. Proceeding with installation..."
 echo ""
 
 # Setting up nvim
+if [[ "$nvim_setup" == true ]]; then
+  # Uninstall existing NvChad/Neovim config
+  echo "🧹 Cleaning up existing configuration..."
+  echo "  Removing ~/.config/nvim"
+  rm -rf ~/.config/nvim
+  echo "  Removing ~/.local/state/nvim"
+  rm -rf ~/.local/state/nvim
+  echo "  Removing ~/.local/share/nvim"
+  rm -rf ~/.local/share/nvim
+  echo "  Removing ~/.cache/nvim"
+  rm -rf ~/.cache/nvim
+  echo "✅ Cleanup completed"
 
-# Uninstall existing NvChad/Neovim config
-echo "🧹 Cleaning up existing configuration..."
-echo "  Removing ~/.config/nvim"
-rm -rf ~/.config/nvim
-echo "  Removing ~/.local/state/nvim"
-rm -rf ~/.local/state/nvim
-echo "  Removing ~/.local/share/nvim"
-rm -rf ~/.local/share/nvim
-echo "  Removing ~/.cache/nvim"
-rm -rf ~/.cache/nvim
-echo "✅ Cleanup completed"
+  echo "📥 Cloning NvChad starter template..."
+  git clone https://github.com/NvChad/starter ~/.config/nvim
 
-echo "📥 Cloning NvChad starter template..."
-git clone https://github.com/NvChad/starter ~/.config/nvim
+  # Install plugins and language servers
+  echo "🔧 Installing plugins and language servers..."
+  echo "This may take a few minutes..."
 
-# Install plugins and language servers
-echo "🔧 Installing plugins and language servers..."
-echo "This may take a few minutes..."
+  # Run Neovim with plugin installation and Mason setup
+  nvim --headless -c "Lazy! sync" -c "qa"
+  sleep 2
+  nvim --headless -c "MasonInstallAll" -c "qa"
 
-# Run Neovim with plugin installation and Mason setup
-nvim --headless -c "Lazy! sync" -c "qa"
-sleep 2
-nvim --headless -c "MasonInstallAll" -c "qa"
-
-echo "🔗 Creating symlink for nvim config..."
-ln -fs $GIT_HOME/dotfiles/nvim/init.lua ~/.config/nvim/init.lua
+  echo "🔗 Creating symlink for nvim config..."
+  ln -fs $GIT_HOME/dotfiles/nvim/init.lua ~/.config/nvim/init.lua
+else
+  echo "⏭️  Skipping nvim setup (version requirement not met)"
+fi
 
 
 # Setting up vim ...
