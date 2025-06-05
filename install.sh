@@ -56,7 +56,7 @@ DOTFILES="$HOME/git/dotfiles"
 
 # Check for required binaries
 # Use zsh array for robustness as this code runs in zsh
-required_binaries_list=(git curl vim tmux sudo zsh)
+required_binaries_list=(git curl vim tmux sudo zsh nvim)
 missing_binaries_list=() # Initialize as an empty zsh array
 
 echo "Checking for required binaries..."
@@ -80,6 +80,36 @@ fi
 
 echo "All required binaries found. Proceeding with installation..."
 echo ""
+
+# Setting up nvim
+
+# Uninstall existing NvChad/Neovim config
+echo "🧹 Cleaning up existing configuration..."
+echo "  Removing ~/.config/nvim"
+rm -rf ~/.config/nvim
+echo "  Removing ~/.local/state/nvim"
+rm -rf ~/.local/state/nvim
+echo "  Removing ~/.local/share/nvim"
+rm -rf ~/.local/share/nvim
+echo "  Removing ~/.cache/nvim"
+rm -rf ~/.cache/nvim
+echo "✅ Cleanup completed"
+
+echo "📥 Cloning NvChad starter template..."
+git clone https://github.com/NvChad/starter ~/.config/nvim
+
+# Install plugins and language servers
+echo "🔧 Installing plugins and language servers..."
+echo "This may take a few minutes..."
+
+# Run Neovim with plugin installation and Mason setup
+nvim --headless -c "Lazy! sync" -c "qa"
+sleep 2
+nvim --headless -c "MasonInstallAll" -c "qa"
+
+echo "🔗 Creating symlink for nvim config..."
+ln -fs $GIT_HOME/dotfiles/nvim/init.lua ~/.config/nvim/init.lua
+
 
 # Setting up vim ...
 cd $DOTFILES
