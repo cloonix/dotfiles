@@ -121,13 +121,23 @@ if [[ "$nvim_setup" == true ]]; then
   ln -fs $GIT_HOME/dotfiles/nvim ~/.config/nvim
 
   # Install plugins and language servers
-  echo "🔧 Installing plugins and language servers..."
+  echo "🔧 Installing plugins and language servers (running silently)..."
   echo "This may take a few minutes..."
 
-  # Run Neovim with plugin installation and Mason setup
-  nvim --headless -c "Lazy! sync" -c "qa"
+  # Run Neovim with plugin installation and Mason setup (silently)
+  if nvim --headless -c "Lazy! sync" -c "qa" >/dev/null 2>&1; then
+    echo "  ✓ Lazy plugin sync completed"
+  else
+    echo "  ⚠ Lazy plugin sync failed"
+  fi
+  
   sleep 2
-  nvim --headless -c "MasonInstallAll" -c "qa"
+  
+  if nvim --headless -c "MasonInstallAll" -c "qa" >/dev/null 2>&1; then
+    echo "  ✓ Mason language servers installed"
+  else
+    echo "  ⚠ Mason installation failed or MasonInstallAll command not available"
+  fi
 
 else
   echo "⏭️  Skipping nvim setup (version requirement not met)"
