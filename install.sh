@@ -193,19 +193,25 @@ tmux source "$HOME/.tmux.conf" >/dev/null 2>&1
 tmux kill-server >/dev/null 2>&1
 echo "  ✅ Tmux setup completed"
 
+# Setting up zsh and dotfiles
+echo "🔧 Setting up zsh and dotfiles..."
+echo "  → Creating initial zshrc symlink..."
 ln -fs $(pwd)/.zshrc ~/.zshrc
 if [ ! -d "${ZDOTDIR:-$HOME}/.zprezto" ]; then
-  echo "Cloning prezto ..."
-  git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
+  echo "  → Cloning prezto framework..."
+  git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto" >/dev/null 2>&1
 fi
+echo "  → Creating prezto symlinks..."
 # Ensure prezto runcoms are symlinked correctly after prezto clone
 setopt EXTENDED_GLOB
 for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
     ln -fs "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
 done
 
-sudo chsh -s "$(which zsh)" "$USER"
+echo "  → Changing default shell to zsh..."
+sudo chsh -s "$(which zsh)" "$USER" >/dev/null 2>&1
 
+echo "  → Creating dotfiles symlinks..."
 ln -fs ./git/dotfiles/.zprezto/runcoms/.zpreztorc $HOME/.zpreztorc
 ln -fs ./git/dotfiles/.zshrc $HOME/.zshrc
 ln -fs ./git/dotfiles/.gitconfig $HOME/.gitconfig
