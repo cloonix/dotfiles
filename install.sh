@@ -66,12 +66,6 @@ fi
 GIT_HOME="$HOME/git"
 DOTFILES="$HOME/git/dotfiles"
 
-# Create backup directory for safety
-BACKUP_DIR="$HOME/.dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
-mkdir -p "$BACKUP_DIR" 2>/dev/null
-echo "📦 Created backup directory: $BACKUP_DIR"
-echo ""
-
 # Check for required binaries
 # Use zsh array for robustness as this code runs in zsh
 required_binaries_list=(git curl vim tmux sudo zsh nvim)
