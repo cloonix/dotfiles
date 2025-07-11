@@ -68,7 +68,7 @@ DOTFILES="$HOME/git/dotfiles"
 
 # Check for required binaries
 # Use zsh array for robustness as this code runs in zsh
-required_binaries_list=(git curl vim tmux sudo zsh nvim)
+required_binaries_list=(git curl vim tmux sudo zsh)
 missing_binaries_list=() # Initialize as an empty zsh array
 
 echo "🔍 Checking for required binaries..."
@@ -94,7 +94,10 @@ if (( ${#missing_binaries_list[@]} > 0 )); then # Check if array is not empty
   exit 1
 fi
 
-# Check nvim version requirement
+echo "✅ All required binaries found. Proceeding with installation..."
+
+# Check nvim availability and version requirement (optional)
+echo "🔍 Checking for optional binaries..."
 nvim_setup=false
 if command -v nvim >/dev/null 2>&1; then
   nvim_version=$(nvim --version | head -n1 | grep -o 'v[0-9]\+\.[0-9]\+' | sed 's/v//')
@@ -105,16 +108,15 @@ if command -v nvim >/dev/null 2>&1; then
       echo "  ✅ nvim version $nvim_version meets requirements (0.11+)"
       nvim_setup=true
     else
-      echo "  ⚠️ nvim version $nvim_version found, but version 0.11+ required"
+      echo "  ⚠️ nvim version $nvim_version found, but version 0.11+ required for setup"
     fi
   else
     echo "  ⚠️ Could not determine nvim version"
   fi
 else
-  echo "  ⚠️ nvim not found"
+  echo "  ⚠️ nvim not found - will skip nvim configuration"
 fi
 
-echo "✅ All required binaries found. Proceeding with installation..."
 echo ""
 
 # Setting up nvim
