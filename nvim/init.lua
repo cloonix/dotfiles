@@ -12,7 +12,7 @@ vim.keymap.set("n", "<leader>s", ":mksession<CR>")
 -- Close/delete buffer
 vim.keymap.set("n", "<leader>q", ":bd<CR>")
 -- Close Neovim
-vim.keymap.set("n", "<leader>Q", ":qall<CR>")
+vim.keymap.set("n", "<leader>Q", ":qall!<CR>")
 
 -- bootstrap lazy and all plugins
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
