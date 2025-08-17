@@ -68,7 +68,7 @@ DOTFILES="$HOME/git/dotfiles"
 
 # Check for required binaries
 # Use zsh array for robustness as this code runs in zsh
-required_binaries_list=(git curl vim tmux sudo zsh ripgrep fzf)
+required_binaries_list=(git curl vim tmux sudo zsh)
 missing_binaries_list=() # Initialize as an empty zsh array
 
 echo "🔍 Checking for required binaries..."
@@ -106,6 +106,34 @@ if command -v nvim >/dev/null 2>&1; then
     minor_version=$(echo "$nvim_version" | cut -d. -f2)
     if (( major_version > 0 )) || (( major_version == 0 && minor_version >= 11 )); then
       echo "  ✅ nvim version $nvim_version meets requirements (0.11+)"
+      
+      # Check for nvim-specific required binaries
+      nvim_required_binaries=(fzf fd)
+      nvim_missing_binaries=()
+      
+      echo "  🔍 Checking for nvim-specific required binaries..."
+      for bin_to_check in "${nvim_required_binaries[@]}"; do
+        if command -v "$bin_to_check" >/dev/null 2>&1; then
+          echo "    ✅ $bin_to_check found"
+        else
+          echo "    ❌ $bin_to_check missing"
+          nvim_missing_binaries+=("$bin_to_check")
+        fi
+      done
+      
+      if (( ${#nvim_missing_binaries[@]} > 0 )); then
+        echo ""
+        echo "❌ Error: nvim is available but the following required binaries are missing:"
+        for missing_bin in "${nvim_missing_binaries[@]}"; do
+          echo "    - $missing_bin"
+        done
+        echo ""
+        echo "Please install the missing binaries and try again."
+        echo "On Ubuntu/Debian: sudo apt update && sudo apt install <missing packages>"
+        echo "On macOS: brew install <missing packages>"
+        exit 1
+      fi
+      
       nvim_setup=true
     else
       echo "  ⚠️ nvim version $nvim_version found, but version 0.11+ required for setup"
@@ -199,8 +227,20 @@ for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
     ln -fs "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
 done
 
-echo "  → Changing default shell to zsh..."
-sudo chsh -s "$(which zsh)" "$USER" >/dev/null 2>&1
+echo "  → Checking default shell..."
+if command -v getent >/dev/null 2>&1; then
+    current_shell=$(getent passwd "$USER" | cut -d: -f7)
+else
+    current_shell=$(dscl . -read /Users/"$USER" UserShell 2>/dev/null | awk '{print $2}')
+fi
+zsh_path=$(which zsh)
+
+if [[ "$current_shell" != "$zsh_path" ]]; then
+  echo "  → Changing default shell to zsh..."
+  sudo chsh -s "$zsh_path" "$USER" >/dev/null 2>&1
+else
+  echo "  ✅ Default shell is already zsh"
+fi
 
 echo "  → Creating dotfiles symlinks..."
 ln -fs ./git/dotfiles/.zprezto/runcoms/.zpreztorc $HOME/.zpreztorc
