@@ -286,8 +286,8 @@ ln -fs ./git/dotfiles/.aliases $HOME/.aliases
 ln -fs ./git/dotfiles/.p10k.zsh $HOME/.p10k.zsh
 
 print_info "Setting up yazi configuration..."
-mkdir -p ~/.config/yazi
-ln -fs "$DOTFILES/yazi" ~/.config/yazi/
+mkdir -p ~/.config
+ln -fs "$DOTFILES/yazi" ~/.config/yazi
 if command -v yazi >/dev/null 2>&1; then
     print_info "Installing yazi plugins and flavors..."
     yazi --clear-cache >/dev/null 2>&1 || true
