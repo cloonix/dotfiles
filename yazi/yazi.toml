@@ -3,8 +3,11 @@ show_hidden = false
 ratio = [1, 3, 4]
 linemode = "size_and_mtime"
 
-[plugin]
+[preview]
+max_width = 1600
+max_height = 1600
 
+[plugin]
 [[plugin.prepend_previewers]]
 name = "*.md"
 run  = 'piper -- CLICOLOR_FORCE=1 glow -w=$w -s=dark "$1"'
