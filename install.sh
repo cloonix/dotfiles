@@ -285,6 +285,10 @@ ln -fs ./git/dotfiles/.gitconfig $HOME/.gitconfig
 ln -fs ./git/dotfiles/.aliases $HOME/.aliases
 ln -fs ./git/dotfiles/.p10k.zsh $HOME/.p10k.zsh
 
+print_info "Setting up yazi configuration..."
+mkdir -p ~/.config/yazi
+ln -fs "$DOTFILES/yazi"/* ~/.config/yazi/
+
 if [[ "$(uname)" == "Darwin" ]]; then
   print_info "Setting up Ghostty config for macOS..."
   GHOSTTY_CONFIG_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
