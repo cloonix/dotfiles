@@ -42,6 +42,14 @@ print_info() {
 print_header "🚀 Dotfiles Installation Script"
 echo -e "${CYAN}Running under zsh (version: ${BOLD}$ZSH_VERSION${NC}${CYAN})${NC}\n"
 
+# Check if running inside a tmux session
+if [[ -n "$TMUX" ]]; then
+    print_error "This script cannot be run from within an active tmux session"
+    echo -e "${YELLOW}Please exit tmux and run the script from a regular terminal.${NC}"
+    echo -e "${CYAN}You can exit tmux by typing: ${BOLD}exit${NC}${CYAN} or ${BOLD}Ctrl+d${NC}"
+    exit 1
+fi
+
 print_section "🔑 Setting up SSH authorized keys from GitHub"
 echo -e -n "${CYAN}Enter your GitHub username: ${NC}"
 read github_username
