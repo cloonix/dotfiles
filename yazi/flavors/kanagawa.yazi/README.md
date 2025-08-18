@@ -3,7 +3,7 @@
 </div>
 
 <h3 align="center">
-	Flexoki Dark Flavor for <a href="https://github.com/sxyazi/yazi">Yazi</a>
+    Kanagawa Flavor for <a href="https://github.com/sxyazi/yazi">Yazi</a>
 </h3>
 
 ## 👀 Preview
@@ -12,22 +12,22 @@
 
 ## 🎨 Installation
 
-```sh
-ya pkg add gosxrgxx/flexoki-dark
+```bash
+ya pack -a dangooddd/kanagawa
 ```
 
 ## ⚙️ Usage
 
-To set it as your dark flavor, change the content of your `theme.toml` to:
+> [!Note]
+> To achieve the look like in the screenshot you also need to install
+> [full-border](https://github.com/yazi-rs/plugins/tree/main/full-border.yazi) plugin!
+
+Add these lines to your `theme.toml` configuration file to use it:
 
 ```toml
 [flavor]
-dark = "flexoki-dark"
+dark = "kanagawa"
 ```
-
-Make sure your `theme.toml` doesn't contain anything other than `[flavor]`, unless you want to override certain styles of this flavor.
-
-See the [Yazi flavor documentation](https://yazi-rs.github.io/docs/flavors/overview) for more details.
 
 ## 📜 License
 

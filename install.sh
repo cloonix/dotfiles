@@ -1,227 +1,212 @@
-#!/bin/zsh 
-echo "🚀 Dotfiles Installation Script"
-echo "================================"
-echo "Running under zsh (version: $ZSH_VERSION)"
-echo ""
+#!/bin/zsh
 
-# Prompt for GitHub username and setup SSH authorized keys
-echo "🔑 Setting up SSH authorized keys from GitHub..."
-read "github_username?Enter your GitHub username: "
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+WHITE='\033[1;37m'
+BOLD='\033[1m'
+NC='\033[0m'
 
-if [[ -n "$github_username" ]]; then
-  SSH_DIR="$HOME/.ssh"
-  AUTHORIZED_KEYS_FILE="$SSH_DIR/authorized_keys"
-  
-  # Create .ssh directory if it doesn't exist
-  mkdir -p "$SSH_DIR"
-  
-  # Download public keys from GitHub
-  echo "  → Downloading public keys for user: $github_username..."
-  if curl -fsSL "https://github.com/$github_username.keys" -o /tmp/github_keys 2>/dev/null; then
-    if [[ -s /tmp/github_keys ]]; then
-      # Backup existing authorized_keys if it exists
-      if [[ -f "$AUTHORIZED_KEYS_FILE" ]]; then
-        cp "$AUTHORIZED_KEYS_FILE" "$AUTHORIZED_KEYS_FILE.backup.$(date +%Y%m%d_%H%M%S)" 2>/dev/null
-        echo "  → Backed up existing authorized_keys file"
-      fi
-      
-      # Check for duplicate keys and add only new ones
-      added_count=0
-      while IFS= read -r key; do
-        if [[ -n "$key" && ! -f "$AUTHORIZED_KEYS_FILE" ]] || ! grep -Fxq "$key" "$AUTHORIZED_KEYS_FILE" 2>/dev/null; then
-          echo "$key" >> "$AUTHORIZED_KEYS_FILE"
-          ((added_count++))
+# Helper functions
+log() { echo -e "${BLUE}→${NC} $1"; }
+success() { echo -e "${GREEN}✅${NC} $1"; }
+warn() { echo -e "${YELLOW}⚠️${NC} $1"; }
+error() { echo -e "${RED}❌${NC} $1"; exit 1; }
+header() { echo -e "\n${CYAN}${BOLD}=== $1 ===${NC}"; }
+
+# Check binaries
+check_binaries() {
+    local required=("$@")
+    local missing=()
+    
+    for bin in "${required[@]}"; do
+        if command -v "$bin" >/dev/null 2>&1; then
+            success "$bin found"
+        else
+            error "$bin missing"
+            missing+=("$bin")
         fi
-      done < /tmp/github_keys
-      
-      # Set proper permissions
-      chmod 700 "$SSH_DIR"
-      chmod 600 "$AUTHORIZED_KEYS_FILE"
-      
-      echo "  ✅ Successfully added $added_count new GitHub SSH keys"
-    else
-      echo "  ⚠️ No public keys found for GitHub user: $github_username"
+    done
+    
+    if (( ${#missing[@]} > 0 )); then
+        error "Missing binaries: ${missing[*]}"
     fi
-  else
-    echo "  ❌ Failed to download keys for GitHub user: $github_username"
-  fi
-  
-  # Clean up temporary file
-  rm -f /tmp/github_keys
-else
-  echo "  ⏭️ No GitHub username provided, skipping SSH key setup"
-fi
+}
 
-echo ""
+# Create symlink with backup
+link_file() {
+    local src="$1" dest="$2"
+    [[ -e "$dest" && ! -L "$dest" ]] && mv "$dest" "${dest}.backup.$(date +%s)"
+    mkdir -p "$(dirname "$dest")"
+    rm -rf "$dest"
+    ln -fs "$src" "$dest"
+    success "Linked: $(basename "$dest")"
+}
 
-# Verify we're in the right directory
-if [[ ! -d "$HOME/git/dotfiles" ]]; then
-    echo "❌ Error: Dotfiles directory not found at $HOME/git/dotfiles" >&2
-    echo "Please ensure you've cloned the dotfiles repository first:" >&2
-    echo "  mkdir -p $HOME/git && cd $HOME/git" >&2
-    echo "  git clone <your-dotfiles-repo-url> dotfiles" >&2
-    exit 1
-fi
-
-GIT_HOME="$HOME/git"
-DOTFILES="$HOME/git/dotfiles"
-
-# Check for required binaries
-# Use zsh array for robustness as this code runs in zsh
-required_binaries_list=(git curl vim tmux sudo zsh)
-missing_binaries_list=() # Initialize as an empty zsh array
-
-echo "🔍 Checking for required binaries..."
-for bin_to_check in "${required_binaries_list[@]}"; do
-  if command -v "$bin_to_check" >/dev/null 2>&1; then
-    echo "  ✅ $bin_to_check found"
-  else
-    echo "  ❌ $bin_to_check missing"
-    missing_binaries_list+=("$bin_to_check")
-  fi
-done
-
-if (( ${#missing_binaries_list[@]} > 0 )); then # Check if array is not empty
-  echo ""
-  echo "❌ Error: The following required binaries are missing:"
-  for missing_bin in "${missing_binaries_list[@]}"; do # Iterate over array
-    echo "    - $missing_bin"
-  done
-  echo ""
-  echo "Please install the missing binaries and try again."
-  echo "On Ubuntu/Debian: sudo apt update && sudo apt install <missing packages>"
-  echo "On macOS: brew install <missing packages>"
-  exit 1
-fi
-
-echo "✅ All required binaries found. Proceeding with installation..."
-
-# Check nvim availability and version requirement (optional)
-echo "🔍 Checking for optional binaries..."
-nvim_setup=false
-if command -v nvim >/dev/null 2>&1; then
-  nvim_version=$(nvim --version | head -n1 | grep -o 'v[0-9]\+\.[0-9]\+' | sed 's/v//')
-  if [[ -n "$nvim_version" ]]; then
-    major_version=$(echo "$nvim_version" | cut -d. -f1)
-    minor_version=$(echo "$nvim_version" | cut -d. -f2)
-    if (( major_version > 0 )) || (( major_version == 0 && minor_version >= 11 )); then
-      echo "  ✅ nvim version $nvim_version meets requirements (0.11+)"
-      nvim_setup=true
+# Setup SSH keys from GitHub
+setup_ssh() {
+    header "SSH Setup"
+    echo -n "GitHub username (or skip): "
+    read github_username
+    
+    [[ -z "$github_username" ]] && { warn "Skipping SSH setup"; return; }
+    
+    local ssh_dir="$HOME/.ssh"
+    local auth_file="$ssh_dir/authorized_keys"
+    
+    mkdir -p "$ssh_dir"
+    
+    if curl -fsSL "https://github.com/$github_username.keys" -o /tmp/github_keys 2>/dev/null && [[ -s /tmp/github_keys ]]; then
+        [[ -f "$auth_file" ]] && cp "$auth_file" "${auth_file}.backup.$(date +%s)"
+        
+        local added=0
+        while IFS= read -r key; do
+            if [[ -n "$key" ]] && ! grep -Fxq "$key" "$auth_file" 2>/dev/null; then
+                echo "$key" >> "$auth_file"
+                ((added++))
+            fi
+        done < /tmp/github_keys
+        
+        chmod 700 "$ssh_dir" && chmod 600 "$auth_file"
+        success "Added $added SSH keys"
+        rm -f /tmp/github_keys
     else
-      echo "  ⚠️ nvim version $nvim_version found, but version 0.11+ required for setup"
+        warn "No keys found for: $github_username"
     fi
-  else
-    echo "  ⚠️ Could not determine nvim version"
-  fi
-else
-  echo "  ⚠️ nvim not found - will skip nvim configuration"
-fi
+}
 
-echo ""
+# Main installation
+main() {
+    [[ -n "$TMUX" ]] && error "Cannot run inside tmux session"
+    [[ ! -d "$HOME/git/dotfiles" ]] && error "Dotfiles not found at $HOME/git/dotfiles"
+    
+    header "🚀 Dotfiles Installation"
+    log "Running zsh version: $ZSH_VERSION"
+    
+    local DOTFILES="$HOME/git/dotfiles"
+    cd "$DOTFILES"
+    
+    # SSH setup
+    setup_ssh
+    
+    # Check required binaries
+    header "Checking Dependencies"
+    check_binaries git curl vim tmux zsh
+    
+    # Optional: Check nvim
+    local nvim_setup=false
+    if command -v nvim >/dev/null 2>&1; then
+        local version=$(nvim --version | head -n1 | grep -o 'v[0-9]\+\.[0-9]\+' | sed 's/v//')
+        local major=$(echo "$version" | cut -d. -f1)
+        local minor=$(echo "$version" | cut -d. -f2)
+        
+        if (( major > 0 || (major == 0 && minor >= 11) )); then
+            check_binaries fzf fd
+            nvim_setup=true
+            success "nvim $version ready"
+        else
+            warn "nvim $version < 0.11, skipping"
+        fi
+    else
+        warn "nvim not found"
+    fi
+    
+    # Setup configurations
+    header "Setting up configurations"
+    
+    # Neovim
+    if [[ "$nvim_setup" == true ]]; then
+        log "Setting up nvim"
+        rm -rf ~/.config/nvim ~/.local/{state,share,cache}/nvim
+        link_file "$DOTFILES/nvim" "$HOME/.config/nvim"
+        
+        log "Installing nvim plugins..."
+        # Install plugins with Lazy
+        nvim --headless -c "Lazy! sync" -c "qa" >/dev/null 2>&1
+        
+        log "Installing LSPs and tools..."
+        # Install Mason tools if MasonInstallAll command exists
+        nvim --headless -c "MasonInstallAll" -c "qa" >/dev/null 2>&1 || true
+        
+        success "Neovim configured with plugins"
+    fi
+    
+    # Vim
+    log "Setting up vim"
+    if [[ ! -d "$HOME/git/iceberg.vim" ]]; then
+        git clone https://github.com/cocopon/iceberg.vim.git "$HOME/git/iceberg.vim" >/dev/null 2>&1
+    fi
+    link_file "$HOME/git/iceberg.vim/colors/iceberg.vim" "$HOME/.vim/colors/iceberg.vim"
+    link_file "$DOTFILES/.vimrc" "$HOME/.vimrc"
+    curl -fLo "$HOME/.vim/autoload/plug.vim" --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim >/dev/null 2>&1
+    vim +'PlugInstall --sync' +qa >/dev/null 2>&1
+    
+    # Tmux
+    log "Setting up tmux"
+    link_file "$DOTFILES/.tmux.conf" "$HOME/.tmux.conf"
+    if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
+        git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm" >/dev/null 2>&1
+    fi
+    tmux start-server >/dev/null 2>&1
+    tmux new-session -d >/dev/null 2>&1
+    sleep 1
+    tmux source "$HOME/.tmux.conf" >/dev/null 2>&1
+    "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh" >/dev/null 2>&1
+    tmux kill-server >/dev/null 2>&1
+    
+    # Zsh & Prezto
+    log "Setting up zsh"
+    if [[ ! -d "${ZDOTDIR:-$HOME}/.zprezto" ]]; then
+        git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto" >/dev/null 2>&1
+    fi
+    
+    setopt EXTENDED_GLOB
+    for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
+        link_file "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
+    done
+    
+    # Dotfiles symlinks
+    link_file "$DOTFILES/.zshrc" "$HOME/.zshrc"
+    link_file "$DOTFILES/.gitconfig" "$HOME/.gitconfig"
+    link_file "$DOTFILES/.aliases" "$HOME/.aliases"
+    link_file "$DOTFILES/.p10k.zsh" "$HOME/.p10k.zsh"
+    link_file "$DOTFILES/.zprezto/runcoms/.zpreztorc" "$HOME/.zpreztorc"
+    
+    # Yazi
+    link_file "$DOTFILES/yazi" "$HOME/.config/yazi"
+    if command -v yazi >/dev/null 2>&1; then
+        yazi --clear-cache >/dev/null 2>&1 || true
+        success "Yazi configured"
+    else
+        warn "yazi not found"
+    fi
+    
+    # Ghostty (macOS only)
+    if [[ "$(uname)" == "Darwin" ]]; then
+        link_file "$DOTFILES/ghostty/config" "$HOME/Library/Application Support/com.mitchellh.ghostty/config"
+    fi
+    
+    # Change default shell
+    local current_shell zsh_path
+    if command -v getent >/dev/null 2>&1; then
+        current_shell=$(getent passwd "$USER" | cut -d: -f7)
+    else
+        current_shell=$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')
+    fi
+    zsh_path=$(which zsh)
+    
+    if [[ "$current_shell" != "$zsh_path" ]]; then
+        log "Changing shell to zsh"
+        sudo chsh -s "$zsh_path" "$USER" >/dev/null 2>&1
+    fi
+    
+    header "🎉 Installation Complete!"
+    echo -e "${CYAN}• Run: ${BOLD}source ~/.zshrc${NC}"
+    echo -e "${CYAN}• Open nvim to finish plugin setup${NC}"
+}
 
-# Setting up nvim
-echo "📦 Setting up Neovim..."
-if [[ "$nvim_setup" == true ]]; then
-  echo "  → Cleaning up existing configuration..."
-  rm -rf ~/.config/nvim >/dev/null 2>&1
-  rm -rf ~/.local/state/nvim >/dev/null 2>&1
-  rm -rf ~/.local/share/nvim >/dev/null 2>&1
-  rm -rf ~/.cache/nvim >/dev/null 2>&1
-  
-  echo "  → Creating symlink for nvim config..."
-  mkdir -p ~/.config >/dev/null 2>&1
-  ln -fs $GIT_HOME/dotfiles/nvim ~/.config/nvim
-
-  echo "  → Installing plugins and language servers (this may take a few minutes)..."
-  if nvim --headless -c "Lazy! sync" -c "qa" >/dev/null 2>&1; then
-    echo "    ✅ Lazy plugin sync completed"
-  else
-    echo "    ⚠️ Lazy plugin sync failed"
-  fi
-  
-  sleep 2
-  
-  if nvim --headless -c "MasonInstallAll" -c "qa" >/dev/null 2>&1; then
-    echo "    ✅ Mason language servers installed"
-  else
-    echo "    ⚠️ Mason installation failed or MasonInstallAll command not available"
-  fi
-  echo "  ✅ Neovim setup completed"
-else
-  echo "  ⏭️ Skipping nvim setup (version requirement not met)"
-fi
-echo ""
-
-
-# Setting up vim
-echo "🔧 Setting up vim..."
-cd "$DOTFILES"
-if [ ! -d "$GIT_HOME/iceberg.vim" ]; then
-  echo "  → Cloning iceberg.vim theme..."
-  git clone https://github.com/cocopon/iceberg.vim.git ../iceberg.vim >/dev/null 2>&1
-fi
-mkdir -p "$HOME/.vim/colors"
-ln -fs "$GIT_HOME/iceberg.vim/colors/iceberg.vim" "$HOME/.vim/colors/iceberg.vim"
-ln -fs "$DOTFILES/.vimrc" "$HOME/.vimrc"
-echo "  → Installing vim-plug..."
-curl -fLo "$HOME/.vim/autoload/plug.vim" --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim >/dev/null 2>&1
-echo "  → Installing vim plugins..."
-vim +'PlugInstall --sync' +qa >/dev/null 2>&1
-echo "  ✅ Vim setup completed"
-
-# Setting up tmux
-echo "🔧 Setting up tmux..."
-ln -fs "$DOTFILES/.tmux.conf" "$HOME/.tmux.conf"
-if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
-  echo "  → Cloning tmux plugin manager..."
-  git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm" >/dev/null 2>&1
-fi 
-echo "  → Installing tmux plugins..."
-# start a server but don't attach to it
-tmux start-server >/dev/null 2>&1
-# create a new session but don't attach to it either
-tmux new-session -d >/dev/null 2>&1
-sleep 1
-# install the plugins
-tmux source "$HOME/.tmux.conf" >/dev/null 2>&1
-"$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh" >/dev/null 2>&1
-# kill server
-tmux kill-server >/dev/null 2>&1
-echo "  ✅ Tmux setup completed"
-
-# Setting up zsh and dotfiles
-echo "🔧 Setting up zsh and dotfiles..."
-echo "  → Creating initial zshrc symlink..."
-ln -fs $(pwd)/.zshrc ~/.zshrc
-if [ ! -d "${ZDOTDIR:-$HOME}/.zprezto" ]; then
-  echo "  → Cloning prezto framework..."
-  git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto" >/dev/null 2>&1
-fi
-echo "  → Creating prezto symlinks..."
-# Ensure prezto runcoms are symlinked correctly after prezto clone
-setopt EXTENDED_GLOB
-for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
-    ln -fs "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
-done
-
-echo "  → Changing default shell to zsh..."
-sudo chsh -s "$(which zsh)" "$USER" >/dev/null 2>&1
-
-echo "  → Creating dotfiles symlinks..."
-ln -fs ./git/dotfiles/.zprezto/runcoms/.zpreztorc $HOME/.zpreztorc
-ln -fs ./git/dotfiles/.zshrc $HOME/.zshrc
-ln -fs ./git/dotfiles/.gitconfig $HOME/.gitconfig
-ln -fs ./git/dotfiles/.aliases $HOME/.aliases
-ln -fs ./git/dotfiles/.p10k.zsh $HOME/.p10k.zsh
-
-if [[ "$(uname)" == "Darwin" ]]; then
-  echo "  → Setting up Ghostty config for macOS..."
-  GHOSTTY_CONFIG_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
-  mkdir -p "$GHOSTTY_CONFIG_DIR"
-  ln -fs "$DOTFILES/ghostty/config" "$GHOSTTY_CONFIG_DIR/config"
-fi
-echo "  ✅ Zsh and dotfiles setup completed"
-
-echo ""
-echo "🎉 Installation completed successfully!"
-echo "Please restart your shell or run 'source ~/.zshrc' to apply changes."
+main "$@"
