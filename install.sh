@@ -122,8 +122,16 @@ main() {
         log "Setting up nvim"
         rm -rf ~/.config/nvim ~/.local/{state,share,cache}/nvim
         link_file "$DOTFILES/nvim" "$HOME/.config/nvim"
-        nvim --headless -c "qa" >/dev/null 2>&1
-        success "Neovim configured"
+        
+        log "Installing nvim plugins..."
+        # Install plugins with Lazy
+        nvim --headless -c "Lazy! sync" -c "qa" >/dev/null 2>&1
+        
+        log "Installing LSPs and tools..."
+        # Install Mason tools if MasonInstallAll command exists
+        nvim --headless -c "MasonInstallAll" -c "qa" >/dev/null 2>&1 || true
+        
+        success "Neovim configured with plugins"
     fi
     
     # Vim
