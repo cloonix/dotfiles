@@ -52,6 +52,15 @@ bindkey '^R' history-incremental-search-backward
 
 export TERM=xterm-256color
 
+# Set editor variables
+if command -v nvim &> /dev/null; then
+  export EDITOR=nvim
+  export VISUAL=nvim
+else
+  export EDITOR=vim
+  export VISUAL=vim
+fi
+
 if command -v vivid &> /dev/null; then
   export LS_COLORS="$(vivid generate molokai)"
 fi
