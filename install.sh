@@ -288,6 +288,14 @@ ln -fs ./git/dotfiles/.p10k.zsh $HOME/.p10k.zsh
 print_info "Setting up yazi configuration..."
 mkdir -p ~/.config/yazi
 ln -fs "$DOTFILES/yazi"/* ~/.config/yazi/
+if command -v yazi >/dev/null 2>&1; then
+    print_info "Installing yazi plugins and flavors..."
+    yazi --clear-cache >/dev/null 2>&1 || true
+    # The plugins will be automatically downloaded when yazi starts with the package.toml configuration
+    print_success "Yazi configuration completed (plugins will install on first run)"
+else
+    print_warning "yazi not found - configuration symlinked but plugins won't install until yazi is available"
+fi
 
 if [[ "$(uname)" == "Darwin" ]]; then
   print_info "Setting up Ghostty config for macOS..."
