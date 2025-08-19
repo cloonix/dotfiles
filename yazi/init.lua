@@ -14,7 +14,7 @@ end
 
 -- ~/.config/yazi/init.lua
 require("bookmarks"):setup({
-	last_directory = { enable = false, persist = true, mode="dir" },
+	last_directory = { enable = false, persist = true, mode = "dir" },
 	persist = "vim",
 	desc_format = "parent",
 	file_pick_mode = "hover",
@@ -30,3 +30,9 @@ require("bookmarks"):setup({
 		},
 	},
 })
+
+require("simple-status"):setup()
+
+require("git"):setup()
+
+require("full-border"):setup()

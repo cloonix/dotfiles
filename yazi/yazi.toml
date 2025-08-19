@@ -11,3 +11,13 @@ max_height = 2000
 [[plugin.prepend_previewers]]
 name = "*.md"
 run  = 'piper -- CLICOLOR_FORCE=1 glow -s ~/git/dotfiles/yazi/glow/tokyo_night.json -w=$w "$1"'
+
+[[plugin.prepend_fetchers]]
+id   = "git"
+name = "*"
+run  = "git"
+
+[[plugin.prepend_fetchers]]
+id   = "git"
+name = "*/"
+run  = "git"
