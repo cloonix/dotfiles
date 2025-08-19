@@ -175,6 +175,7 @@ main() {
     link_file "$DOTFILES/.aliases" "$HOME/.aliases"
     link_file "$DOTFILES/.p10k.zsh" "$HOME/.p10k.zsh"
     link_file "$DOTFILES/.zprezto/runcoms/.zpreztorc" "$HOME/.zpreztorc"
+    link_file "$DOTFILES/.markdownlint-cli2.yaml" "$HOME/.markdownlint-cli2.yaml"
     
     # Yazi
     link_file "$DOTFILES/yazi" "$HOME/.config/yazi"

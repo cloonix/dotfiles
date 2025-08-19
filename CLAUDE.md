@@ -2,7 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Common Commands
+## Common Commands 
+
 
 ### Installation
 - `./install.sh` - Main installation script for setting up the entire dotfiles environment
