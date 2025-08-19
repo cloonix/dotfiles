@@ -13,11 +13,11 @@ return {
             jump_next = "]]",
             accept = "<CR>",
             refresh = "gr",
-            open = "<M-CR>"
+            open = "<M-CR>",
           },
           layout = {
             position = "bottom", -- | top | left | right
-            ratio = 0.4
+            ratio = 0.4,
           },
         },
         suggestion = {
@@ -44,7 +44,7 @@ return {
           cvs = false,
           ["."] = false,
         },
-        copilot_node_command = 'node', -- Node.js version must be > 18.x
+        copilot_node_command = "node", -- Node.js version must be > 18.x
         server_opts_overrides = {},
       })
     end,
@@ -65,24 +65,24 @@ return {
     config = function(_, opts)
       local chat = require("CopilotChat")
       local select = require("CopilotChat.select")
-      
+
       -- Setup CopilotChat
       chat.setup(opts)
-      
+
       -- Setup which-key group
       local wk = require("which-key")
       wk.add({
-        { "<leader>C", group = "Copilot" },
+        { "<leader>C", icon = { icon = "\u{e709}", hl = "" }, group = "Copilot" },
       })
-      
+
       -- Key mappings
-      vim.keymap.set({"n", "v"}, "<leader>Cc", ":CopilotChat ", { desc = "Open chat" })
-      vim.keymap.set({"n", "v"}, "<leader>Ce", "<cmd>CopilotChatExplain<cr>", { desc = "Explain code" })
-      vim.keymap.set({"n", "v"}, "<leader>Ct", "<cmd>CopilotChatTests<cr>", { desc = "Generate tests" })
-      vim.keymap.set({"n", "v"}, "<leader>Cr", "<cmd>CopilotChatReview<cr>", { desc = "Review code" })
-      vim.keymap.set({"n", "v"}, "<leader>Cf", "<cmd>CopilotChatFixDiagnostic<cr>", { desc = "Fix diagnostic" })
-      vim.keymap.set({"n", "v"}, "<leader>Co", "<cmd>CopilotChatOptimize<cr>", { desc = "Optimize code" })
-      vim.keymap.set({"n", "v"}, "<leader>Cd", "<cmd>CopilotChatDocs<cr>", { desc = "Generate docs" })
+      vim.keymap.set({ "n", "v" }, "<leader>Cc", ":CopilotChat ", { desc = "Open chat" })
+      vim.keymap.set({ "n", "v" }, "<leader>Ce", "<cmd>CopilotChatExplain<cr>", { desc = "Explain code" })
+      vim.keymap.set({ "n", "v" }, "<leader>Ct", "<cmd>CopilotChatTests<cr>", { desc = "Generate tests" })
+      vim.keymap.set({ "n", "v" }, "<leader>Cr", "<cmd>CopilotChatReview<cr>", { desc = "Review code" })
+      vim.keymap.set({ "n", "v" }, "<leader>Cf", "<cmd>CopilotChatFixDiagnostic<cr>", { desc = "Fix diagnostic" })
+      vim.keymap.set({ "n", "v" }, "<leader>Co", "<cmd>CopilotChatOptimize<cr>", { desc = "Optimize code" })
+      vim.keymap.set({ "n", "v" }, "<leader>Cd", "<cmd>CopilotChatDocs<cr>", { desc = "Generate docs" })
     end,
-  }
+  },
 }
