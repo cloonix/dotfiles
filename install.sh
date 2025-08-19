@@ -178,6 +178,7 @@ main() {
     
     # Yazi
     link_file "$DOTFILES/yazi" "$HOME/.config/yazi"
+    ya pkg install
     if command -v yazi >/dev/null 2>&1; then
         yazi --clear-cache >/dev/null 2>&1 || true
         success "Yazi configured"
