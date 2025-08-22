@@ -21,3 +21,26 @@ run  = "git"
 id   = "git"
 name = "*/"
 run  = "git"
+
+[open]
+rules = [
+    { name = "*/", use = [ "edit", "code", "ncdu", "7zip" ] },
+    { name = "*", use = [ "edit", "7zip" ] },
+]
+
+[opener]
+edit = [
+    { run = '$EDITOR "$@"', block = true, for = "macos" },
+]
+
+code = [
+    { run = 'code "$1"', orphan = true, desc = "Code", for = "macos" },
+]
+
+ncdu = [
+    { run = 'ncdu --color dark "$1"', block = true, desc = "Ncdu", for = "macos" },
+]
+
+7zip = [
+    { run = '7zz a "$1.7z" "$1"', desc = "Archive with 7zip", for = "macos" },
+]
