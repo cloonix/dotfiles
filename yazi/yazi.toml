@@ -2,6 +2,7 @@
 show_hidden = false
 ratio = [1, 3, 4]
 linemode = "size_and_mtime"
+mouse_events = []
 
 [preview]
 max_width = 2000
