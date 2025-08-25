@@ -70,6 +70,6 @@ reveal = [
 ]
 
 extract = [
-    { run = 'set -e; for f in "$@"; do name=$(basename -- "$f"); dest="${f}.extracted"; mkdir -p "$dest"; case "$name" in *.tar|*.tar.*|*.tgz|*.txz|*.tbz|*.tbz2|*.tzst) tar -xf "$f" -C "$dest" ;; *) 7zz x -y -o"$dest" "$f" ;; esac; done', block = true, desc = "Extract archive(s)", for = "macos" },
-    { run = 'set -e; for f in "$@"; do name=$(basename -- "$f"); dest="${f}.extracted"; mkdir -p "$dest"; case "$name" in *.tar|*.tar.*|*.tgz|*.txz|*.tbz|*.tbz2|*.tzst) tar -xf "$f" -C "$dest" ;; *) 7zz x -y -o"$dest" "$f" ;; esac; done', block = true, desc = "Extract archive(s)", for = "unix" },
+    { run = 'set -e; for f in "$@"; do name=$(basename -- "$f"); case "$name" in *.tar|*.tar.*|*.tgz|*.txz|*.tbz|*.tbz2|*.tzst) tar -xf "$f" ;; *) 7zz x -y "$f" ;; esac; done', block = true, desc = "Extract archive(s)", for = "macos" },
+    { run = 'set -e; for f in "$@"; do name=$(basename -- "$f"); case "$name" in *.tar|*.tar.*|*.tgz|*.txz|*.tbz|*.tbz2|*.tzst) tar -xf "$f" ;; *) 7zz x -y "$f" ;; esac; done', block = true, desc = "Extract archive(s)", for = "unix" },
 ]
