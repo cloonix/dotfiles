@@ -25,22 +25,8 @@ run  = "git"
 
 [open]
 rules = [
-    { name = "*/", use = [ "edit", "code", "ncdu", "7zip" ] },
-
-    { name = "*.tar", use = [ "extract", "edit", "reveal", "7zip" ] },
-    { name = "*.tar.gz", use = [ "extract", "edit", "reveal", "7zip" ] },
-    { name = "*.tgz", use = [ "extract", "edit", "reveal", "7zip" ] },
-    { name = "*.tar.bz2", use = [ "extract", "edit", "reveal", "7zip" ] },
-    { name = "*.tbz", use = [ "extract", "edit", "reveal", "7zip" ] },
-    { name = "*.tbz2", use = [ "extract", "edit", "reveal", "7zip" ] },
-    { name = "*.zip", use = [ "extract", "edit", "reveal", "7zip" ] },
-    { name = "*.7z", use = [ "extract", "edit", "reveal", "7zip" ] },
-    { name = "*.rar", use = [ "extract", "edit", "reveal", "7zip" ] },
-    { name = "*.gz", use = [ "extract", "edit", "reveal", "7zip" ] },
-    { name = "*.bz2", use = [ "extract", "edit", "reveal", "7zip" ] },
-    { name = "*.lzma", use = [ "extract", "edit", "reveal", "7zip" ] },
-
-    { name = "*", use = [ "edit", "reveal", "7zip" ] },
+    { name = "*/", use = [ "edit", "code", "ncdu" ] },
+    { name = "*", use = [ "edit", "reveal" ] },
 ]
 
 [opener]
@@ -64,12 +50,3 @@ reveal = [
     { run = 'xdg-open "$1"', orphan = true, desc = "Open in File Manager", for = "unix" },
 ]
 
-7zip = [
-    { run = '7zz a "$1.7z" "$1"', desc = "Archive with 7zip", for = "macos" },
-    { run = '7zz a "$1.7z" "$1"', desc = "Archive with 7zip", for = "unix" },
-]
-
-extract = [
-    { run = 'set -e; for f in "$@"; do name=$(basename -- "$f"); case "$name" in *.tar|*.tar.*|*.tgz|*.txz|*.tbz|*.tbz2|*.tzst) tar -xf "$f" ;; *) 7zz x -y "$f" ;; esac; done', block = true, desc = "Extract archive(s)", for = "macos" },
-    { run = 'set -e; for f in "$@"; do name=$(basename -- "$f"); case "$name" in *.tar|*.tar.*|*.tgz|*.txz|*.tbz|*.tbz2|*.tzst) tar -xf "$f" ;; *) 7zz x -y "$f" ;; esac; done', block = true, desc = "Extract archive(s)", for = "unix" },
-]
