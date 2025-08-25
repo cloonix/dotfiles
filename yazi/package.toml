@@ -43,6 +43,11 @@ use = "KKV9/compress"
 rev = "c264639"
 hash = "e17c11b605d989568a1d1741ca17c584"
 
+[[plugin.deps]]
+use = "yazi-rs/plugins:chmod"
+rev = "d7588f6"
+hash = "1adc12c2b2b025411ab61eb8f0879574"
+
 [[flavor.deps]]
 use = "gosxrgxx/flexoki-dark"
 rev = "28e1977"
