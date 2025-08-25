@@ -17,33 +17,84 @@ warn() { echo -e "${YELLOW}⚠️${NC} $1"; }
 error() { echo -e "${RED}❌${NC} $1"; exit 1; }
 header() { echo -e "\n${CYAN}${BOLD}=== $1 ===${NC}"; }
 
-# Check binaries
-check_binaries() {
+# Progress function for "Configuring xyz ... finished ✅"
+progress() {
+    local task="$1"
+    echo -n "Configuring $task ... "
+}
+
+finish() {
+    echo -e "finished ${GREEN}✅${NC}"
+}
+
+failed() {
+    echo -e "failed ${RED}❌${NC}"
+}
+
+# Check dependencies with platform-specific install instructions
+check_dependencies() {
     local required=("$@")
     local missing=()
+    local platform
     
+    # Detect platform
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        platform="macos"
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        platform="linux"
+    else
+        platform="unknown"
+    fi
+    
+    # Check each binary
     for bin in "${required[@]}"; do
         if command -v "$bin" >/dev/null 2>&1; then
             success "$bin found"
         else
-            error "$bin missing"
+            warn "$bin missing"
             missing+=("$bin")
         fi
     done
     
     if (( ${#missing[@]} > 0 )); then
-        error "Missing binaries: ${missing[*]}"
+        echo -e "\n${RED}❌ Missing dependencies:${NC}"
+        printf '  - %s\n' "${missing[@]}"
+        
+        echo -e "\n${CYAN}${BOLD}=== Installation Instructions ===${NC}"
+        
+        case $platform in
+            "macos")
+                echo -e "${GREEN}macOS (Homebrew):${NC}"
+                echo "  brew install ${missing[*]}"
+                ;;
+            "linux")
+                echo -e "${GREEN}Ubuntu/Debian:${NC}"
+                echo "  sudo apt update && sudo apt install ${missing[*]}"
+                echo -e "\n${GREEN}CentOS/RHEL/Fedora:${NC}"
+                echo "  sudo yum install ${missing[*]}"
+                echo "  # or: sudo dnf install ${missing[*]}"
+                ;;
+            *)
+                echo -e "${YELLOW}Platform-specific installation:${NC}"
+                echo "  Please install: ${missing[*]}"
+                ;;
+        esac
+        
+        echo ""
+        return 1
     fi
+    
+    return 0
 }
 
 # Create symlink with backup
 link_file() {
     local src="$1" dest="$2"
-    [[ -e "$dest" && ! -L "$dest" ]] && mv "$dest" "${dest}.backup.$(date +%s)"
-    mkdir -p "$(dirname "$dest")"
-    rm -rf "$dest"
-    ln -fs "$src" "$dest"
-    success "Linked: $(basename "$dest")"
+    [[ -e "$dest" && ! -L "$dest" ]] && mv "$dest" "${dest}.backup.$(date +%s)" 2>/dev/null
+    mkdir -p "$(dirname "$dest")" 2>/dev/null || return 1
+    rm -rf "$dest" 2>/dev/null || return 1
+    ln -fs "$src" "$dest" 2>/dev/null || return 1
+    return 0
 }
 
 # Setup SSH keys from GitHub
@@ -94,9 +145,9 @@ main() {
     
     # Check required binaries
     header "Checking Dependencies"
-    check_binaries git curl vim tmux zsh
+    check_dependencies git curl vim tmux zsh
     
-    # Optional: Check nvim
+    # Optional: Check nvim and related tools
     local nvim_setup=false
     if command -v nvim >/dev/null 2>&1; then
         local version=$(nvim --version | head -n1 | grep -o 'v[0-9]\+\.[0-9]\+' | sed 's/v//')
@@ -104,7 +155,7 @@ main() {
         local minor=$(echo "$version" | cut -d. -f2)
         
         if (( major > 0 || (major == 0 && minor >= 11) )); then
-            check_binaries fzf fd
+            check_dependencies fzf fd
             nvim_setup=true
             success "nvim $version ready"
         else
@@ -119,72 +170,82 @@ main() {
     
     # Neovim
     if [[ "$nvim_setup" == true ]]; then
-        log "Setting up nvim"
-        rm -rf ~/.config/nvim ~/.local/{state,share,cache}/nvim
-        link_file "$DOTFILES/nvim" "$HOME/.config/nvim"
-        
-        log "Installing nvim plugins..."
-        # Install plugins with Lazy
-        nvim --headless -c "Lazy! sync" -c "qa" >/dev/null 2>&1
-        
-        log "Installing LSPs and tools..."
-        # Install Mason tools if MasonInstallAll command exists
-        nvim --headless -c "MasonInstallAll" -c "qa" >/dev/null 2>&1 || true
-        
-        success "Neovim configured with plugins"
+        progress "Neovim"
+        if rm -rf ~/.config/nvim ~/.local/{state,share,cache}/nvim 2>/dev/null && \
+           link_file "$DOTFILES/nvim" "$HOME/.config/nvim" && \
+           nvim --headless -c "Lazy! sync" -c "qa" >/dev/null 2>&1; then
+            # Install Mason tools if MasonInstallAll command exists
+            nvim --headless -c "MasonInstallAll" -c "qa" >/dev/null 2>&1 || true
+            finish
+        else
+            failed
+        fi
     fi
     
     # Vim
-    log "Setting up vim"
-    if [[ ! -d "$HOME/git/iceberg.vim" ]]; then
-        git clone https://github.com/cocopon/iceberg.vim.git "$HOME/git/iceberg.vim" >/dev/null 2>&1
+    progress "Vim"
+    if { [[ -d "$HOME/git/iceberg.vim" ]] || git clone https://github.com/cocopon/iceberg.vim.git "$HOME/git/iceberg.vim" >/dev/null 2>&1; } && \
+       link_file "$HOME/git/iceberg.vim/colors/iceberg.vim" "$HOME/.vim/colors/iceberg.vim" && \
+       link_file "$DOTFILES/.vimrc" "$HOME/.vimrc" && \
+       curl -fLo "$HOME/.vim/autoload/plug.vim" --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim >/dev/null 2>&1 && \
+       vim +'PlugInstall --sync' +qa >/dev/null 2>&1; then
+        finish
+    else
+        failed
     fi
-    link_file "$HOME/git/iceberg.vim/colors/iceberg.vim" "$HOME/.vim/colors/iceberg.vim"
-    link_file "$DOTFILES/.vimrc" "$HOME/.vimrc"
-    curl -fLo "$HOME/.vim/autoload/plug.vim" --create-dirs \
-        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim >/dev/null 2>&1
-    vim +'PlugInstall --sync' +qa >/dev/null 2>&1
     
     # Tmux
-    log "Setting up tmux"
-    link_file "$DOTFILES/.tmux.conf" "$HOME/.tmux.conf"
-    if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
-        git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm" >/dev/null 2>&1
+    progress "Tmux"
+    if link_file "$DOTFILES/.tmux.conf" "$HOME/.tmux.conf" && \
+       { [[ -d "$HOME/.tmux/plugins/tpm" ]] || git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm" >/dev/null 2>&1; } && \
+       tmux start-server >/dev/null 2>&1 && \
+       tmux new-session -d >/dev/null 2>&1 && \
+       sleep 1 && \
+       tmux source "$HOME/.tmux.conf" >/dev/null 2>&1 && \
+       "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh" >/dev/null 2>&1 && \
+       tmux kill-server >/dev/null 2>&1; then
+        finish
+    else
+        failed
     fi
-    tmux start-server >/dev/null 2>&1
-    tmux new-session -d >/dev/null 2>&1
-    sleep 1
-    tmux source "$HOME/.tmux.conf" >/dev/null 2>&1
-    "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh" >/dev/null 2>&1
-    tmux kill-server >/dev/null 2>&1
     
     # Zsh & Prezto
-    log "Setting up zsh"
-    if [[ ! -d "${ZDOTDIR:-$HOME}/.zprezto" ]]; then
-        git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto" >/dev/null 2>&1
+    progress "Zsh"
+    if { [[ -d "${ZDOTDIR:-$HOME}/.zprezto" ]] || git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto" >/dev/null 2>&1; }; then
+        setopt EXTENDED_GLOB
+        local success_flag=true
+        for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
+            link_file "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}" || success_flag=false
+        done
+        
+        # Dotfiles symlinks
+        link_file "$DOTFILES/.zshrc" "$HOME/.zshrc" && \
+        link_file "$DOTFILES/.gitconfig" "$HOME/.gitconfig" && \
+        link_file "$DOTFILES/.aliases" "$HOME/.aliases" && \
+        link_file "$DOTFILES/.p10k.zsh" "$HOME/.p10k.zsh" && \
+        link_file "$DOTFILES/.zprezto/runcoms/.zpreztorc" "$HOME/.zpreztorc" && \
+        link_file "$DOTFILES/.markdownlint-cli2.yaml" "$HOME/.markdownlint-cli2.yaml" || success_flag=false
+        
+        if [[ "$success_flag" == true ]]; then
+            finish
+        else
+            failed
+        fi
+    else
+        failed
     fi
     
-    setopt EXTENDED_GLOB
-    for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
-        link_file "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
-    done
-    
-    # Dotfiles symlinks
-    link_file "$DOTFILES/.zshrc" "$HOME/.zshrc"
-    link_file "$DOTFILES/.gitconfig" "$HOME/.gitconfig"
-    link_file "$DOTFILES/.aliases" "$HOME/.aliases"
-    link_file "$DOTFILES/.p10k.zsh" "$HOME/.p10k.zsh"
-    link_file "$DOTFILES/.zprezto/runcoms/.zpreztorc" "$HOME/.zpreztorc"
-    link_file "$DOTFILES/.markdownlint-cli2.yaml" "$HOME/.markdownlint-cli2.yaml"
-    
     # Yazi
-    link_file "$DOTFILES/yazi" "$HOME/.config/yazi"
-    ya pkg install
-    if command -v yazi >/dev/null 2>&1; then
+    progress "Yazi"
+    if link_file "$DOTFILES/yazi" "$HOME/.config/yazi" && \
+       ya pkg install >/dev/null 2>&1 && \
+       command -v yazi >/dev/null 2>&1; then
         yazi --clear-cache >/dev/null 2>&1 || true
-        success "Yazi configured"
+        finish
     else
-        warn "yazi not found"
+        failed
+        warn "yazi not found or installation failed"
     fi
     
     # Ghostty (macOS only)
