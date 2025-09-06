@@ -28,6 +28,7 @@ rules = [
     { name = "*/", use = [ "edit", "code", "ncdu", "archive" ] },
     { name = "*.{pdf,PDF}", use = [ "open_default", "reveal", "copy_path" ] },
     { name = "*.{doc,docx,xls,xlsx,ppt,pptx,DOC,DOCX,XLS,XLSX,PPT,PPTX}", use = [ "open_default", "reveal", "copy_path" ] },
+    { name = "*.{7z,zip,rar,tar,gz,bz2,xz,Z}", use = [ "extract", "reveal", "copy_path" ] },
     { name = "*", use = [ "edit", "code", "reveal", "archive", "copy_path" ] },
 ]
 
@@ -53,6 +54,10 @@ reveal = [
 
 archive = [
     { run = '7zz a "$1.7z" "$1" && echo "✅ Archived to $1.7z"', desc = "📦 Archive (7zip)", for = "macos" },
+]
+
+extract = [
+    { run = '7zz x "$1" -o"${1%.*}" && echo "✅ Extracted to ${1%.*}/"', desc = "📦 Extract Archive", for = "macos" },
 ]
 
 copy_path = [
