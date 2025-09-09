@@ -24,19 +24,22 @@ run  = "git"
 
 [open]
 rules = [
-    { name = "*/", use = [ "edit", "code", "ncdu" ] },
-    { name = "*", use = [ "edit", "reveal" ] },
+    { name = "*/", use = [ "edit", "code", "ncdu", "archive" ] },
+    { name = "*.{pdf,PDF}", use = [ "open_default", "reveal", "copy_path" ] },
+    { name = "*.{doc,docx,xls,xlsx,ppt,pptx,DOC,DOCX,XLS,XLSX,PPT,PPTX}", use = [ "open_default", "reveal", "copy_path" ] },
+    { name = "*.{7z,zip,rar,tar,gz,bz2,xz,Z}", use = [ "extract", "reveal", "copy_path" ] },
+    { name = "*", use = [ "edit", "code", "reveal", "archive", "copy_path" ] },
 ]
 
 [opener]
 edit = [
-    { run = '$EDITOR "$@"', block = true, for = "macos" },
-    { run = '$EDITOR "$@"', block = true, for = "unix" },
+    { run = 'nvim "$@"', block = true, desc = "📝 Neovim", for = "macos" },
+    { run = 'command -v nvim >/dev/null && nvim "$@" || vim "$@"', block = true, desc = "📝 Editor", for = "linux" },
 ]
 
 code = [
-    { run = 'code "$1"', orphan = true, desc = "Code", for = "macos" },
-    { run = 'code "$1"', orphan = true, desc = "Code", for = "unix" },
+    { run = 'code "$1"', orphan = true, desc = "💻 Visual Studio Code", for = "macos" },
+    { run = 'code "$1"', orphan = true, desc = "💻 Visual Studio Code", for = "unix" },
 ]
 
 ncdu = [
@@ -45,7 +48,21 @@ ncdu = [
 ]
 
 reveal = [
-    { run = 'open -R "$1"', orphan = true, desc = "Reveal in Finder", for = "macos" },
-    { run = 'xdg-open "$1"', orphan = true, desc = "Open in File Manager", for = "unix" },
+    { run = 'open -R "$1"', orphan = true, desc = "📁 Reveal in Finder", for = "macos" },
 ]
 
+archive = [
+    { run = '7zz a "$1.7z" "$1" && echo "✅ Archived to $1.7z"', desc = "📦 Archive (7zip)", for = "macos" },
+]
+
+extract = [
+    { run = '7zz x "$1" -o"${1%.*}" && echo "✅ Extracted to ${1%.*}/"', desc = "📦 Extract Archive", for = "macos" },
+]
+
+copy_path = [
+    { run = 'echo "$1" | pbcopy && echo "📋 Path copied to clipboard"', orphan = true, desc = "📋 Copy Path", for = "macos" },
+]
+
+open_default = [
+    { run = 'open "$1"', orphan = true, desc = "🚀 Open with Default App", for = "macos" },
+]
