@@ -1,6 +1,7 @@
 [user]
 	email = 3120297+cloonix@users.noreply.github.com
 	name = Claus Malter
+	signingkey = 94D23283EF9D649D
 
 [push]
 	default = simple
@@ -22,3 +23,7 @@
 	editor = nvim
 [pull]
 	rebase = false
+[commit]
+	gpgsign = true
+[gpg]
+	program = /opt/homebrew/bin/gpg

@@ -10,6 +10,12 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
   source $HOME/.keychain/$(hostname)-sh
 fi
 
+# start gpg-agent if available
+if command -v gpg-connect-agent &> /dev/null; then
+  export GPG_TTY=$(tty)
+  gpg-connect-agent updatestartuptty /bye &> /dev/null
+fi
+
 if command -v fastfetch &> /dev/null; then
   fastfetch
 fi
