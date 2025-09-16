@@ -2,6 +2,7 @@
 if command -v nvim >/dev/null 2>&1; then
   alias vi="nvim"
   alias vim="nvim"
+  alias view="nvim -R"
 fi
 
 alias gitpullall='for d in ~/git/*/.git; do (cd "${d%/.git}" && echo "Updating $(basename "$PWD")" && git pull); done'
