@@ -8,3 +8,6 @@ vim.g.mapleader = ","
 -- Fast input to exit insert mode
 vim.keymap.set("i", "jf", "<Esc>", { desc = "Exit insert mode" })
 vim.keymap.set("i", "fj", "<Esc>", { desc = "Exit insert mode" })
+
+-- Write file with leader+b+s (buffer save)
+vim.keymap.set("n", "<leader>bs", ":w<CR>", { desc = "Save buffer" })

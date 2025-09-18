@@ -1,4 +1,4 @@
-# My Dotfiles
+# My Dotfiles (2025-09-16)
 
 Personal dotfiles for a modern development environment with automated installation.
 
@@ -28,6 +28,7 @@ cd dotfiles
 ```
 
 The installation script will:
+
 - Set up SSH authorized keys from your GitHub account
 - Check for required dependencies
 - Install and configure all applications
@@ -37,9 +38,11 @@ The installation script will:
 ## Requirements
 
 ### Essential Dependencies
+
 - `git` `curl` `vim` `tmux` `zsh`
 
 ### Optional but Recommended
+
 - `nvim` (version 0.11+) - For the full Neovim experience
 - `fzf` `fd` - Required for Neovim fuzzy finding
 - `glow` - For markdown previews in yazi
@@ -50,6 +53,7 @@ The installation script will:
 ### Installation Commands
 
 **Ubuntu/Debian:**
+
 ```bash
 sudo apt update && sudo apt install curl vim tmux git zsh keychain vivid
 # For desktop environments
@@ -57,6 +61,7 @@ sudo apt install fonts-powerline && sudo fc-cache -fv
 ```
 
 **macOS:**
+
 ```bash
 brew install nvim fzf fd glow chafa vivid
 ```
@@ -64,24 +69,28 @@ brew install nvim fzf fd glow chafa vivid
 ## Configuration Details
 
 ### Neovim
+
 - Uses LazyVim framework with Lazy plugin manager
 - Leader key: `,`
 - Automatic LSP installation via Mason
 - Custom plugins for enhanced development
 
 ### Yazi File Manager  
+
 - Custom theme: flexoki-dark
 - Plugins: glow, jump-to-char, mount, piper
 - Image previews with chafa (works in tmux)
 - Markdown previews with glow
 
 ### Tmux
+
 - Plugin manager (TPM) with sensible defaults
 - Theme: tmux-power (gold theme)
 - Session resurrection support
 - Optimized for image previews in yazi
 
 ### Zsh
+
 - Prezto framework with PowerLevel10k theme
 - Custom aliases and functions
 - Enhanced history search
@@ -105,6 +114,7 @@ ln -fs ~/git/dotfiles/nvim ~/.config/nvim
 nvim --headless -c "Lazy! sync" -c "qa"
 nvim --headless -c "MasonInstallAll" -c "qa"
 ```
+
 </details>
 
 <details>
@@ -119,6 +129,7 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
   https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 vim +'PlugInstall --sync' +qa
 ```
+
 </details>
 
 <details>
@@ -133,6 +144,7 @@ tmux source ~/.tmux.conf
 ~/.tmux/plugins/tpm/scripts/install_plugins.sh
 tmux kill-server
 ```
+
 </details>
 
 ## Architecture
