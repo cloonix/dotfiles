@@ -222,6 +222,8 @@ main() {
         # Dotfiles symlinks
         link_file "$DOTFILES/.zshrc" "$HOME/.zshrc" && \
         link_file "$DOTFILES/.gitconfig" "$HOME/.gitconfig" && \
+        link_file "$DOTFILES/.gitconfig-github" "$HOME/.gitconfig-github" && \
+        link_file "$DOTFILES/.gitconfig-gitlab" "$HOME/.gitconfig-gitlab" && \
         link_file "$DOTFILES/.aliases" "$HOME/.aliases" && \
         link_file "$DOTFILES/.p10k.zsh" "$HOME/.p10k.zsh" && \
         link_file "$DOTFILES/.zprezto/runcoms/.zpreztorc" "$HOME/.zpreztorc" && \
