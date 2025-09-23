@@ -1,5 +1,7 @@
 [user]
   name = Claus Malter
+  signinkey = 6D3B845009162068
+	signingkey = 6D3B845009162068
 
 [push]
 	default = simple
