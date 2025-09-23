@@ -1,8 +1,3 @@
-[user]
-	email = claus.malter@cmmx.de
-	name = Claus Malter
-	signingkey = 64198AD0A756D1AF
-
 [push]
 	default = simple
 
@@ -29,5 +24,5 @@
 	program = /opt/homebrew/bin/gpg
 
 # Load domain-specific configs
-[includeIf "hasconfig:remote.*.url:github.com:*/**"]
-    path = ~/.gitconfig-github
+[includeIf "hasconfig:remote.*.url:git@github.com:*/**"] 
+    path = .gitconfig-github
