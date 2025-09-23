@@ -26,3 +26,5 @@
 # Load domain-specific configs
 [includeIf "hasconfig:remote.*.url:git@github.com:*/**"] 
     path = .gitconfig-github
+[includeIf "hasconfig:remote.*.url:git@gitlab.cc-asp.fraunhofer.de:*/**"] 
+    path = .gitconfig-gitlab
