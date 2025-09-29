@@ -133,12 +133,17 @@ setup_ssh() {
 main() {
     [[ -n "$TMUX" ]] && error "Cannot run inside tmux session"
     [[ ! -d "$HOME/git/dotfiles" ]] && error "Dotfiles not found at $HOME/git/dotfiles"
-    
+
     header "🚀 Dotfiles Installation"
     log "Running zsh version: $ZSH_VERSION"
-    
+
     local DOTFILES="$HOME/git/dotfiles"
     cd "$DOTFILES"
+
+    # Reset repository to fresh state
+    header "Resetting Repository"
+    log "Cleaning untracked files and directories"
+    git clean -fdx
     
     # SSH setup
     setup_ssh
