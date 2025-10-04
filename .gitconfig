@@ -19,7 +19,7 @@
 [pull]
 	rebase = false
 [commit]
-	gpgsign = true
+	gpgsign = false
 
 # Load domain-specific configs
 [includeIf "hasconfig:remote.*.url:git@github.com:*/**"]
@@ -27,4 +27,4 @@
 [includeIf "hasconfig:remote.*.url:git@gitlab.cc-asp.fraunhofer.de:*/**"]
     path = .gitconfig-gitlab
 [user]
-        signingkey = 7A06D406296FBA44
+    signingkey = C844D1532E58D88C
