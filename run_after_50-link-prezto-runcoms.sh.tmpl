@@ -1,0 +1,34 @@
+#!/bin/zsh
+# Link Prezto runcoms after chezmoi applies custom configs
+# This ensures .zshrc and .zpreztorc overrides are in place
+
+{{- template "helpers.sh" . }}
+
+if [[ ! -d "${ZDOTDIR:-{{ .chezmoi.homeDir }}}/.zprezto" ]]; then
+    warn "Prezto not installed, skipping runcom linking"
+    exit 0
+fi
+
+progress "Prezto runcoms"
+
+setopt EXTENDED_GLOB
+local success_flag=true
+
+# Link prezto runcoms (but don't override files managed by chezmoi)
+for rcfile in "${ZDOTDIR:-{{ .chezmoi.homeDir }}}"/.zprezto/runcoms/^README.md(.N); do
+    local dest="${ZDOTDIR:-{{ .chezmoi.homeDir }}}/.$rcfile:t"
+
+    # Skip if file is managed by chezmoi (will be .zshrc and .zpreztorc)
+    if [[ "$rcfile:t" == "zshrc" ]] || [[ "$rcfile:t" == "zpreztorc" ]]; then
+        continue
+    fi
+
+    link_file "$rcfile" "$dest" || success_flag=false
+done
+
+if [[ "$success_flag" == true ]]; then
+    finish
+else
+    failed
+    exit 1
+fi

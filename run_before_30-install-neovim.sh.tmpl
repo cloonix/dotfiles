@@ -1,0 +1,35 @@
+#!/bin/zsh
+# Install and configure Neovim
+# This script reruns when nvim config changes
+# hash: {{ include "dot_config/nvim/init.lua" | sha256sum }}
+
+{{- template "helpers.sh" . }}
+
+if ! command -v nvim >/dev/null 2>&1; then
+    warn "nvim not found, skipping"
+    exit 0
+fi
+
+# Check nvim version
+version=$(nvim --version | head -n1 | grep -o 'v[0-9]\+\.[0-9]\+' | sed 's/v//')
+major=$(echo "$version" | cut -d. -f1)
+minor=$(echo "$version" | cut -d. -f2)
+
+if (( major == 0 && minor < 11 )); then
+    warn "nvim $version < 0.11, skipping"
+    exit 0
+fi
+
+progress "Neovim"
+
+if rm -rf {{ .chezmoi.homeDir }}/.local/state/nvim \
+          {{ .chezmoi.homeDir }}/.local/share/nvim \
+          {{ .chezmoi.homeDir }}/.local/cache/nvim 2>/dev/null && \
+   nvim --headless -c "Lazy! sync" -c "qa" >/dev/null 2>&1; then
+    # Install Mason tools if MasonInstallAll command exists
+    nvim --headless -c "MasonInstallAll" -c "qa" >/dev/null 2>&1 || true
+    finish
+else
+    failed
+    exit 1
+fi

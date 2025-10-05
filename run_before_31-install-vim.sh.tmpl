@@ -1,0 +1,25 @@
+#!/bin/zsh
+# Install and configure Vim
+# This script reruns when .vimrc changes
+# hash: {{ include "dot_vimrc" | sha256sum }}
+
+{{- template "helpers.sh" . }}
+
+if ! command -v vim >/dev/null 2>&1; then
+    warn "vim not found, skipping"
+    exit 0
+fi
+
+progress "Vim"
+
+if { [[ -d "{{ .chezmoi.homeDir }}/git/iceberg.vim" ]] || \
+     git clone https://github.com/cocopon/iceberg.vim.git "{{ .chezmoi.homeDir }}/git/iceberg.vim" >/dev/null 2>&1; } && \
+   link_file "{{ .chezmoi.homeDir }}/git/iceberg.vim/colors/iceberg.vim" "{{ .chezmoi.homeDir }}/.vim/colors/iceberg.vim" && \
+   curl -fLo "{{ .chezmoi.homeDir }}/.vim/autoload/plug.vim" --create-dirs \
+     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim >/dev/null 2>&1 && \
+   vim +'PlugInstall --sync' +qa >/dev/null 2>&1; then
+    finish
+else
+    failed
+    exit 1
+fi
