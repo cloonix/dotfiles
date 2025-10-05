@@ -1,0 +1,10 @@
+#!/bin/zsh
+
+if [[ ! -d ${ZDOTDIR:-{{ .chezmoi.homeDir }}}/.zprezto ]]; then
+    git clone --recursive https://github.com/sorin-ionescu/prezto.git ${ZDOTDIR:-{{ .chezmoi.homeDir }}}/.zprezto >/dev/null 2>&1
+fi
+
+setopt EXTENDED_GLOB
+for rcfile in ${ZDOTDIR:-{{ .chezmoi.homeDir }}}/.zprezto/runcoms/^README.md(.N); do
+    ln -sf $rcfile ${ZDOTDIR:-{{ .chezmoi.homeDir }}}/.$rcfile:t
+done

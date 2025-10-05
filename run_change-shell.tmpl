@@ -1,0 +1,6 @@
+#!/bin/zsh
+
+zsh_path=$(which zsh)
+if [[ -n "$zsh_path" && "$SHELL" != "$zsh_path" ]]; then
+    chsh -s "$zsh_path" >/dev/null 2>&1 || sudo chsh -s "$zsh_path" "$USER" >/dev/null 2>&1
+fi
