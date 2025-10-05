@@ -1,0 +1,41 @@
+[push]
+	default = simple
+
+[alias]
+	co = checkout
+  st = status
+	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+
+[log]
+  date = relative
+[format]
+	pretty = format:%C(auto,yellow)%h%C(auto,magenta)% G? %C(auto,white)%>(12,trunc)%ad %C(auto,green)%<(12,trunc)%aN %C(auto,reset)%s%C(auto,red)% gD% D
+
+[init]
+	defaultBranch = main
+[core]
+	excludeFile = .gitignore
+
+{{- if lookPath "nvim" }}
+	editor = nvim
+{{- else if lookPath "vim" }}
+	editor = vim
+{{- else }}
+	editor = nano
+{{- end }}
+
+[pull]
+	rebase = false
+[commit]
+	gpgsign = false
+
+[user]
+  signingkey = C844D1532E58D88C
+  name = Claus Malter
+  email = gpg@cmmx.de
+
+# Load domain-specific configs
+[includeIf "hasconfig:remote.*.url:git@github.com:*/**"]
+    path = .gitconfig-github
+[includeIf "hasconfig:remote.*.url:git@gitlab.cc-asp.fraunhofer.de:*/**"]
+    path = .gitconfig-gitlab
