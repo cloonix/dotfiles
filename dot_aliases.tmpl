@@ -1,0 +1,8 @@
+# Only set aliases if nvim is installed
+{{ if lookPath "nvim" }}
+alias vi="nvim"
+alias vim="nvim"
+alias view="nvim -R"
+{{ end }}
+
+alias gitpullall='for d in ~/git/*/.git; do (cd "${d%/.git}" && echo "Updating $(basename "$PWD")" && git pull); done'
