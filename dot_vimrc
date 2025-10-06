@@ -170,6 +170,16 @@ abbr funtcion function
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Security settings
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Disable temporary files for sensitive data (gopass, etc.)
+" vim on Linux
+autocmd BufNewFile,BufRead /dev/shm/gopass* setlocal noswapfile nobackup noundofile viminfo=""
+" vim on MacOS
+autocmd BufNewFile,BufRead /private/**/gopass** setlocal noswapfile nobackup noundofile viminfo=""
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Functions
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
