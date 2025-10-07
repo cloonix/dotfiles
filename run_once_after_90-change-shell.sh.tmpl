@@ -4,32 +4,25 @@
 {{- template "helpers.sh" . }}
 
 if ! command -v zsh >/dev/null 2>&1; then
-    warn "zsh not found, skipping shell change"
+    warn "zsh not found, skipping"
     exit 0
 fi
 
-zsh_path=$(which zsh)
+zsh_path=$(command -v zsh)
+current_shell="$SHELL"
 
-# Determine current shell
-current_shell=""
-if command -v getent >/dev/null 2>&1; then
-    current_shell=$(getent passwd "$USER" | cut -d: -f7)
-else
-    current_shell=$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')
+if [[ "$current_shell" == "$zsh_path" ]]; then
+    success "Shell is already zsh"
+    exit 0
 fi
 
-if [[ "$current_shell" != "$zsh_path" ]]; then
-    progress "Shell"
-    log "Changing shell to zsh ($zsh_path)"
+progress "Shell"
 
-    if chsh -s "$zsh_path" >/dev/null 2>&1 || sudo chsh -s "$zsh_path" "$USER" >/dev/null 2>&1; then
-        finish
-        success "Shell changed to zsh. Please log out and log back in for changes to take effect."
-    else
-        failed
-        warn "Could not change shell. You may need to do this manually: chsh -s $zsh_path"
-        exit 1
-    fi
+if chsh -s "$zsh_path" >/dev/null 2>&1; then
+    finish
+    success "Shell changed. Log out and back in for changes to take effect."
 else
-    success "Shell is already zsh"
+    failed
+    warn "Could not change shell. Try manually: chsh -s $zsh_path"
+    exit 1
 fi

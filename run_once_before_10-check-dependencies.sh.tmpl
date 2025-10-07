@@ -3,22 +3,10 @@
 
 {{- template "helpers.sh" . }}
 
-# Check dependencies with platform-specific install instructions
 check_dependencies() {
     local required=("$@")
     local missing=()
-    local platform
 
-    # Detect platform
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        platform="macos"
-    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        platform="linux"
-    else
-        platform="unknown"
-    fi
-
-    # Check each binary
     for bin in "${required[@]}"; do
         if command -v "$bin" >/dev/null 2>&1; then
             success "$bin found"
@@ -31,51 +19,40 @@ check_dependencies() {
     if (( ${#missing[@]} > 0 )); then
         echo -e "\n${RED}❌ Missing dependencies:${NC}"
         printf '  - %s\n' "${missing[@]}"
-
         echo -e "\n${CYAN}${BOLD}=== Installation Instructions ===${NC}"
 
-        case $platform in
-            "macos")
-                echo -e "${GREEN}macOS (Homebrew):${NC}"
-                echo "  brew install ${missing[*]}"
-                ;;
-            "linux")
-                echo -e "${GREEN}Ubuntu/Debian:${NC}"
-                echo "  sudo apt update && sudo apt install ${missing[*]}"
-                echo -e "\n${GREEN}CentOS/RHEL/Fedora:${NC}"
-                echo "  sudo yum install ${missing[*]}"
-                echo "  # or: sudo dnf install ${missing[*]}"
-                ;;
-            *)
-                echo -e "${YELLOW}Platform-specific installation:${NC}"
-                echo "  Please install: ${missing[*]}"
-                ;;
-        esac
-
+{{- if eq .chezmoi.os "darwin" }}
+        echo -e "${GREEN}macOS (Homebrew):${NC}"
+        echo "  brew install ${missing[*]}"
+{{- else if eq .chezmoi.os "linux" }}
+        echo -e "${GREEN}Ubuntu/Debian:${NC}"
+        echo "  sudo apt update && sudo apt install ${missing[*]}"
+        echo -e "\n${GREEN}CentOS/RHEL/Fedora:${NC}"
+        echo "  sudo yum install ${missing[*]}"
+{{- else }}
+        echo -e "${YELLOW}Please install: ${missing[*]}${NC}"
+{{- end }}
         echo ""
         return 1
     fi
-
     return 0
 }
 
 header "Checking Dependencies"
 
-# Check required binaries
 check_dependencies git curl vim tmux zsh
 
-# Check optional nvim and related tools
-if command -v nvim >/dev/null 2>&1; then
-    local version=$(nvim --version | head -n1 | grep -o 'v[0-9]\+\.[0-9]\+' | sed 's/v//')
-    local major=$(echo "$version" | cut -d. -f1)
-    local minor=$(echo "$version" | cut -d. -f2)
+{{- if lookPath "nvim" }}
+version=$(nvim --version | head -n1 | grep -o 'v[0-9]\+\.[0-9]\+' | sed 's/v//')
+major=$(echo "$version" | cut -d. -f1)
+minor=$(echo "$version" | cut -d. -f2)
 
-    if (( major > 0 || (major == 0 && minor >= 11) )); then
-        check_dependencies fzf fd
-        success "nvim $version ready"
-    else
-        warn "nvim $version < 0.11, skipping nvim setup"
-    fi
+if (( major > 0 || (major == 0 && minor >= 11) )); then
+    check_dependencies fzf fd
+    success "nvim $version ready"
 else
-    warn "nvim not found, skipping nvim setup"
+    warn "nvim $version < 0.11, skipping"
 fi
+{{- else }}
+warn "nvim not found, skipping"
+{{- end }}

@@ -1,3 +1,4 @@
+{{ if lookPath "tmux" -}}
 #!/bin/zsh
 # Install and configure Tmux
 # This script reruns when .tmux.conf changes
@@ -5,23 +6,21 @@
 
 {{- template "helpers.sh" . }}
 
-if ! command -v tmux >/dev/null 2>&1; then
-    warn "tmux not found, skipping"
-    exit 0
-fi
-
 progress "Tmux"
 
-if { [[ -d "{{ .chezmoi.homeDir }}/.tmux/plugins/tpm" ]] || \
-     git clone https://github.com/tmux-plugins/tpm "{{ .chezmoi.homeDir }}/.tmux/plugins/tpm" >/dev/null 2>&1; } && \
-   tmux start-server >/dev/null 2>&1 && \
+tpm_dir="{{ .chezmoi.homeDir }}/.tmux/plugins/tpm"
+
+[[ -d "$tpm_dir" ]] || git clone https://github.com/tmux-plugins/tpm "$tpm_dir" >/dev/null 2>&1
+
+if tmux start-server >/dev/null 2>&1 && \
    tmux new-session -d >/dev/null 2>&1 && \
    sleep 1 && \
    tmux source "{{ .chezmoi.homeDir }}/.tmux.conf" >/dev/null 2>&1 && \
-   "{{ .chezmoi.homeDir }}/.tmux/plugins/tpm/scripts/install_plugins.sh" >/dev/null 2>&1 && \
+   "$tpm_dir/scripts/install_plugins.sh" >/dev/null 2>&1 && \
    tmux kill-server >/dev/null 2>&1; then
     finish
 else
     failed
     exit 1
 fi
+{{ end -}}

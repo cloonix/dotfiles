@@ -1,0 +1,17 @@
+{{ if lookPath "yazi" -}}
+#!/bin/zsh
+# Install and configure Yazi
+# This script reruns when yazi config changes
+# hash: {{ include "dot_config/yazi/init.lua" | sha256sum }}
+
+{{- template "helpers.sh" . }}
+
+progress "Yazi"
+
+if ya pkg install >/dev/null 2>&1 && yazi --clear-cache >/dev/null 2>&1; then
+    finish
+else
+    failed
+    exit 1
+fi
+{{ end -}}

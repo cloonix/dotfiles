@@ -1,24 +1,29 @@
+{{ if lookPath "zsh" -}}
 #!/bin/zsh
-# Install Zsh with Prezto
-# Runs before chezmoi applies config files
+# Install and update Zsh Prezto
 
 {{- template "helpers.sh" . }}
 
-if ! command -v zsh >/dev/null 2>&1; then
-    warn "zsh not found, skipping"
-    exit 0
-fi
-
 progress "Zsh/Prezto"
 
-# Clone Prezto if not present
-if [[ ! -d "${ZDOTDIR:-{{ .chezmoi.homeDir }}}/.zprezto" ]]; then
-    if git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-{{ .chezmoi.homeDir }}}/.zprezto" >/dev/null 2>&1; then
+prezto_dir="${ZDOTDIR:-{{ .chezmoi.homeDir }}}/.zprezto"
+
+if [[ -d "$prezto_dir" ]]; then
+    if cd "$prezto_dir" && \
+       git pull >/dev/null 2>&1 && \
+       git submodule sync --recursive >/dev/null 2>&1 && \
+       git submodule update --init --recursive >/dev/null 2>&1; then
         finish
     else
         failed
         exit 1
     fi
 else
-    success "Prezto already installed"
+    if git clone --recursive https://github.com/sorin-ionescu/prezto.git "$prezto_dir" >/dev/null 2>&1; then
+        finish
+    else
+        failed
+        exit 1
+    fi
 fi
+{{ end -}}

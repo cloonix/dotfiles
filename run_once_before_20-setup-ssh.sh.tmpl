@@ -7,17 +7,17 @@ header "SSH Setup"
 echo -n "GitHub username (or skip): "
 read github_username
 
-[[ -z "$github_username" ]] && { warn "Skipping SSH setup"; exit 0; }
+[[ -z "$github_username" ]] && { warn "Skipping"; exit 0; }
 
-local ssh_dir="{{ .chezmoi.homeDir }}/.ssh"
-local auth_file="$ssh_dir/authorized_keys"
+ssh_dir="{{ .chezmoi.homeDir }}/.ssh"
+auth_file="$ssh_dir/authorized_keys"
 
 mkdir -p "$ssh_dir"
 
 if curl -fsSL "https://github.com/$github_username.keys" -o /tmp/github_keys 2>/dev/null && [[ -s /tmp/github_keys ]]; then
     [[ -f "$auth_file" ]] && cp "$auth_file" "${auth_file}.backup.$(date +%s)"
 
-    local added=0
+    added=0
     while IFS= read -r key; do
         if [[ -n "$key" ]] && ! grep -Fxq "$key" "$auth_file" 2>/dev/null; then
             echo "$key" >> "$auth_file"
