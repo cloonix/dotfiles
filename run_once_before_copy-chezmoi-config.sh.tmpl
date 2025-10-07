@@ -1,0 +1,6 @@
+#!/bin/bash
+
+{{- if lookPath "gopass" }}
+# Copy chezmoi.toml from gopass
+gopass fscopy config/chezmoi.toml ~/.config/chezmoi/chezmoi.toml
+{{- end }}
