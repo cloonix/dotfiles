@@ -1,0 +1,14 @@
+{{- $email := promptStringOnce . "email" "Personal email address" -}}
+{{- $signingkey := promptStringOnce . "signingkey" "GPG signing key ID" -}}
+{{- $name := promptStringOnce . "name" "Full name" -}}
+{{- $github_email := promptStringOnce . "github_email" "GitHub noreply email" -}}
+{{- $gitlab_email := promptStringOnce . "gitlab_email" "GitLab noreply email" -}}
+{{- $gitlab_domain := promptStringOnce . "gitlab_domain" "GitLab domain (e.g., gitlab.example.com)" -}}
+
+[data]
+    email = {{ $email | quote }}
+    signingkey = {{ $signingkey | quote }}
+    name = {{ $name | quote }}
+    github_email = {{ $github_email | quote }}
+    gitlab_email = {{ $gitlab_email | quote }}
+    gitlab_domain = {{ $gitlab_domain | quote }}

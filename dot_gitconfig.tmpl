@@ -30,12 +30,12 @@
 	gpgsign = false
 
 [user]
-  signingkey = C844D1532E58D88C
-  name = Claus Malter
-  email = gpg@cmmx.de
+  signingkey = {{ .signingkey }}
+  name = {{ .name }}
+  email = {{ .email }}
 
 # Load domain-specific configs
 [includeIf "hasconfig:remote.*.url:git@github.com:*/**"]
     path = .gitconfig-github
-[includeIf "hasconfig:remote.*.url:git@gitlab.cc-asp.fraunhofer.de:*/**"]
+[includeIf "hasconfig:remote.*.url:git@{{ .gitlab_domain }}:*/**"]
     path = .gitconfig-gitlab
