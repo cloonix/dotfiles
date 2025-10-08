@@ -1,5 +1,15 @@
 {{ if lookPath "gopass" -}}
-gopass config show.safecontent true
-gopass config show.autoclip true"
-gopass config core.notifications false
+#!/bin/zsh
+# Set gopass configuration
+
+{{- template "helpers.sh" . }}
+
+progress "Set gopass config"
+
+gopass config show.safecontent true >/dev/null 2>&1
+gopass config show.autoclip true >/dev/null 2>&1
+gopass config core.notifications false >/dev/null 2>&1
+
+finish
+
 {{ end -}}
