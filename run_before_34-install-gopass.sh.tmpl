@@ -10,6 +10,10 @@ gopass config show.safecontent true >/dev/null 2>&1
 gopass config show.autoclip true >/dev/null 2>&1
 gopass config core.notifications false >/dev/null 2>&1
 
+# Configure multiple push remotes
+gopass git remote set-url --add --push origin {{ .gopass_push_url_1 | quote }} >/dev/null 2>&1
+gopass git remote set-url --add --push origin {{ .gopass_push_url_2 | quote }} >/dev/null 2>&1
+
 finish
 
 {{ end -}}

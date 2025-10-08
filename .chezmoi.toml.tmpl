@@ -4,6 +4,8 @@
 {{- $github_email := promptStringOnce . "github_email" "GitHub noreply email" -}}
 {{- $gitlab_email := promptStringOnce . "gitlab_email" "GitLab noreply email" -}}
 {{- $gitlab_domain := promptStringOnce . "gitlab_domain" "GitLab domain (e.g., gitlab.example.com)" -}}
+{{- $gopass_push_url_1 := promptStringOnce . "gopass_push_url_1" "Gopass first push repository URL" -}}
+{{- $gopass_push_url_2 := promptStringOnce . "gopass_push_url_2" "Gopass second push repository URL" -}}
 
 [data]
     email = {{ $email | quote }}
@@ -12,3 +14,5 @@
     github_email = {{ $github_email | quote }}
     gitlab_email = {{ $gitlab_email | quote }}
     gitlab_domain = {{ $gitlab_domain | quote }}
+    gopass_push_url_1 = {{ $gopass_push_url_1 | quote }}
+    gopass_push_url_2 = {{ $gopass_push_url_2 | quote }}
