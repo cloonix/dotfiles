@@ -22,7 +22,7 @@ if chsh -s "$zsh_path" >/dev/null 2>&1; then
     finish
     success "Shell changed. Log out and back in for changes to take effect."
 else
-    failed
-    warn "Could not change shell. Try manually: chsh -s $zsh_path"
-    exit 1
+    finish
+    warn "Could not change shell automatically. Try manually: chsh -s $zsh_path"
+    exit 0
 fi
