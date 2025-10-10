@@ -1,0 +1,47 @@
+#!/bin/zsh
+# Install basic tools required by dotfile templates
+
+{{- template "helpers.sh" . }}
+
+header "Installing Basic Tools"
+
+# Install fastfetch
+if ! command -v fastfetch >/dev/null 2>&1; then
+    progress "fastfetch"
+{{- if eq .chezmoi.os "darwin" }}
+    if brew install fastfetch >/dev/null 2>&1; then
+{{- else if eq .chezmoi.os "linux" }}
+    if sudo apt-get update >/dev/null 2>&1 && sudo apt-get install -y fastfetch >/dev/null 2>&1; then
+{{- end }}
+        finish
+    else
+        failed
+        warn "Could not install fastfetch"
+    fi
+else
+    success "fastfetch already installed"
+fi
+
+{{- if eq .chezmoi.os "linux" }}
+# Install keychain (Linux only)
+if ! command -v keychain >/dev/null 2>&1; then
+    progress "keychain"
+    if sudo apt-get install -y keychain >/dev/null 2>&1; then
+        finish
+    else
+        failed
+        warn "Could not install keychain"
+    fi
+else
+    success "keychain already installed"
+fi
+{{- end }}
+
+# Check for optional tools and warn if missing
+{{- if not (lookPath "vivid") }}
+warn "vivid not found - LS_COLORS will use defaults"
+{{- end }}
+
+{{- if not (lookPath "gpg-connect-agent") }}
+warn "gpg-connect-agent not found - GPG agent won't auto-start"
+{{- end }}
