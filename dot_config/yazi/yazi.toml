@@ -1,0 +1,68 @@
+[mgr]
+show_hidden = false
+ratio = [1, 3, 4]
+linemode = "size_and_mtime"
+
+[preview]
+max_width = 2500
+max_height = 2500
+
+[plugin]
+[[plugin.prepend_previewers]]
+name = "*.md"
+run  = 'piper -- CLICOLOR_FORCE=1 glow -s ~/.config/yazi/glow/tokyo_night.json -w=$w "$1"'
+
+[[plugin.prepend_fetchers]]
+id   = "git"
+name = "*"
+run  = "git"
+
+[[plugin.prepend_fetchers]]
+id   = "git"
+name = "*/"
+run  = "git"
+
+[open]
+rules = [
+    { name = "*/", use = [ "edit", "code", "ncdu", "archive" ] },
+    { name = "*.{pdf,PDF}", use = [ "open_default", "reveal", "copy_path" ] },
+    { name = "*.{doc,docx,xls,xlsx,ppt,pptx,DOC,DOCX,XLS,XLSX,PPT,PPTX}", use = [ "open_default", "reveal", "copy_path" ] },
+    { name = "*.{7z,zip,rar,tar,gz,bz2,xz,Z}", use = [ "extract", "reveal", "copy_path" ] },
+    { name = "*", use = [ "edit", "code", "reveal", "archive", "copy_path" ] },
+]
+
+[opener]
+edit = [
+    { run = 'nvim "$@"', block = true, desc = "📝 Neovim", for = "macos" },
+    { run = 'command -v nvim >/dev/null && nvim "$@" || vim "$@"', block = true, desc = "📝 Editor", for = "linux" },
+]
+
+code = [
+    { run = 'code "$1"', orphan = true, desc = "💻 Visual Studio Code", for = "macos" },
+    { run = 'code "$1"', orphan = true, desc = "💻 Visual Studio Code", for = "unix" },
+]
+
+ncdu = [
+    { run = 'ncdu --color dark "$1"', block = true, desc = "Ncdu", for = "macos" },
+    { run = 'ncdu --color dark "$1"', block = true, desc = "Ncdu", for = "unix" },
+]
+
+reveal = [
+    { run = 'open -R "$1"', orphan = true, desc = "📁 Reveal in Finder", for = "macos" },
+]
+
+archive = [
+    { run = '7zz a "$1.7z" "$1" && echo "✅ Archived to $1.7z"', desc = "📦 Archive (7zip)", for = "macos" },
+]
+
+extract = [
+    { run = '7zz x "$1" -o"${1%.*}" && echo "✅ Extracted to ${1%.*}/"', desc = "📦 Extract Archive", for = "macos" },
+]
+
+copy_path = [
+    { run = 'echo "$1" | pbcopy && echo "📋 Path copied to clipboard"', orphan = true, desc = "📋 Copy Path", for = "macos" },
+]
+
+open_default = [
+    { run = 'open "$1"', orphan = true, desc = "🚀 Open with Default App", for = "macos" },
+]

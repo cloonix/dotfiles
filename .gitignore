@@ -1,0 +1,31 @@
+# Editor/IDE temp files
+*.swp
+*.swo
+*~
+.*.swo
+.*.swp
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Backup files
+*.bak
+*.backup
+*.tmp
+
+# Neovim/Vim runtime
+.nvimrc.local
+.vimrc.local
+
+# IDE settings
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
+
+# Chezmoi generated config (contains secrets)
+.chezmoi.toml
+.chezmoi.toml.*

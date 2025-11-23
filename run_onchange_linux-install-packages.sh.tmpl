@@ -1,0 +1,55 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Install packages on Linux (APT + Homebrew)
+# hash: {{ include ".chezmoidata/packages.yaml" | sha256sum }}
+
+set -e
+
+echo "📦 Installing Linux Packages"
+
+# Install APT packages
+{{ if .packages.linux.apt -}}
+if command -v apt-get >/dev/null 2>&1; then
+    echo "Updating APT package list..."
+    sudo apt-get update -qq
+    
+    echo "Installing APT packages..."
+    sudo apt-get install -y {{ range .packages.linux.apt }}{{ . }} {{ end }}
+    echo "✓ APT packages installed"
+else
+    echo "⚠ APT not found, skipping APT packages"
+fi
+{{ end -}}
+
+# Install Homebrew if not present
+{{ if or .packages.linux.brews .packages.linux.casks -}}
+if ! command -v brew >/dev/null 2>&1; then
+    echo "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    
+    # Add Homebrew to PATH
+    if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    fi
+    echo "✓ Homebrew installed"
+else
+    echo "✓ Homebrew already installed"
+fi
+
+# Install Homebrew packages
+if command -v brew >/dev/null 2>&1; then
+    echo "Installing Homebrew packages..."
+    brew bundle --file=/dev/stdin <<EOF
+{{ range .packages.linux.brews -}}
+brew {{ . | quote }}
+{{ end -}}
+{{ range .packages.linux.casks -}}
+cask {{ . | quote }}
+{{ end -}}
+EOF
+    echo "✓ Homebrew packages installed"
+fi
+{{ end -}}
+
+echo "✓ All packages installed successfully"
+{{ end -}}

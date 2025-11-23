@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -e
+
+echo "📦 Framework configuration"
+
+# Setup/Update Zsh Prezto
+echo "Configuring Zsh Prezto..."
+prezto_dir="${ZDOTDIR:-{{ .chezmoi.homeDir }}}/.zprezto"
+
+if [ -d "$prezto_dir" ]; then
+    cd "$prezto_dir"
+    git pull --quiet
+    git submodule update --init --recursive --quiet
+    echo "✓ Prezto updated"
+else
+    git clone --recursive --quiet https://github.com/sorin-ionescu/prezto.git "$prezto_dir"
+    echo "✓ Prezto installed"
+fi
+
+# Configure gopass (runtime check)
+if command -v gopass >/dev/null 2>&1; then
+    echo "Configuring gopass..."
+    gopass config show.safecontent true >/dev/null 2>&1
+    gopass config show.autoclip false >/dev/null 2>&1
+    gopass config core.notifications false >/dev/null 2>&1
+
+    # Configure push remotes
+    gopass git remote set-url --add --push origin {{ .gopass_push_url_1 | quote }} >/dev/null 2>&1
+    gopass git remote set-url --add --push origin {{ .gopass_push_url_2 | quote }} >/dev/null 2>&1
+    echo "✓ gopass configured"
+else
+    echo "ℹ gopass not found, skipping gopass configuration"
+fi
+
+echo "✓ Framework configuration complete"

@@ -1,0 +1,50 @@
+packages:
+  darwin:
+    brews:
+      - "opencode"
+      - "ansible"
+      - "btop"
+      - "curl"
+      - "dstask"
+      - "fastfetch"
+      - "git"
+      - "fd"
+      - "fzf"
+      - "glow"
+      - "go"
+      - "gopass"
+      - "hcloud"
+      - "hugo"
+      - "logrotate"
+      - "ncdu"
+      - "neovim"
+      - "nmap"
+      - "sevenzip"
+      - "syncthing"
+      - "vivid"
+      - "yazi"
+      - "zellij"
+      - "zsh"
+    casks:
+      - "claude-code"
+
+  linux:
+    apt:
+      - "tmux"
+      - "git"
+      - "curl"
+      - "build-essential"
+      - "keychain"
+    brews:
+      - "opencode"
+      - "fastfetch"
+      - "dstask"
+      - "go"
+      - "ncdu"
+      - "neovim"
+      - "vivid"
+      - "yazi"
+      - "zellij"
+      - "zsh"
+    casks:
+      - "claude-code"

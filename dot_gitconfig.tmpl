@@ -1,0 +1,56 @@
+[push]
+	default = simple
+
+[alias]
+	co = checkout
+	st = status
+
+	# One line format with graph
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+
+	# More detailed with dates
+	ll = log --pretty=format:'%C(yellow)%h%Cred%d %Creset%s%Cblue [%cn]' --decorate --numstat
+
+	# Simple one-liner
+	ls = log --pretty=format:'%C(yellow)%h %C(blue)%ad%C(red)%d %Creset%s%C(green) [%cn]' --decorate --date=short
+
+	# Detailed log with graph
+	lol = log --graph --decorate --pretty=oneline --abbrev-commit
+	lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+
+	# Show commits with changed files
+	lf = log --pretty=format:'%C(yellow)%h%Creset %C(white)%s%Creset %C(cyan)%cr%Creset %C(green)%an%Creset' --name-status
+
+[log]
+  date = relative
+[format]
+	pretty = format:%C(auto,yellow)%h%C(auto,magenta)% G? %C(auto,white)%>(12,trunc)%ad %C(auto,green)%<(12,trunc)%aN %C(auto,reset)%s%C(auto,red)% gD% D
+
+[init]
+	defaultBranch = main
+[core]
+	excludeFile = .gitignore
+
+{{- if lookPath "nvim" }}
+	editor = nvim
+{{- else if lookPath "vim" }}
+	editor = vim
+{{- else }}
+	editor = nano
+{{- end }}
+
+[pull]
+	rebase = false
+[commit]
+	gpgsign = false
+
+[user]
+  signingkey = {{ .signingkey | quote }}
+  name = {{ .name | quote }}
+  email = {{ .email | quote }}
+
+# Load domain-specific configs
+[includeIf "hasconfig:remote.*.url:git@github.com:*/**"]
+    path = .gitconfig-github
+[includeIf "hasconfig:remote.*.url:git@{{ .gitlab_domain }}:*/**"]
+    path = .gitconfig-gitlab

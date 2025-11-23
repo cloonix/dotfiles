@@ -1,0 +1,29 @@
+alias vi="nvim"
+alias vim="nvim"
+alias view="nvim -R"
+
+alias gitpullall='for d in ~/git/*/.git; do (cd "${d%/.git}" && echo "Updating $(basename "$PWD")" && git pull); done'
+
+# dstask aliases (runtime check)
+if command -v dstask >/dev/null 2>&1; then
+    alias t="dstask"
+    alias ta="dstask add"
+    alias tc="dstask context"
+    alias tcc="dstask context --"
+    alias td="dstask done"
+    alias te="dstask edit"
+    alias th="dstask help"
+    alias tl="dstask log"
+    alias tm="dstask modify"
+    alias tn="dstask note"
+    alias to="dstask open"
+    alias tr="dstask remove"
+    alias tsp="dstask show-projects"
+    alias tst="dstask show-tags"
+    alias tsa="dstask show-active"
+    alias tso="dstask show-open"
+    alias tsr="dstask show-resolved"
+    alias tsu="dstask show-unorganised"
+fi
+
+alias pass=gopass

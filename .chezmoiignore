@@ -1,0 +1,4 @@
+# Ignore the generated .chezmoi.toml (contains sensitive data)
+.chezmoi.toml
+
+README.md
