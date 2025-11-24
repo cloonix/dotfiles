@@ -4,6 +4,16 @@
   "theme": "gruvbox",
   "model": "anthropic/claude-sonnet-4.5",
   "agent": {
+    "security-check": {
+      "description": "Check code for security issues and unwilling exposed sensitive data",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-5",
+      "prompt": "You are a software security expert. Focus on security and sensitive data before a public commit happens",
+      "tools": {
+        "write": false,
+        "edit": false
+      }
+    },
     "code-reviewer": {
       "description": "Reviews code for best practices and potential issues",
       "mode": "subagent",
