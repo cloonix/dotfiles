@@ -40,10 +40,13 @@ if command -v gpg-connect-agent >/dev/null 2>&1; then
   gpg-connect-agent updatestartuptty /bye &> /dev/null
 fi
 
+{{- $profile := .profile | default "dev" }}
+{{- if or (eq $profile "dev") (eq $profile "mac") }}
 # Display system info with fastfetch if available
 if command -v fastfetch >/dev/null 2>&1; then
   fastfetch
 fi
+{{- end }}
 
 # ========================================
 # Prompt Configuration
@@ -85,10 +88,12 @@ if [[ -d "$HOME/.local/bin" ]] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; the
   export PATH="$PATH:$HOME/.local/bin"
 fi
 
-# Add go bin to PATH
+{{- if or (eq $profile "dev") (eq $profile "mac") }}
+# Add go bin to PATH (dev/mac profiles only)
 if [[ -d "$HOME/go/bin" ]] && [[ ":$PATH:" != *":$HOME/go/bin:"* ]]; then
   export PATH="$PATH:$HOME/go/bin"
 fi
+{{- end }}
 
 # Set LS_COLORS with vivid (if available)
 if command -v vivid >/dev/null 2>&1; then

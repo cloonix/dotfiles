@@ -1,0 +1,4 @@
+{{- $profile := .profile | default "dev" }}
+{{- if eq $profile "basic" }}
+*
+{{- end }}

@@ -1,50 +1,109 @@
 packages:
-  darwin:
-    brews:
-      - "opencode"
-      - "ansible"
-      - "btop"
-      - "curl"
-      - "dstask"
-      - "fastfetch"
-      - "git"
-      - "fd"
-      - "fzf"
-      - "glow"
-      - "go"
-      - "gopass"
-      - "hcloud"
-      - "hugo"
-      - "logrotate"
-      - "ncdu"
-      - "neovim"
-      - "nmap"
-      - "sevenzip"
-      - "syncthing"
-      - "vivid"
-      - "yazi"
-      - "zellij"
-      - "zsh"
-    casks:
-      - "claude-code"
+  # Basic profile - minimal setup for any machine
+  basic:
+    darwin:
+      brews:
+        - "git"
+        - "curl"
+        - "zsh"
+        - "glow"
+        - "fastfetch"
+      casks: []
+    
+    linux:
+      apt:
+        - "git"
+        - "curl"
+        - "zsh"
+      brews:
+        - "glow"
+        - "fastfetch"
+      casks: []
 
-  linux:
-    apt:
-      - "tmux"
-      - "git"
-      - "curl"
-      - "build-essential"
-      - "keychain"
-    brews:
-      - "opencode"
-      - "fastfetch"
-      - "dstask"
-      - "go"
-      - "ncdu"
-      - "neovim"
-      - "vivid"
-      - "yazi"
-      - "zellij"
-      - "zsh"
-    casks:
-      - "claude-code"
+  # Dev profile - full development environment for Linux servers/workstations
+  dev:
+    darwin:
+      brews:
+        - "opencode"
+        - "ansible"
+        - "btop"
+        - "curl"
+        - "dstask"
+        - "fastfetch"
+        - "git"
+        - "fd"
+        - "fzf"
+        - "glow"
+        - "go"
+        - "gopass"
+        - "hcloud"
+        - "hugo"
+        - "logrotate"
+        - "ncdu"
+        - "neovim"
+        - "nmap"
+        - "sevenzip"
+        - "syncthing"
+        - "vivid"
+        - "yazi"
+        - "zellij"
+        - "zsh"
+      casks:
+        - "claude-code"
+    
+    linux:
+      apt:
+        - "tmux"
+        - "git"
+        - "curl"
+        - "build-essential"
+        - "keychain"
+      brews:
+        - "opencode"
+        - "fastfetch"
+        - "dstask"
+        - "go"
+        - "ncdu"
+        - "neovim"
+        - "vivid"
+        - "yazi"
+        - "zellij"
+        - "zsh"
+      casks:
+        - "claude-code"
+
+  # Mac profile - macOS-specific with GUI apps and tools
+  mac:
+    darwin:
+      brews:
+        - "opencode"
+        - "ansible"
+        - "btop"
+        - "curl"
+        - "dstask"
+        - "fastfetch"
+        - "git"
+        - "fd"
+        - "fzf"
+        - "glow"
+        - "go"
+        - "gopass"
+        - "hcloud"
+        - "hugo"
+        - "logrotate"
+        - "ncdu"
+        - "neovim"
+        - "nmap"
+        - "sevenzip"
+        - "syncthing"
+        - "vivid"
+        - "yazi"
+        - "zellij"
+        - "zsh"
+      casks:
+        - "claude-code"
+    
+    linux:
+      apt: []
+      brews: []
+      casks: []

@@ -2,10 +2,13 @@
 #!/usr/bin/env bash
 # Install Homebrew packages on macOS
 # hash: {{ include ".chezmoidata/packages.yaml" | sha256sum }}
+# profile: {{ .profile | default "dev" }}
 
 set -e
 
-echo "📦 Installing macOS Packages"
+{{- $profile := .profile | default "dev" }}
+
+echo "📦 Installing macOS Packages (Profile: {{ $profile }})"
 
 # Install Homebrew if not present
 if ! command -v brew >/dev/null 2>&1; then
@@ -21,13 +24,13 @@ else
     echo "✓ Homebrew already installed"
 fi
 
-# Install packages
-echo "Installing Homebrew packages..."
+# Install packages for selected profile
+echo "Installing Homebrew packages for {{ $profile }} profile..."
 brew bundle --file=/dev/stdin <<EOF
-{{ range .packages.darwin.brews -}}
+{{ range (index .packages $profile "darwin").brews -}}
 brew {{ . | quote }}
 {{ end -}}
-{{ range .packages.darwin.casks -}}
+{{ range (index .packages $profile "darwin").casks -}}
 cask {{ . | quote }}
 {{ end -}}
 EOF
