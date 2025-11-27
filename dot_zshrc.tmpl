@@ -90,6 +90,11 @@ if [[ -d "$HOME/go/bin" ]] && [[ ":$PATH:" != *":$HOME/go/bin:"* ]]; then
   export PATH="$PATH:$HOME/go/bin"
 fi
 
+# opencode
+if [[ -d "{{ .chezmoi.homeDir }}/.opencode/bin" ]] && [[ ":$PATH:" != *":{{ .chezmoi.homeDir }}/.opencode/bin:"* ]]; then
+  export PATH="{{ .chezmoi.homeDir }}/.opencode/bin:$PATH"
+fi
+
 # Set LS_COLORS with vivid (if available)
 if command -v vivid >/dev/null 2>&1; then
   export LS_COLORS="$(vivid generate molokai)"
