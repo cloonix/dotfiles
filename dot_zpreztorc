@@ -29,6 +29,7 @@ zstyle ':prezto:*:*' color 'yes'
 
 # Set the Prezto modules to load (browse modules).
 # The order matters.
+# NOTE: 'prompt' module is disabled to use Starship instead
 zstyle ':prezto:load' pmodule \
   'environment' \
   'terminal' \
@@ -44,8 +45,7 @@ zstyle ':prezto:load' pmodule \
   'python' \
   'tmux' \
   'syntax-highlighting' \
-  'history-substring-search' \
-  'prompt'
+  'history-substring-search'
 
 #
 # Autosuggestions

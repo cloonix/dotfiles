@@ -46,19 +46,22 @@ if command -v fastfetch >/dev/null 2>&1; then
 fi
 
 # ========================================
-# Prompt Configuration
+# Framework Configuration
 # ========================================
 
-# Enable Powerlevel10k instant prompt
-# Should stay close to the top of ~/.zshrc
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
-# Source Prezto
+# Source Prezto (must load before Starship)
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
+
+# ========================================
+# Prompt Configuration
+# ========================================
+
+# Initialize Starship prompt (after Prezto)
+{{- if lookPath "starship" }}
+eval "$(starship init zsh)"
+{{- end }}
 
 # ========================================
 # Completion Configuration
@@ -115,12 +118,7 @@ fi
 # History search keybinding
 bindkey '^R' history-incremental-search-backward
 
-# ========================================
-# Powerlevel10k Configuration
-# ========================================
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh
-[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
 
 # ========================================
 # End of Configuration
