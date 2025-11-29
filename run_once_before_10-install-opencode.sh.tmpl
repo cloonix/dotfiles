@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Install OpenCode via official installer
+
+if command -v opencode >/dev/null 2>&1; then
+    echo "✓ OpenCode already installed"
+    exit 0
+fi
+
+echo "📦 Installing OpenCode..."
+if curl -fsSL https://opencode.ai/install | bash; then
+    echo "✓ OpenCode installed"
+else
+    echo "✗ Failed to install OpenCode"
+    exit 1
+fi

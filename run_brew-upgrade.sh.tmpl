@@ -1,0 +1,12 @@
+{{ if lookPath "brew" -}}
+#!/usr/bin/env bash
+# Update and upgrade Homebrew packages
+
+echo "🍺 Updating Homebrew..."
+brew update
+
+echo "🍺 Upgrading packages..."
+brew upgrade
+
+echo "✓ Homebrew updated"
+{{ end -}}

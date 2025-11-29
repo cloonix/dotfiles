@@ -1,7 +1,6 @@
 packages:
   darwin:
     brews:
-      - "opencode"
       - "ansible"
       - "btop"
       - "curl"
@@ -38,7 +37,6 @@ packages:
       - "build-essential"
       - "keychain"
     brews:
-      - "opencode"
       - "fastfetch"
       - "dstask"
       - "go"
