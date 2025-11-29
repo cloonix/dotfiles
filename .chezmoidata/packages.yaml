@@ -36,7 +36,6 @@ packages:
         - "zsh"
         - "nmap"
       brews:
-        - "opencode"
         - "fastfetch"
         - "dstask"
         - "fd"
@@ -57,7 +56,6 @@ packages:
   mac:
     darwin:
       brews:
-        - "opencode"
         - "ansible"
         - "btop"
         - "curl"
