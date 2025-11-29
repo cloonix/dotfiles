@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
+# profile: {{ .profile | default "dev" }}
 
 set -e
+
+{{- $profile := .profile | default "dev" }}
 
 echo "📦 Framework configuration"
 
@@ -18,7 +21,8 @@ else
     echo "✓ Prezto installed"
 fi
 
-# Configure gopass (runtime check)
+{{- if or (eq $profile "dev") (eq $profile "mac") }}
+# Configure gopass (dev/mac profiles only)
 if command -v gopass >/dev/null 2>&1; then
     echo "Configuring gopass..."
     gopass config show.safecontent true >/dev/null 2>&1
@@ -32,5 +36,6 @@ if command -v gopass >/dev/null 2>&1; then
 else
     echo "ℹ gopass not found, skipping gopass configuration"
 fi
+{{- end }}
 
 echo "✓ Framework configuration complete"

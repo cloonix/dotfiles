@@ -2,19 +2,25 @@
 #!/usr/bin/env bash
 # Install packages on Linux (APT + Homebrew)
 # hash: {{ include ".chezmoidata/packages.yaml" | sha256sum }}
+# profile: {{ .profile | default "dev" }}
 
 set -e
 
-echo "📦 Installing Linux Packages"
+{{- $profile := .profile | default "dev" }}
+{{- $aptPackages := (index .packages $profile "linux").apt -}}
+{{- $brewPackages := (index .packages $profile "linux").brews -}}
+{{- $caskPackages := (index .packages $profile "linux").casks -}}
+
+echo "📦 Installing Linux Packages (Profile: {{ $profile }})"
 
 # Install APT packages
-{{ if .packages.linux.apt -}}
+{{ if $aptPackages -}}
 if command -v apt-get >/dev/null 2>&1; then
     echo "Updating APT package list..."
     sudo apt-get update -qq
     
     echo "Installing APT packages..."
-    sudo apt-get install -y {{ range .packages.linux.apt }}{{ . }} {{ end }}
+    sudo apt-get install -y {{ range $aptPackages }}{{ . }} {{ end }}
     echo "✓ APT packages installed"
 else
     echo "⚠ APT not found, skipping APT packages"
@@ -22,7 +28,7 @@ fi
 {{ end -}}
 
 # Install Homebrew if not present
-{{ if or .packages.linux.brews .packages.linux.casks -}}
+{{ if or $brewPackages $caskPackages -}}
 if ! command -v brew >/dev/null 2>&1; then
     echo "Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -40,10 +46,10 @@ fi
 if command -v brew >/dev/null 2>&1; then
     echo "Installing Homebrew packages..."
     brew bundle --file=/dev/stdin <<EOF
-{{ range .packages.linux.brews -}}
+{{ range $brewPackages -}}
 brew {{ . | quote }}
 {{ end -}}
-{{ range .packages.linux.casks -}}
+{{ range $caskPackages -}}
 cask {{ . | quote }}
 {{ end -}}
 EOF
