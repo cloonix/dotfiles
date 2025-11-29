@@ -7,9 +7,9 @@
 set -e
 
 {{- $profile := .profile | default "dev" }}
-{{- $aptPackages := (index .packages $profile "linux").apt -}}
-{{- $brewPackages := (index .packages $profile "linux").brews -}}
-{{- $caskPackages := (index .packages $profile "linux").casks -}}
+{{- $aptPackages := (index .packages $profile "linux").apt }}
+{{- $brewPackages := (index .packages $profile "linux").brews }}
+{{- $caskPackages := (index .packages $profile "linux").casks }}
 
 echo "📦 Installing Linux Packages (Profile: {{ $profile }})"
 
