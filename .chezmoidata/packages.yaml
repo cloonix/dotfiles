@@ -26,53 +26,30 @@ packages:
 
   # Dev profile - full development environment for Linux servers/workstations
   dev:
-    darwin:
-      brews:
-        - "opencode"
-        - "ansible"
-        - "btop"
-        - "curl"
-        - "dstask"
-        - "fastfetch"
-        - "git"
-        - "fd"
-        - "fzf"
-        - "glow"
-        - "go"
-        - "gopass"
-        - "hcloud"
-        - "hugo"
-        - "logrotate"
-        - "ncdu"
-        - "neovim"
-        - "nmap"
-        - "sevenzip"
-        - "syncthing"
-        - "vivid"
-        - "yazi"
-        - "zellij"
-        - "zsh"
-      casks:
-        - "claude-code"
-
     linux:
       apt:
-        - "tmux"
+        - "btop"
         - "git"
         - "curl"
         - "build-essential"
         - "keychain"
+        - "zsh"
+        - "nmap"
       brews:
         - "opencode"
         - "fastfetch"
         - "dstask"
+        - "fd"
+        - "fzf"
+        - "gh"
+        - "glow"
         - "go"
         - "ncdu"
         - "neovim"
+        - "starship"
         - "vivid"
         - "yazi"
         - "zellij"
-        - "zsh"
       casks:
         - "claude-code"
 
@@ -106,8 +83,3 @@ packages:
         - "zsh"
       casks:
         - "claude-code"
-
-    linux:
-      apt: []
-      brews: []
-      casks: []
