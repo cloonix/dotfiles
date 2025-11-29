@@ -7,24 +7,29 @@
 set -e
 
 {{- $profile := .profile | default "dev" }}
+{{- $customInstallers := (index .packages $profile).custom }}
 
 echo "📦 Installing macOS Packages (Profile: {{ $profile }})"
 
-# Install Homebrew if not present
-if ! command -v brew >/dev/null 2>&1; then
-    echo "Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    
+# Install custom curl-based packages
+{{ range $customInstallers -}}
+{{- $installer := index $.custom . }}
+if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
+    echo "Installing {{ . }}..."
+    /bin/bash -c "$(curl -fsSL {{ $installer.url }})"
+    {{ if eq . "homebrew" -}}
     # Add Homebrew to PATH for Apple Silicon Macs
     if [ -f "/opt/homebrew/bin/brew" ]; then
         eval "$(/opt/homebrew/bin/brew shellenv)"
     fi
-    echo "✓ Homebrew installed"
+    {{ end -}}
+    echo "✓ {{ . }} installed"
 else
-    echo "✓ Homebrew already installed"
+    echo "✓ {{ . }} already installed"
 fi
+{{ end }}
 
-# Install packages for selected profile
+# Install Homebrew packages for selected profile
 echo "Installing Homebrew packages for {{ $profile }} profile..."
 brew bundle --file=/dev/stdin <<EOF
 {{ range (index .packages $profile "darwin").brews -}}

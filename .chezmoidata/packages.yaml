@@ -1,6 +1,17 @@
+# Custom installers - curl-based install scripts
+custom:
+  homebrew:
+    check: "brew"
+    url: "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+  opencode:
+    check: "opencode"
+    url: "https://opencode.ai/install"
+
 packages:
   # Basic profile - minimal setup for any machine
   basic:
+    custom:
+      - "homebrew"
     darwin:
       brews:
         - "git"
@@ -9,7 +20,6 @@ packages:
         - "glow"
         - "fastfetch"
       casks: []
-
     linux:
       apt:
         - "git"
@@ -26,6 +36,9 @@ packages:
 
   # Dev profile - full development environment for Linux servers/workstations
   dev:
+    custom:
+      - "homebrew"
+      - "opencode"
     linux:
       apt:
         - "btop"
@@ -54,6 +67,9 @@ packages:
 
   # Mac profile - macOS-specific with GUI apps and tools
   mac:
+    custom:
+      - "homebrew"
+      - "opencode"
     darwin:
       brews:
         - "ansible"
