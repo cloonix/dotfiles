@@ -57,9 +57,11 @@ set shiftwidth=2
 let g:airline_theme = 'powerlineish'
 let g:airline#extensions#tabline#enabled = 1
 " vim color settings
-colors default
 set background=dark
-source ~/.vim/colors/iceberg.vim 
+silent! colorscheme iceberg
+if !exists('g:colors_name') || g:colors_name != 'iceberg'
+  colorscheme default
+endif
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Shortcuts and remappings

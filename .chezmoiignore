@@ -2,3 +2,6 @@
 .chezmoi.toml
 
 README.md
+
+# Archive folder for unused configs (kept for reference)
+.archive/
