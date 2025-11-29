@@ -9,7 +9,7 @@ packages:
         - "glow"
         - "fastfetch"
       casks: []
-    
+
     linux:
       apt:
         - "git"
@@ -18,6 +18,10 @@ packages:
       brews:
         - "glow"
         - "fastfetch"
+        - "neovim"
+        - "dstask"
+        - "starship"
+        - "zellij"
       casks: []
 
   # Dev profile - full development environment for Linux servers/workstations
@@ -50,7 +54,7 @@ packages:
         - "zsh"
       casks:
         - "claude-code"
-    
+
     linux:
       apt:
         - "tmux"
@@ -102,7 +106,7 @@ packages:
         - "zsh"
       casks:
         - "claude-code"
-    
+
     linux:
       apt: []
       brews: []
