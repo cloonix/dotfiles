@@ -24,7 +24,9 @@ $python\
 $docker_context\
 $conda\
 $pixi\
-[](fg:color_bg3 bg:color_bg1)\
+[ ](fg:color_bg3)\
+$fill\
+[](fg:color_bg1)\
 $time\
 [ ](fg:color_bg1)\
 $line_break$character"""
@@ -172,6 +174,9 @@ disabled = false
 time_format = "%R"
 style = "bg:color_bg1"
 format = '[[  $time ](fg:color_fg0 bg:color_bg1)]($style)'
+
+[fill]
+symbol = ' '
 
 [line_break]
 disabled = false
