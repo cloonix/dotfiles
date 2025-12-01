@@ -1,12 +1,22 @@
 {{ if lookPath "brew" -}}
 #!/usr/bin/env bash
-# Update and upgrade Homebrew packages
+{{ template "helpers.sh" . }}
 
-echo "🍺 Updating Homebrew..."
-brew update
+section "Homebrew"
 
-echo "🍺 Upgrading packages..."
-brew upgrade
+progress "Updating"
+if brew update >/dev/null 2>&1; then
+    finish
+else
+    failed
+    exit 1
+fi
 
-echo "✓ Homebrew updated"
+progress "Upgrading packages"
+if brew upgrade >/dev/null 2>&1; then
+    finish
+else
+    failed
+    exit 1
+fi
 {{ end -}}

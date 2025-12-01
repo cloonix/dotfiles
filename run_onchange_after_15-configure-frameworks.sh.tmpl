@@ -1,41 +1,45 @@
 #!/usr/bin/env bash
 # profile: {{ .profile | default "dev" }}
+{{ template "helpers.sh" . }}
 
 set -e
 
 {{- $profile := .profile | default "dev" }}
 
-echo "📦 Framework configuration"
+section "Frameworks"
 
 # Setup/Update Zsh Prezto
-echo "Configuring Zsh Prezto..."
 prezto_dir="${ZDOTDIR:-{{ .chezmoi.homeDir }}}/.zprezto"
 
 if [ -d "$prezto_dir" ]; then
-    cd "$prezto_dir"
-    git pull --quiet
-    git submodule update --init --recursive --quiet
-    echo "✓ Prezto updated"
+    progress "Updating Prezto"
+    if cd "$prezto_dir" && git pull --quiet && git submodule update --init --recursive --quiet; then
+        finish
+    else
+        failed
+        exit 1
+    fi
 else
-    git clone --recursive --quiet https://github.com/sorin-ionescu/prezto.git "$prezto_dir"
-    echo "✓ Prezto installed"
+    progress "Installing Prezto"
+    if git clone --recursive --quiet https://github.com/sorin-ionescu/prezto.git "$prezto_dir"; then
+        finish
+    else
+        failed
+        exit 1
+    fi
 fi
 
 {{- if or (eq $profile "dev") (eq $profile "mac") }}
 # Configure gopass (dev/mac profiles only)
 if command -v gopass >/dev/null 2>&1; then
-    echo "Configuring gopass..."
+    progress "Configuring gopass"
     gopass config show.safecontent true >/dev/null 2>&1
     gopass config show.autoclip false >/dev/null 2>&1
     gopass config core.notifications false >/dev/null 2>&1
-
-    # Configure push remotes
     gopass git remote set-url --add --push origin {{ .gopass_push_url_1 | quote }} >/dev/null 2>&1
     gopass git remote set-url --add --push origin {{ .gopass_push_url_2 | quote }} >/dev/null 2>&1
-    echo "✓ gopass configured"
+    finish
 else
-    echo "ℹ gopass not found, skipping gopass configuration"
+    info "gopass not found, skipping"
 fi
 {{- end }}
-
-echo "✓ Framework configuration complete"

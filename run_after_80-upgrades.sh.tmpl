@@ -1,12 +1,13 @@
 {{ if lookPath "opencode" -}}
-#!/bin/zsh
-# Upgrades that run on every chezmoi apply
+#!/usr/bin/env bash
+{{ template "helpers.sh" . }}
 
-# OpenCode
-echo "Upgrading OpenCode..."
+section "Upgrades"
+
+progress "OpenCode"
 if opencode upgrade >/dev/null 2>&1; then
-  echo "✓ OpenCode upgraded"
+    finish
 else
-  echo "⚠ OpenCode upgrade failed"
+    failed
 fi
 {{ end -}}

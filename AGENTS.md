@@ -12,7 +12,7 @@ This is a chezmoi-managed dotfiles repository. Files prefixed with `dot_` become
 - **Manage files**: `chezmoi add <file>`, `chezmoi edit <file>`
 
 ## Code Style
-- **Shell scripts**: Use `#!/bin/zsh` shebang, source helpers via `{{- template "helpers.sh" . }}`
+- **Shell scripts**: Use `#!/usr/bin/env bash` shebang, include helpers via `{{ template "helpers.sh" . }}`
 - **Indentation**: 2 spaces for Lua (per stylua.toml), 4 spaces for shell scripts, 2 spaces for YAML/JSON
 - **Output helpers**: Use colored functions from `.chezmoitemplates/helpers.sh`: `log()`, `success()`, `warn()`, `error()`, `info()`, `progress()`, `finish()`, `failed()`
 - **File naming**: `run_once_*` (runs once), `run_onchange_*` (runs when file/hash changes), `dot_*` (dotfiles), `private_*` (600 perms), `exact_*` (exact dir sync)
