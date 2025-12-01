@@ -1,0 +1,12 @@
+{{ if lookPath "opencode" -}}
+#!/bin/zsh
+# Upgrades that run on every chezmoi apply
+
+# OpenCode
+echo "Upgrading OpenCode..."
+if opencode upgrade >/dev/null 2>&1; then
+  echo "✓ OpenCode upgraded"
+else
+  echo "⚠ OpenCode upgrade failed"
+fi
+{{ end -}}
