@@ -26,7 +26,7 @@ if command -v apt-get >/dev/null 2>&1; then
         exit 1
     fi
 
-    progress "Installing APT packages"
+    progress "Installing APT packages ({{ $aptPackages | join ", " }})"
     if sudo apt-get install -y -qq {{ range $aptPackages }}{{ . }} {{ end }}>/dev/null 2>&1; then
         finish
     else
@@ -63,7 +63,10 @@ fi
 # Install Homebrew packages
 {{ if or $brewPackages $caskPackages -}}
 if command -v brew >/dev/null 2>&1; then
-    progress "Installing brew packages"
+    {{- $allBrewPkgs := list }}
+    {{- range $brewPackages }}{{ $allBrewPkgs = append $allBrewPkgs . }}{{ end }}
+    {{- range $caskPackages }}{{ $allBrewPkgs = append $allBrewPkgs . }}{{ end }}
+    progress "Installing brew packages ({{ $allBrewPkgs | join ", " }})"
     if brew bundle --quiet --file=/dev/stdin <<EOF >/dev/null 2>&1
 {{ range $brewPackages -}}
 brew {{ . | quote }}
