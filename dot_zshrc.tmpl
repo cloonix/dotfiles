@@ -108,12 +108,10 @@ if command -v vivid >/dev/null 2>&1; then
   export LS_COLORS="$(vivid generate molokai)"
 fi
 
-{{- if eq .chezmoi.os "darwin" }}
-# macOS-specific ls alias
-if [ -f "/opt/homebrew/bin/gls" ]; then
-  alias ls="/opt/homebrew/bin/gls --color"
+# Use eza as ls replacement (if available)
+if command -v eza >/dev/null 2>&1; then
+  alias ls="eza"
 fi
-{{- end }}
 
 # Source custom aliases
 if [[ -f "$HOME/.aliases" ]]; then

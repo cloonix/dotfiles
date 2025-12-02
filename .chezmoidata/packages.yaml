@@ -17,7 +17,6 @@ packages:
         - "git"
         - "curl"
         - "zsh"
-        - "glow"
         - "fastfetch"
       casks: []
     linux:
@@ -26,10 +25,8 @@ packages:
         - "curl"
         - "zsh"
       brews:
-        - "glow"
         - "fastfetch"
         - "neovim"
-        - "dstask"
         - "starship"
         - "zellij"
       casks: []
@@ -49,6 +46,7 @@ packages:
         - "zsh"
         - "nmap"
       brews:
+        - "eza"
         - "fastfetch"
         - "dstask"
         - "fd"
@@ -76,6 +74,7 @@ packages:
         - "btop"
         - "curl"
         - "dstask"
+        - "eza"
         - "fastfetch"
         - "git"
         - "fd"
