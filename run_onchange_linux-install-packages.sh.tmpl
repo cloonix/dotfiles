@@ -64,7 +64,7 @@ fi
 {{ if or $brewPackages $caskPackages -}}
 if command -v brew >/dev/null 2>&1; then
     progress "Installing brew packages"
-    if brew bundle --quiet --file=/dev/stdin <<EOF
+    if brew bundle --quiet --file=/dev/stdin <<EOF >/dev/null 2>&1
 {{ range $brewPackages -}}
 brew {{ . | quote }}
 {{ end -}}
