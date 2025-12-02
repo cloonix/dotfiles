@@ -1,0 +1,15 @@
+# Ignore the generated .chezmoi.toml (contains sensitive data)
+.chezmoi.toml
+
+README.md
+
+# Archive folder for unused configs (kept for reference)
+.archive/
+
+# OS-specific paths (use target paths, not source paths)
+{{- if ne .chezmoi.os "darwin" }}
+Library/
+{{- end }}
+{{- if ne .chezmoi.os "linux" }}
+.config/lazygit/
+{{- end }}
