@@ -14,8 +14,10 @@ packages:
       - "homebrew"
     darwin:
       brews:
-        - "git"
         - "curl"
+        - "git"
+        - "neovim"
+        - "starship"
         - "zsh"
         - "fastfetch"
       casks: []
