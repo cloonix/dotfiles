@@ -20,6 +20,7 @@ packages:
         - "curl"
         - "git"
         - "neovim"
+        - "rsync"
         - "starship"
         - "zsh"
         - "fastfetch"
@@ -28,6 +29,7 @@ packages:
       apt:
         - "git"
         - "curl"
+        - "rsync"
         - "zsh"
       brews:
         - "fastfetch"
