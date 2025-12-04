@@ -7,6 +7,9 @@ custom:
     check: "opencode"
     url: "https://opencode.ai/install"
 
+# Package installation is ADDITIVE:
+# - basic is always installed first
+# - profile-specific packages are added on top (if profile != basic)
 packages:
   # Basic profile - minimal setup for any machine
   basic:
@@ -33,24 +36,20 @@ packages:
         - "zellij"
       casks: []
 
-  # Dev profile - full development environment for Linux servers/workstations
+  # Dev profile - additional packages for Linux dev environment
+  # (added on top of basic.linux)
   dev:
     custom:
-      - "homebrew"
       - "opencode"
     linux:
       apt:
         - "btop"
-        - "git"
-        - "curl"
         - "build-essential"
         - "keychain"
-        - "zsh"
         - "nmap"
       brews:
-        - "eza"
-        - "fastfetch"
         - "dstask"
+        - "eza"
         - "fd"
         - "fzf"
         - "gh"
@@ -58,27 +57,21 @@ packages:
         - "go"
         - "lazygit"
         - "ncdu"
-        - "neovim"
-        - "starship"
         - "yazi"
-        - "zellij"
       casks:
         - "claude-code"
 
-  # Mac profile - macOS-specific with GUI apps and tools
+  # Mac profile - additional packages for macOS
+  # (added on top of basic.darwin)
   mac:
     custom:
-      - "homebrew"
       - "opencode"
     darwin:
       brews:
         - "ansible"
         - "btop"
-        - "curl"
         - "dstask"
         - "eza"
-        - "fastfetch"
-        - "git"
         - "fd"
         - "fzf"
         - "glow"
@@ -86,15 +79,13 @@ packages:
         - "gopass"
         - "hcloud"
         - "hugo"
-        - "logrotate"
         - "lazygit"
+        - "logrotate"
         - "ncdu"
-        - "neovim"
         - "nmap"
         - "sevenzip"
         - "syncthing"
         - "yazi"
         - "zellij"
-        - "zsh"
       casks:
         - "claude-code"

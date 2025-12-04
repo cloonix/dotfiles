@@ -1,15 +1,40 @@
 {{ if eq .chezmoi.os "darwin" -}}
 #!/usr/bin/env bash
 # hash: {{ include ".chezmoidata/packages.yaml" | sha256sum }}
-# profile: {{ .profile | default "dev" }}
+# profile: {{ .profile | default "basic" }}
 {{ template "helpers.sh" . }}
 
 set -e
 
-{{- $profile := .profile | default "dev" }}
-{{- $customInstallers := (index .packages $profile).custom }}
+{{- $profile := .profile | default "basic" }}
+
+{{/* Collect custom installers: always basic, plus profile if not basic */}}
+{{- $customInstallers := (index .packages "basic").custom | default list }}
+{{- if ne $profile "basic" }}
+{{- $profileCustom := (index .packages $profile).custom | default list }}
+{{- range $profileCustom }}{{ $customInstallers = append $customInstallers . }}{{ end }}
+{{- end }}
+
+{{/* Merge darwin packages: basic + profile (if profile has darwin key) */}}
+{{- $basicDarwin := index .packages "basic" "darwin" | default dict }}
+{{- $profileDarwin := dict }}
+{{- $profileHasDarwin := false }}
+{{- if ne $profile "basic" }}
+{{- $profileDarwin = index .packages $profile "darwin" | default dict }}
+{{- if index .packages $profile "darwin" }}{{ $profileHasDarwin = true }}{{ end }}
+{{- end }}
+
+{{- $allBrews := $basicDarwin.brews | default list }}
+{{- range ($profileDarwin.brews | default list) }}{{ $allBrews = append $allBrews . }}{{ end }}
+
+{{- $allCasks := $basicDarwin.casks | default list }}
+{{- range ($profileDarwin.casks | default list) }}{{ $allCasks = append $allCasks . }}{{ end }}
 
 section "macOS Packages ({{ $profile }})"
+
+{{ if and (ne $profile "basic") (not $profileHasDarwin) -}}
+warn "Profile '{{ $profile }}' has no darwin packages, installing basic only"
+{{ end -}}
 
 # Install custom curl-based packages
 {{ range $customInstallers -}}
@@ -33,16 +58,16 @@ else
 fi
 {{ end }}
 
-# Install Homebrew packages for selected profile
+# Install Homebrew packages (basic + profile)
 {{- $allPkgs := list }}
-{{- range (index .packages $profile "darwin").brews }}{{ $allPkgs = append $allPkgs . }}{{ end }}
-{{- range (index .packages $profile "darwin").casks }}{{ $allPkgs = append $allPkgs . }}{{ end }}
+{{- range $allBrews }}{{ $allPkgs = append $allPkgs . }}{{ end }}
+{{- range $allCasks }}{{ $allPkgs = append $allPkgs . }}{{ end }}
 progress "Installing brew packages ({{ $allPkgs | join ", " }})"
 if brew bundle --quiet --file=/dev/stdin <<EOF >/dev/null 2>&1
-{{ range (index .packages $profile "darwin").brews -}}
+{{ range $allBrews -}}
 brew {{ . | quote }}
 {{ end -}}
-{{ range (index .packages $profile "darwin").casks -}}
+{{ range $allCasks -}}
 cask {{ . | quote }}
 {{ end -}}
 EOF
