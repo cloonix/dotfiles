@@ -6,9 +6,7 @@ custom:
   opencode:
     check: "opencode"
     url: "https://opencode.ai/install"
-  ytt:
-    check: "ytt"
-    url: "https://raw.githubusercontent.com/cloonix/yt-transcript/main/install.sh"
+
 
 # Package installation is ADDITIVE:
 # - basic is always installed first
@@ -46,7 +44,6 @@ packages:
   dev:
     custom:
       - "opencode"
-      - "ytt"
     linux:
       apt:
         - "btop"
@@ -56,6 +53,7 @@ packages:
       brews:
         - "dstask"
         - "eza"
+        - "fabric-ai"
         - "fd"
         - "fzf"
         - "gh"
@@ -79,6 +77,7 @@ packages:
         - "btop"
         - "dstask"
         - "eza"
+        - "fabric-ai"
         - "fd"
         - "fzf"
         - "glow"
