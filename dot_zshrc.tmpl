@@ -2,6 +2,8 @@
 # Zsh Configuration File
 # ========================================
 
+{{- $profile := .profile | default "basic" }}
+
 # ========================================
 # Homebrew Setup (must be early for PATH)
 # ========================================
@@ -40,13 +42,10 @@ if command -v gpg-connect-agent >/dev/null 2>&1; then
   gpg-connect-agent updatestartuptty /bye &> /dev/null
 fi
 
-{{- $profile := .profile | default "dev" }}
-{{- if or (eq $profile "dev") (eq $profile "mac") }}
 # Display system info with fastfetch if available
 if command -v fastfetch >/dev/null 2>&1; then
   fastfetch
 fi
-{{- end }}
 
 # ========================================
 # Framework Configuration
