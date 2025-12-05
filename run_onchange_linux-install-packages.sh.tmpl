@@ -15,28 +15,26 @@ set -e
 {{- range $profileCustom }}{{ $customInstallers = append $customInstallers . }}{{ end }}
 {{- end }}
 
-{{/* Merge linux packages: basic + profile (if profile has linux key) */}}
-{{- $basicLinux := index .packages "basic" "linux" | default dict }}
-{{- $profileLinux := dict }}
-{{- $profileHasLinux := false }}
+{{/* Merge consolidated packages: basic + profile */}}
+{{- $basicPackages := index .packages "basic" | default dict }}
+{{- $profilePackages := dict }}
 {{- if ne $profile "basic" }}
-{{- $profileLinux = index .packages $profile "linux" | default dict }}
-{{- if index .packages $profile "linux" }}{{ $profileHasLinux = true }}{{ end }}
+{{- $profilePackages = index .packages $profile | default dict }}
 {{- end }}
 
-{{- $allApt := $basicLinux.apt | default list }}
-{{- range (index $profileLinux "apt" | default list) }}{{ $allApt = append $allApt . }}{{ end }}
+{{- $allApt := $basicPackages.apt | default list }}
+{{- range (index $profilePackages "apt" | default list) }}{{ $allApt = append $allApt . }}{{ end }}
 
-{{- $allBrews := $basicLinux.brews | default list }}
-{{- range (index $profileLinux "brews" | default list) }}{{ $allBrews = append $allBrews . }}{{ end }}
+{{- $allBrews := $basicPackages.brews | default list }}
+{{- range (index $profilePackages "brews" | default list) }}{{ $allBrews = append $allBrews . }}{{ end }}
 
-{{- $allCasks := $basicLinux.casks | default list }}
-{{- range (index $profileLinux "casks" | default list) }}{{ $allCasks = append $allCasks . }}{{ end }}
+{{- $allCasks := $basicPackages.casks | default list }}
+{{- range (index $profilePackages "casks" | default list) }}{{ $allCasks = append $allCasks . }}{{ end }}
 
 section "Linux Packages ({{ $profile }})"
 
-{{ if and (ne $profile "basic") (not $profileHasLinux) -}}
-warn "Profile '{{ $profile }}' has no linux packages, installing basic only"
+{{ if and (ne $profile "basic") (not $profilePackages) -}}
+warn "Profile '{{ $profile }}' has no packages, installing basic only"
 {{ end -}}
 
 # Install APT packages first (may be needed for curl-based installers)

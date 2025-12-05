@@ -15,25 +15,23 @@ set -e
 {{- range $profileCustom }}{{ $customInstallers = append $customInstallers . }}{{ end }}
 {{- end }}
 
-{{/* Merge darwin packages: basic + profile (if profile has darwin key) */}}
-{{- $basicDarwin := index .packages "basic" "darwin" | default dict }}
-{{- $profileDarwin := dict }}
-{{- $profileHasDarwin := false }}
+{{/* Merge consolidated packages: basic + profile */}}
+{{- $basicPackages := index .packages "basic" | default dict }}
+{{- $profilePackages := dict }}
 {{- if ne $profile "basic" }}
-{{- $profileDarwin = index .packages $profile "darwin" | default dict }}
-{{- if index .packages $profile "darwin" }}{{ $profileHasDarwin = true }}{{ end }}
+{{- $profilePackages = index .packages $profile | default dict }}
 {{- end }}
 
-{{- $allBrews := $basicDarwin.brews | default list }}
-{{- range ($profileDarwin.brews | default list) }}{{ $allBrews = append $allBrews . }}{{ end }}
+{{- $allBrews := $basicPackages.brews | default list }}
+{{- range (index $profilePackages "brews" | default list) }}{{ $allBrews = append $allBrews . }}{{ end }}
 
-{{- $allCasks := $basicDarwin.casks | default list }}
-{{- range ($profileDarwin.casks | default list) }}{{ $allCasks = append $allCasks . }}{{ end }}
+{{- $allCasks := $basicPackages.casks | default list }}
+{{- range (index $profilePackages "casks" | default list) }}{{ $allCasks = append $allCasks . }}{{ end }}
 
 section "macOS Packages ({{ $profile }})"
 
-{{ if and (ne $profile "basic") (not $profileHasDarwin) -}}
-warn "Profile '{{ $profile }}' has no darwin packages, installing basic only"
+{{ if and (ne $profile "basic") (not $profilePackages) -}}
+warn "Profile '{{ $profile }}' has no packages, installing basic only"
 {{ end -}}
 
 # Install custom curl-based packages

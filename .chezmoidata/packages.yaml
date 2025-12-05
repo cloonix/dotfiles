@@ -16,82 +16,69 @@ packages:
   basic:
     custom:
       - "homebrew"
-    darwin:
-      brews:
-        - "curl"
-        - "git"
-        - "neovim"
-        - "rsync"
-        - "starship"
-        - "zsh"
-        - "fastfetch"
-      casks: []
-    linux:
-      apt:
-        - "git"
-        - "curl"
-        - "rsync"
-        - "zsh"
-      brews:
-        - "fastfetch"
-        - "neovim"
-        - "starship"
-        - "zellij"
-      casks: []
+    apt:
+      - "git"
+      - "curl"
+      - "rsync"
+      - "zsh"
+    brews:
+      - "fastfetch"
+      - "neovim"
+      - "starship"
+      - "zellij"
+    casks: []
 
   # Dev profile - additional packages for Linux dev environment
-  # (added on top of basic.linux)
+  # (added on top of basic)
   dev:
     custom:
       - "opencode"
-    linux:
-      apt:
-        - "btop"
-        - "build-essential"
-        - "keychain"
-        - "nmap"
-      brews:
-        - "dstask"
-        - "eza"
-        - "fabric-ai"
-        - "fd"
-        - "fzf"
-        - "gh"
-        - "glow"
-        - "go"
-        - "lazygit"
-        - "ncdu"
-        - "pipx"
-        - "yazi"
-      casks:
-        - "claude-code"
+    apt:
+      - "btop"
+      - "build-essential"
+      - "keychain"
+      - "nmap"
+    brews:
+      - "dstask"
+      - "eza"
+      - "fabric-ai"
+      - "fd"
+      - "fzf"
+      - "gh"
+      - "glow"
+      - "go"
+      - "lazygit"
+      - "ncdu"
+      - "pipx"
+      - "yazi"
+    casks:
+      - "claude-code"
 
   # Mac profile - additional packages for macOS
-  # (added on top of basic.darwin)
+  # (added on top of basic)
   mac:
     custom:
       - "opencode"
-    darwin:
-      brews:
-        - "ansible"
-        - "btop"
-        - "dstask"
-        - "eza"
-        - "fabric-ai"
-        - "fd"
-        - "fzf"
-        - "glow"
-        - "go"
-        - "gopass"
-        - "hcloud"
-        - "hugo"
-        - "lazygit"
-        - "logrotate"
-        - "ncdu"
-        - "nmap"
-        - "sevenzip"
-        - "syncthing"
-        - "yazi"
-        - "zellij"
-      casks:
-        - "claude-code"
+    brews:
+      - "ansible"
+      - "btop"
+      - "dstask"
+      - "eza"
+      - "fabric-ai"
+      - "fd"
+      - "fzf"
+      - "glow"
+      - "go"
+      - "gopass"
+      - "hcloud"
+      - "hugo"
+      - "lazygit"
+      - "logrotate"
+      - "ncdu"
+      - "nmap"
+      - "sevenzip"
+      - "syncthing"
+      - "yazi"
+      - "zellij"
+    casks:
+      - "claude-code"
