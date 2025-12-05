@@ -25,13 +25,13 @@ set -e
 {{- end }}
 
 {{- $allApt := $basicLinux.apt | default list }}
-{{- range ($profileLinux.apt | default list) }}{{ $allApt = append $allApt . }}{{ end }}
+{{- range (index $profileLinux "apt" | default list) }}{{ $allApt = append $allApt . }}{{ end }}
 
 {{- $allBrews := $basicLinux.brews | default list }}
-{{- range ($profileLinux.brews | default list) }}{{ $allBrews = append $allBrews . }}{{ end }}
+{{- range (index $profileLinux "brews" | default list) }}{{ $allBrews = append $allBrews . }}{{ end }}
 
 {{- $allCasks := $basicLinux.casks | default list }}
-{{- range ($profileLinux.casks | default list) }}{{ $allCasks = append $allCasks . }}{{ end }}
+{{- range (index $profileLinux "casks" | default list) }}{{ $allCasks = append $allCasks . }}{{ end }}
 
 section "Linux Packages ({{ $profile }})"
 
