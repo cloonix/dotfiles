@@ -1,0 +1,128 @@
+# Simple Espanso Examples
+# This file demonstrates common text expansion patterns
+
+# yaml-language-server: $schema=https://raw.githubusercontent.com/espanso/espanso/dev/schemas/match.schema.json
+
+matches:
+  # Simple text replacements
+  - trigger: ":email"
+    replace: "your.email@example.com"
+
+  - trigger: ":gh"
+    replace: "https://github.com"
+
+  - trigger: ":addr"
+    replace: |
+      123 Main Street
+      City, State 12345
+      United States
+
+  # Dynamic date/time variables
+  - trigger: ":today"
+    replace: "{{mydate}}"
+    vars:
+      - name: mydate
+        type: date
+        params:
+          format: "%Y-%m-%d"
+
+  - trigger: ":now"
+    replace: "{{mytime}}"
+    vars:
+      - name: mytime
+        type: date
+        params:
+          format: "%H:%M:%S"
+
+  - trigger: ":timestamp"
+    replace: "{{mytimestamp}}"
+    vars:
+      - name: mytimestamp
+        type: date
+        params:
+          format: "%Y-%m-%d %H:%M:%S"
+
+  # Shell command output
+  - trigger: ":ip"
+    replace: "{{output}}"
+    vars:
+      - name: output
+        type: shell
+        params:
+          cmd: "curl -s https://api.ipify.org"
+
+  - trigger: ":pwd"
+    replace: "{{output}}"
+    vars:
+      - name: output
+        type: shell
+        params:
+          cmd: "pwd"
+
+  # Clipboard content
+  - trigger: ":clip"
+    replace: "{{clipboard}}"
+    vars:
+      - name: clipboard
+        type: clipboard
+
+  # Random choice
+  - trigger: ":flip"
+    replace: "{{result}}"
+    vars:
+      - name: result
+        type: random
+        params:
+          choices:
+            - "Heads"
+            - "Tails"
+
+  # Form input (interactive)
+  - trigger: ":greet"
+    replace: "Hello {{name}}, welcome to {{place}}!"
+    vars:
+      - name: name
+        type: form
+        params:
+          layout: "What is your name?"
+      - name: place
+        type: form
+        params:
+          layout: "Where are you from?"
+
+  # Code snippets
+  - trigger: ":fn"
+    replace: |
+      function {{name}}() {
+        {{body}}
+      }
+    vars:
+      - name: name
+        type: form
+        params:
+          layout: "Function name?"
+      - name: body
+        type: form
+        params:
+          layout: "Function body?"
+          multiline: true
+
+  # Unicode/Emoji shortcuts
+  - trigger: ":shrug"
+    replace: "¯\\_(ツ)_/¯"
+
+  - trigger: ":check"
+    replace: "✓"
+
+  - trigger: ":arrow"
+    replace: "→"
+
+  # Common programming patterns
+  - trigger: ":todo"
+    replace: "// TODO: "
+
+  - trigger: ":fixme"
+    replace: "// FIXME: "
+
+  - trigger: ":lorem"
+    replace: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
