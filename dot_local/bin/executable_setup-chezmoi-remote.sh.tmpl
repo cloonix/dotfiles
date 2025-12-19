@@ -243,7 +243,13 @@ bash -l -c \"
   # --- Pull latest changes if chezmoi was already initialized ---
   if [ -d ~/.local/share/chezmoi/.git ]; then
     echo Pulling latest changes from repository...
-    ~/.local/bin/chezmoi update --force
+    # Find chezmoi in common locations (Homebrew or ~/.local/bin)
+    CHEZMOI_BIN=\\\$(command -v chezmoi || echo ~/.local/bin/chezmoi)
+    if [ -x \\\"\\\$CHEZMOI_BIN\\\" ]; then
+      \\\$CHEZMOI_BIN update --force
+    else
+      echo Warning: chezmoi binary not found in PATH after installation
+    fi
   fi
 \""
 
