@@ -1,0 +1,245 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Script to set up chezmoi on a remote host
+
+show_usage() {
+  cat << EOF
+Usage: $(basename "$0") [OPTIONS] <ssh-target>
+
+Set up chezmoi on a remote host via SSH.
+
+Arguments:
+  ssh-target              SSH target in user@host format or SSH hostname/alias (required)
+
+Options:
+  -c, --config NAME       Config name in gopass: basic, dev, or mac (default: basic)
+                          Resolves to config/chezmoi/<name>.toml in gopass
+  -r, --repo REPO         Git repository for chezmoi (default: cloonix)
+  -b, --branch BRANCH     Git branch to use (optional, uses repo default if not specified)
+  -f, --files FILE        File containing gopass paths and remote destinations
+                          Format: gopass/path:~/remote/destination (one per line)
+                          Lines starting with # are ignored
+                          (default: ~/.config/chezmoi/gopass-files.conf if exists)
+  -h, --help              Show this help message and exit
+
+Examples:
+  $(basename "$0") dev
+  $(basename "$0") -c dev user@192.168.1.100
+  $(basename "$0") --config mac --repo myuser staging
+  $(basename "$0") -c dev -b testing-branch -r cloonix root@example.com
+  $(basename "$0") -f ~/.config/chezmoi-files.conf dev
+
+Files config example (~/.config/chezmoi-files.conf):
+  # SSH keys
+  keys/ssh/id_ed25519:~/.ssh/id_ed25519
+  keys/ssh/id_ed25519.pub:~/.ssh/id_ed25519.pub
+  # GPG
+  keys/gpg/private.asc:~/.gnupg/private.asc
+
+EOF
+}
+
+# Default values
+CONFIG_NAME="basic"
+CHEZMOI_REPO="cloonix"
+CHEZMOI_BRANCH=""
+DEFAULT_FILES_CONFIG="$HOME/.config/chezmoi/gopass-files.conf"
+FILES_CONFIG=""
+SSH_TARGET=""
+
+# Parse command line options
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      show_usage
+      exit 0
+      ;;
+    -c|--config)
+      if [[ -z "${2:-}" ]]; then
+        echo "Error: --config requires an argument" >&2
+        exit 1
+      fi
+      CONFIG_NAME="$2"
+      shift 2
+      ;;
+    -r|--repo)
+      if [[ -z "${2:-}" ]]; then
+        echo "Error: --repo requires an argument" >&2
+        exit 1
+      fi
+      CHEZMOI_REPO="$2"
+      shift 2
+      ;;
+    -b|--branch)
+      if [[ -z "${2:-}" ]]; then
+        echo "Error: --branch requires an argument" >&2
+        exit 1
+      fi
+      CHEZMOI_BRANCH="$2"
+      shift 2
+      ;;
+    -f|--files)
+      if [[ -z "${2:-}" ]]; then
+        echo "Error: --files requires an argument" >&2
+        exit 1
+      fi
+      FILES_CONFIG="$2"
+      if [[ ! -f "$FILES_CONFIG" ]]; then
+        echo "Error: Files config not found: $FILES_CONFIG" >&2
+        exit 1
+      fi
+      shift 2
+      ;;
+    -*)
+      echo "Error: Unknown option: $1" >&2
+      show_usage
+      exit 1
+      ;;
+    *)
+      if [[ -z "$SSH_TARGET" ]]; then
+        SSH_TARGET="$1"
+      else
+        echo "Error: Unexpected argument: $1" >&2
+        show_usage
+        exit 1
+      fi
+      shift
+      ;;
+  esac
+done
+
+# Check if SSH target is provided
+if [[ -z "$SSH_TARGET" ]]; then
+  echo "Error: SSH target (user@host or hostname) is required" >&2
+  show_usage
+  exit 1
+fi
+
+# Validate config name
+if [[ ! "$CONFIG_NAME" =~ ^(basic|dev|mac)$ ]]; then
+  echo "Error: config-name must be one of: basic, dev, mac" >&2
+  exit 1
+fi
+
+# Use default files config if not specified and it exists
+if [[ -z "$FILES_CONFIG" && -f "$DEFAULT_FILES_CONFIG" ]]; then
+  FILES_CONFIG="$DEFAULT_FILES_CONFIG"
+fi
+
+GOPASS_PATH="config/chezmoi/${CONFIG_NAME}.toml"
+
+# Function to copy files from gopass to remote
+copy_gopass_files() {
+  local config_file="$1"
+  local ssh_target="$2"
+  
+  echo "Copying files from gopass to remote..."
+  
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    # Skip empty lines and comments
+    [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+    
+    # Parse source:destination
+    local gopass_source="${line%%:*}"
+    local remote_dest="${line#*:}"
+    
+    if [[ -z "$gopass_source" || -z "$remote_dest" || "$gopass_source" == "$line" ]]; then
+      echo "Warning: Invalid line format (expected gopass_path:remote_dest): $line" >&2
+      continue
+    fi
+    
+    # Trim whitespace
+    gopass_source=$(echo "$gopass_source" | xargs)
+    remote_dest=$(echo "$remote_dest" | xargs)
+    
+    echo "  Copying $gopass_source -> $remote_dest"
+    
+    # Create temp file and copy from gopass
+    local temp_file
+    temp_file=$(mktemp)
+    
+    if ! gopass fscopy "$gopass_source" "$temp_file" 2>/dev/null; then
+      echo "    Error: Failed to fetch from gopass: $gopass_source" >&2
+      rm -f "$temp_file"
+      continue
+    fi
+    
+    # Get the directory part of the remote destination
+    local remote_dir
+    remote_dir=$(dirname "$remote_dest")
+    
+    # Create remote directory if needed and copy file
+    ssh -n "$ssh_target" "mkdir -p $remote_dir" || {
+      echo "    Error: Failed to create remote directory: $remote_dir" >&2
+      rm -f "$temp_file"
+      continue
+    }
+    
+    scp -q "$temp_file" "$ssh_target:$remote_dest" </dev/null || {
+      echo "    Error: Failed to copy to remote: $remote_dest" >&2
+      rm -f "$temp_file"
+      continue
+    }
+    
+    # Set secure permissions
+    ssh -n "$ssh_target" "chmod 600 $remote_dest" || {
+      echo "    Warning: Failed to set permissions on: $remote_dest" >&2
+    }
+    
+    rm -f "$temp_file"
+    echo "    Done"
+  done < "$config_file"
+}
+
+echo "Setting up chezmoi on $SSH_TARGET..."
+echo "Using config: $CONFIG_NAME (gopass: $GOPASS_PATH)"
+echo "Chezmoi repository: $CHEZMOI_REPO"
+if [[ -n "$CHEZMOI_BRANCH" ]]; then
+  echo "Branch: $CHEZMOI_BRANCH"
+fi
+if [[ -n "$FILES_CONFIG" ]]; then
+  echo "Files config: $FILES_CONFIG"
+fi
+echo ""
+
+# Copy additional files from gopass if config provided
+if [[ -n "$FILES_CONFIG" ]]; then
+  copy_gopass_files "$FILES_CONFIG" "$SSH_TARGET"
+  echo ""
+fi
+
+# Create temporary file for the config
+TEMP_CONFIG=$(mktemp)
+trap 'rm -f "$TEMP_CONFIG"' EXIT
+
+# Copy config from gopass
+echo "Fetching config from gopass..."
+gopass fscopy "$GOPASS_PATH" "$TEMP_CONFIG"
+
+# Build branch flag if specified
+BRANCH_FLAG=""
+if [[ -n "$CHEZMOI_BRANCH" ]]; then
+  BRANCH_FLAG="--branch $CHEZMOI_BRANCH"
+fi
+
+# Send config and execute setup on remote host
+echo "Connecting to $SSH_TARGET and setting up chezmoi..."
+cat "$TEMP_CONFIG" | ssh "$SSH_TARGET" "
+bash -l -c \"
+  # --- Ensure curl and git are installed ---
+  echo Installing curl and git...
+  sudo apt-get update -qq
+  sudo apt-get install -y curl git
+
+  # --- Create config directory and write TOML ---
+  mkdir -p ~/.config/chezmoi
+  cat > ~/.config/chezmoi/chezmoi.toml
+  
+  # --- Install and initialize chezmoi with official installer ---
+  echo Installing and initializing chezmoi with repository: $CHEZMOI_REPO
+  sh -c \\\"\\\$(curl -fsLS get.chezmoi.io)\\\" -- init --apply --force $BRANCH_FLAG $CHEZMOI_REPO
+\""
+
+echo ""
+echo "✓ Chezmoi setup complete on $SSH_TARGET"

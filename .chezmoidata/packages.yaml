@@ -51,8 +51,7 @@ packages:
       - "ncdu"
       - "pipx"
       - "yazi"
-    casks:
-      - "claude-code"
+    casks: []
 
   # Mac profile - additional packages for macOS
   # (added on top of basic)

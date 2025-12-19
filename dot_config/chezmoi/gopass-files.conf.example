@@ -1,0 +1,14 @@
+# Example configuration for setup-chezmoi-remote.sh
+# Format: gopass_path:remote_destination (one per line)
+# Lines starting with # are ignored
+
+# SSH keys
+keys/ssh/id_ed25519:~/.ssh/id_ed25519
+keys/ssh/id_ed25519.pub:~/.ssh/id_ed25519.pub
+
+# GPG keys
+keys/gpg/private.asc:~/.gnupg/private.asc
+
+# Additional files (examples)
+# config/shell/bashrc:~/.bashrc
+# config/git/gitconfig:~/.gitconfig
