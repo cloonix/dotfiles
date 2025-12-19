@@ -45,4 +45,15 @@ fi
 
 if command -v opencode >/dev/null 2>&1; then
   alias oc="opencode"
+
+  ocw() {
+    export OPENCODE_WORK_DATA="$HOME/.local/share-work/"
+    export OPENCODE_WORK_CONFIG="$HOME/.config-work/opencode"
+
+    mkdir -p "$OPENCODE_WORK_CONFIG"
+
+    XDG_DATA_HOME="$OPENCODE_WORK_DATA" \
+    OPENCODE_CONFIG_DIR="$OPENCODE_WORK_CONFIG" \
+    opencode
+  }
 fi
