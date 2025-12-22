@@ -25,7 +25,12 @@ run  = "git"
 [open]
 rules = [
     { name = "*/", use = [ "edit", "code", "ncdu", "archive" ] },
+{{- if lookPath "open" }}
+{{-   $typoraPath := "/Applications/Typora.app" }}
+{{-   if stat $typoraPath }}
     { name = "*.{md,MD,markdown}", use = [ "typora", "edit", "code", "reveal", "copy_path" ] },
+{{-   end }}
+{{- end }}
     { name = "*.{pdf,PDF}", use = [ "open_default", "reveal", "copy_path" ] },
     { name = "*.{doc,docx,xls,xlsx,ppt,pptx,DOC,DOCX,XLS,XLSX,PPT,PPTX}", use = [ "open_default", "reveal", "copy_path" ] },
     { name = "*.{7z,zip,rar,tar,gz,bz2,xz,Z}", use = [ "extract", "reveal", "copy_path" ] },
@@ -33,10 +38,15 @@ rules = [
 ]
 
 [opener]
+{{- if lookPath "open" }}
+{{-   $typoraPath := "/Applications/Typora.app" }}
+{{-   if stat $typoraPath }}
 typora = [
     { run = 'open -a Typora "$1"', orphan = true, desc = "📄 Typora", for = "macos" },
 ]
 
+{{-   end }}
+{{- end }}
 edit = [
     { run = 'nvim "$@"', block = true, desc = "📝 Neovim", for = "macos" },
     { run = 'command -v nvim >/dev/null && nvim "$@" || vim "$@"', block = true, desc = "📝 Editor", for = "linux" },
