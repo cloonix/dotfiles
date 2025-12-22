@@ -7,7 +7,6 @@ custom:
     check: "opencode"
     url: "https://opencode.ai/install"
 
-
 # Package installation is ADDITIVE:
 # - basic is always installed first
 # - profile-specific packages are added on top (if profile != basic)
@@ -81,3 +80,4 @@ packages:
       - "zellij"
     casks:
       - "claude-code"
+      - "typora"
