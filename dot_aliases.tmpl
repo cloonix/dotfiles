@@ -36,6 +36,11 @@ alias pass=gopass
   alias fabric="fabric-ai"
 {{- end }}
 
+# Mac profile aliases
+{{- if eq .profile "mac" }}
+  alias typora="open -a typora"
+{{- end }}
+
 if command -v zellij >/dev/null 2>&1; then
   alias z="zellij"
   alias zl="zellij ls"
