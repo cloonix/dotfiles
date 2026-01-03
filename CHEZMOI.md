@@ -81,17 +81,26 @@ On first-time setup, you'll be prompted to select a config profile:
 
 ## Important: Init vs Apply
 
-- **`chezmoi init`** - First-time setup (prompts for config, clones repo)
-  - Use on: Brand new system
-  - Creates: `~/.config/chezmoi/chezmoi.toml`
-  - Prompts: Yes (unless gopass provides config)
+- **`chezmoi init <repo>`** - First-time setup on brand new machine
+  - Clones repository
+  - Runs `run_once_before` scripts (including config retrieval from gopass)
+  - **Note**: If config is retrieved from gopass, run `chezmoi apply` afterward to complete setup
+  
+- **`chezmoi apply`** - Apply configuration (use after init or for updates)
+  - Uses existing `~/.config/chezmoi/chezmoi.toml`
+  - Templates all files
+  - Runs all scripts
+  - Use this for normal operations and after config retrieval
 
-- **`chezmoi apply`** - Update existing setup (no prompts)
-  - Use on: System with existing config
-  - Uses: Existing `~/.config/chezmoi/chezmoi.toml`
-  - Prompts: No
+**Recommended workflow for new machine:**
+```bash
+# First time - clone and get config from gopass
+chezmoi init cloonix/dotfiles
+# Select profile when prompted (e.g., "3" for mac)
 
-**If you already have config, use `chezmoi apply` not `chezmoi init`.**
+# Then apply with the retrieved config
+chezmoi apply
+```
 
 ## Scripts in This Repository
 

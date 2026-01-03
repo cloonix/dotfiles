@@ -54,6 +54,9 @@ if gopass fscopy "$GOPASS_PATH" "$CONFIG_FILE" 2>/dev/null; then
     chmod 600 "$CONFIG_FILE"
     finish
     success "Config retrieved: $CONFIG_NAME profile"
+    echo ""
+    info "Next step: Run 'chezmoi apply' to complete setup with the new config"
+    echo ""
 else
     failed
     error "Failed to fetch config from gopass: $GOPASS_PATH"
