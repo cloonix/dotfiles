@@ -1,3 +1,137 @@
 [flavor]
 dark = "kanagawa"
 #dark = "flexoki-dark"
+
+# Custom file type icons with colors
+[icon]
+prepend_dirs = [
+	{ name = ".config", text = "", fg = "#7aa2f7" },
+	{ name = ".git", text = "", fg = "#f7768e" },
+	{ name = ".github", text = "", fg = "#7aa2f7" },
+	{ name = "node_modules", text = "", fg = "#73daca" },
+	{ name = "Desktop", text = "", fg = "#7dcfff" },
+	{ name = "Documents", text = "", fg = "#bb9af7" },
+	{ name = "Downloads", text = "", fg = "#9ece6a" },
+	{ name = "Pictures", text = "", fg = "#e0af68" },
+	{ name = "Music", text = "", fg = "#ff9e64" },
+	{ name = "Videos", text = "", fg = "#f7768e" },
+]
+
+append_exts = [
+	{ name = "rs", text = "", fg = "#dca561" },
+	{ name = "go", text = "", fg = "#7dcfff" },
+	{ name = "py", text = "", fg = "#7aa2f7" },
+	{ name = "js", text = "", fg = "#e0af68" },
+	{ name = "ts", text = "", fg = "#7aa2f7" },
+	{ name = "jsx", text = "", fg = "#7dcfff" },
+	{ name = "tsx", text = "", fg = "#7dcfff" },
+	{ name = "json", text = "", fg = "#e0af68" },
+	{ name = "toml", text = "", fg = "#9ece6a" },
+	{ name = "yaml", text = "", fg = "#bb9af7" },
+	{ name = "yml", text = "", fg = "#bb9af7" },
+	{ name = "md", text = "", fg = "#7aa2f7" },
+	{ name = "lua", text = "", fg = "#7aa2f7" },
+	{ name = "vim", text = "", fg = "#9ece6a" },
+	{ name = "sh", text = "", fg = "#9ece6a" },
+	{ name = "zsh", text = "", fg = "#9ece6a" },
+	{ name = "bash", text = "", fg = "#9ece6a" },
+	{ name = "fish", text = "", fg = "#9ece6a" },
+	{ name = "zip", text = "", fg = "#e0af68" },
+	{ name = "tar", text = "", fg = "#e0af68" },
+	{ name = "gz", text = "", fg = "#e0af68" },
+	{ name = "7z", text = "", fg = "#e0af68" },
+	{ name = "pdf", text = "", fg = "#f7768e" },
+	{ name = "mp3", text = "", fg = "#bb9af7" },
+	{ name = "mp4", text = "", fg = "#ff9e64" },
+	{ name = "mkv", text = "", fg = "#ff9e64" },
+	{ name = "png", text = "", fg = "#9ece6a" },
+	{ name = "jpg", text = "", fg = "#9ece6a" },
+	{ name = "jpeg", text = "", fg = "#9ece6a" },
+	{ name = "gif", text = "", fg = "#9ece6a" },
+	{ name = "svg", text = "", fg = "#e0af68" },
+]
+
+prepend_conds = [
+	{ if = "hidden & dir", text = "󰷏", fg = "#565f89" },
+	{ if = "dir", text = "", fg = "#7aa2f7" },
+	{ if = "link", text = "", fg = "#7dcfff" },
+	{ if = "orphan", text = "", fg = "#f7768e" },
+	{ if = "exec", text = "", fg = "#9ece6a" },
+]
+
+# Enhanced file type styling
+[filetype]
+rules = [
+	{ mime = "image/*", fg = "#9ece6a", bold = true },
+	{ mime = "video/*", fg = "#ff9e64", bold = true },
+	{ mime = "audio/*", fg = "#bb9af7" },
+	{ mime = "application/zip", fg = "#e0af68" },
+	{ mime = "application/{gzip,x-tar,x-bzip*,x-7z-compressed,x-rar}", fg = "#e0af68" },
+	{ mime = "application/{pdf,json}", fg = "#f7768e" },
+	{ mime = "inode/empty", fg = "#565f89", italic = true },
+	{ url = "*", is = "orphan", fg = "#f7768e", underline = true },
+	{ url = "*/", fg = "#7aa2f7", bold = true },
+]
+
+# Status bar separators with powerline style
+[status]
+separator_open = ""
+separator_close = ""
+separator_style = { fg = "#7aa2f7", bg = "reset" }
+
+# Manager (file list) styling
+[manager]
+cwd = { fg = "#7dcfff", bold = true }
+hovered = { reversed = true }
+preview_hovered = { underline = true }
+
+# Selection styling
+folder_offset = [1, 0, 1, 0]
+preview_offset = [1, 1, 1, 1]
+
+# Tab bar styling
+[tab]
+active = { fg = "#1a1b26", bg = "#7aa2f7", bold = true }
+inactive = { fg = "#a9b1d6", bg = "#1a1b26" }
+
+# Border styling
+[border]
+plain = { fg = "#565f89" }
+rounded = { fg = "#7aa2f7" }
+
+# Input box styling  
+[input]
+border = { fg = "#7aa2f7" }
+title = { fg = "#7dcfff", bold = true }
+value = { fg = "#c0caf5" }
+selected = { reversed = true }
+
+# Completion menu styling
+[completion]
+border = { fg = "#7aa2f7" }
+active = { reversed = true }
+inactive = { fg = "#a9b1d6" }
+
+# Task manager styling
+[tasks]
+border = { fg = "#7aa2f7" }
+title = { fg = "#7dcfff", bold = true }
+hovered = { reversed = true }
+
+# Which menu styling
+[which]
+cols = 3
+mask = { bg = "#1a1b26" }
+cand = { fg = "#7dcfff" }
+rest = { fg = "#565f89" }
+desc = { fg = "#9ece6a" }
+separator = "  "
+separator_style = { fg = "#565f89" }
+
+# Help menu styling
+[help]
+on = { fg = "#7dcfff", bold = true }
+run = { fg = "#9ece6a" }
+desc = { fg = "#c0caf5" }
+hovered = { reversed = true, bold = true }
+footer = { fg = "#565f89", bg = "#1a1b26" }
