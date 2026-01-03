@@ -123,6 +123,17 @@ Installs packages on Linux. Automatically installs Homebrew if not present. Firs
 
 Re-runs when the script content changes.
 
+#### `run_after_25-copy-gopass-files-local.sh.tmpl`
+**Optional:** Copies configuration files from gopass to local destinations. Reads from `~/.config/chezmoi/gopass-files-local.conf` (format: `gopass_path:destination`).
+
+- Runs on every `chezmoi apply` if gopass and config file exist
+- Prompts once if any target files already exist (overwrite/skip/quit)
+- Sets all copied files to 600 permissions (sensitive data)
+- Config file is templated based on OS (darwin/linux) with different paths per OS
+- SSH keys are commented out on macOS, enabled on Linux by default
+
+This is separate from `setup-chezmoi-remote.sh` which handles remote machine setup via SSH.
+
 #### `run_once_after_90-finalize.sh.tmpl`
 **Final setup** that:
 1. Changes default shell to zsh (with `chsh -s`)

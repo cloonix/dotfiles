@@ -1,4 +1,6 @@
 # Example configuration for setup-chezmoi-remote.sh
+# This is for REMOTE machine setup via SSH, not local file copying
+# For LOCAL file copying, use gopass-files-local.conf.example
 # Format: gopass_path:remote_destination (one per line)
 # Lines starting with # are ignored
 
