@@ -32,6 +32,7 @@ This is a chezmoi-managed dotfiles repository. Files prefixed with `dot_` become
 ## Important Rules
 - **NEVER** modify README.md (owner's explicit request)
 - **NEVER** auto-commit changes (per .claude/CLAUDE.md)
+- **NEVER** push to remote - always wait for owner to review and push manually
 - Use `.tmpl` extension for ANY file needing template variables (`.chezmoi.*`, `lookPath`, conditionals, etc.)
 - Markdown: MD013 (line length) disabled per `.markdownlint-cli2.yaml`
 - Always suppress stdout/stderr for background operations: `>/dev/null 2>&1`

@@ -11,9 +11,12 @@ fi
 
 # Skip if gopass not available
 if ! command -v gopass >/dev/null 2>&1; then
-    warn "gopass not available, skipping automated config setup"
-    info "You can set up manually or use 'chezmoi init' prompts"
-    exit 0
+    warn "gopass not available, cannot retrieve config automatically"
+    echo ""
+    error "Please create config file manually at: $CONFIG_FILE"
+    info "Or install gopass and run 'chezmoi init' again"
+    echo ""
+    exit 1  # Exit to prevent template errors
 fi
 
 section "Chezmoi Config Setup"
@@ -33,12 +36,21 @@ case "$choice" in
     2) CONFIG_NAME="dev" ;;
     3) CONFIG_NAME="mac" ;;
     "")
-        info "Skipped - config will be created via prompts"
-        exit 0
+        warn "Config selection skipped"
+        echo ""
+        error "Config file is required to continue"
+        info "Please run 'chezmoi init' again and select a profile"
+        info "Or create config manually at: $CONFIG_FILE"
+        echo ""
+        exit 1  # Exit to prevent template errors
         ;;
     *)
-        warn "Invalid choice, skipping"
-        exit 0
+        warn "Invalid choice"
+        echo ""
+        error "Config file is required to continue"
+        info "Please run 'chezmoi init' again and select a valid profile (1-3)"
+        echo ""
+        exit 1  # Exit to prevent template errors
         ;;
 esac
 
@@ -55,11 +67,17 @@ if gopass fscopy "$GOPASS_PATH" "$CONFIG_FILE" 2>/dev/null; then
     finish
     success "Config retrieved: $CONFIG_NAME profile"
     echo ""
-    info "Next step: Run 'chezmoi apply' to complete setup with the new config"
+    info "Config created successfully!"
+    info "Run 'chezmoi apply' now to complete setup with the new config"
     echo ""
+    exit 1  # Exit to stop chezmoi init - user must run 'chezmoi apply' next
 else
     failed
     error "Failed to fetch config from gopass: $GOPASS_PATH"
-    warn "Config will be created via prompts instead"
-    exit 0
+    echo ""
+    error "Config file is required to continue"
+    info "Please verify the config exists in gopass and run 'chezmoi init' again"
+    info "Or create config manually at: $CONFIG_FILE"
+    echo ""
+    exit 1  # Exit to prevent template errors
 fi
