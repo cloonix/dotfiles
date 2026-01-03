@@ -60,23 +60,24 @@ OS-specific install scripts read from this file:
 
 ## Configuration Setup
 
-This repository supports two ways to create `~/.config/chezmoi/chezmoi.toml`:
+This repository supports automatic config retrieval from gopass during `chezmoi init`:
 
-### Method 1: Interactive Prompts (`.chezmoi.toml.tmpl`)
-On **first-time setup**, `chezmoi init` will prompt for all required values:
-- Personal email address
-- GPG signing key ID
-- Full name
-- GitHub/GitLab emails
-- Gopass repository URLs
-- Context7 API key
+### Config Profiles in Gopass
 
-These values are stored in `~/.config/chezmoi/chezmoi.toml` (gitignored).
+Store configs at these gopass paths:
+- `config/chezmoi/basic.toml` - Minimal setup for any machine
+- `config/chezmoi/dev.toml` - Full dev environment (Linux)
+- `config/chezmoi/mac.toml` - macOS workstation
 
-### Method 2: From Gopass (optional)
-If you have the config stored in gopass at `config/chezmoi.toml`, the script will automatically copy it during `chezmoi apply`. This is useful for quickly setting up new machines without interactive prompts.
+### During `chezmoi init`
 
-**Both methods produce the same result.** The config file contains template variables used throughout the dotfiles.
+On first-time setup, you'll be prompted to select a config profile:
+1. Script checks if `~/.config/chezmoi/chezmoi.toml` already exists (skip if exists)
+2. If gopass is available, prompts: "Select config profile [1-3] (or press Enter to skip)"
+3. Retrieves selected config from gopass automatically
+4. If gopass unavailable or skipped, falls back to interactive prompts
+
+**The config file contains template variables used throughout the dotfiles.**
 
 ## Important: Init vs Apply
 
@@ -96,11 +97,14 @@ If you have the config stored in gopass at `config/chezmoi.toml`, the script wil
 
 ### Phase 1: Before Scripts (run before files are templated)
 
+#### `run_once_before_10-setup-config-from-gopass.sh.tmpl`
+**Interactive config retrieval from gopass.** Prompts for config profile (basic/dev/mac) and retrieves it from gopass. Skips if:
+- Config file already exists at `~/.config/chezmoi/chezmoi.toml`
+- Gopass is not available
+- User chooses to skip (will use interactive prompts instead)
+
 #### `run_once_before_20-setup-ssh.sh.tmpl`
 Interactive SSH key setup. Prompts for GitHub username and downloads public keys from `https://github.com/<username>.keys` to `~/.ssh/authorized_keys`. Backs up existing keys and sets proper permissions (700/600).
-
-#### `run_once_before_30-setup-gopass-config.sh.tmpl`
-**Optional:** Attempts to copy `chezmoi.toml` from gopass to `~/.config/chezmoi/chezmoi.toml`. If config already exists or gopass is unavailable, it skips gracefully. The config file contains template variables needed by other scripts.
 
 ### Phase 2: File Templating
 

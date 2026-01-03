@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+{{ template "helpers.sh" . }}
+
+CONFIG_FILE="{{ .chezmoi.homeDir }}/.config/chezmoi/chezmoi.toml"
+
+# Skip if config already exists
+if [[ -f "$CONFIG_FILE" ]]; then
+    info "Config already exists at $CONFIG_FILE"
+    exit 0
+fi
+
+# Skip if gopass not available
+if ! command -v gopass >/dev/null 2>&1; then
+    warn "gopass not available, skipping automated config setup"
+    info "You can set up manually or use 'chezmoi init' prompts"
+    exit 0
+fi
+
+section "Chezmoi Config Setup"
+
+# Prompt for config name
+echo ""
+echo "Available config profiles:"
+echo "  1) basic  - Minimal setup for any machine"
+echo "  2) dev    - Full dev environment (Linux)"
+echo "  3) mac    - macOS workstation"
+echo ""
+printf "Select config profile [1-3] (or press Enter to skip): "
+read -r choice
+
+case "$choice" in
+    1) CONFIG_NAME="basic" ;;
+    2) CONFIG_NAME="dev" ;;
+    3) CONFIG_NAME="mac" ;;
+    "")
+        info "Skipped - config will be created via prompts"
+        exit 0
+        ;;
+    *)
+        warn "Invalid choice, skipping"
+        exit 0
+        ;;
+esac
+
+GOPASS_PATH="config/chezmoi/${CONFIG_NAME}.toml"
+
+progress "Fetching config from gopass: $GOPASS_PATH"
+
+# Create config directory
+mkdir -p "{{ .chezmoi.homeDir }}/.config/chezmoi"
+
+# Copy from gopass
+if gopass fscopy "$GOPASS_PATH" "$CONFIG_FILE" 2>/dev/null; then
+    chmod 600 "$CONFIG_FILE"
+    finish
+    success "Config retrieved: $CONFIG_NAME profile"
+else
+    failed
+    error "Failed to fetch config from gopass: $GOPASS_PATH"
+    warn "Config will be created via prompts instead"
+    exit 0
+fi
