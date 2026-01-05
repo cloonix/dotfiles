@@ -88,7 +88,7 @@ if command -v brew >/dev/null 2>&1; then
     {{- $allBrewPkgs := list }}
     {{- range $allBrews }}{{ $allBrewPkgs = append $allBrewPkgs . }}{{ end }}
     {{- range $allCasks }}{{ $allBrewPkgs = append $allBrewPkgs . }}{{ end }}
-    progress "Installing brew packages ({{ $allBrewPkgs | join ", " }})"
+    progress "Installing/upgrading brew packages ({{ $allBrewPkgs | join ", " }})"
     if brew bundle --quiet --file=/dev/stdin <<EOF >/dev/null 2>&1
 {{ range $allBrews -}}
 brew {{ . | quote }}
@@ -102,6 +102,13 @@ EOF
     else
         failed
         exit 1
+    fi
+
+    progress "Upgrading all brew packages"
+    if brew upgrade >/dev/null 2>&1; then
+        finish
+    else
+        failed
     fi
 fi
 {{ end -}}

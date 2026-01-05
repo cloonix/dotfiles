@@ -247,8 +247,6 @@ bash -l -c \"
     CHEZMOI_BIN=\\\$(command -v chezmoi || echo ~/.local/bin/chezmoi)
     if [ -x \\\"\\\$CHEZMOI_BIN\\\" ]; then
       \\\$CHEZMOI_BIN update --force
-    else
-      echo Warning: chezmoi binary not found in PATH after installation
     fi
   fi
 \""
