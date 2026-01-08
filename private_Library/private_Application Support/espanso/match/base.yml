@@ -26,7 +26,7 @@ matches:
       - name: mydate
         type: date
         params:
-          format: "%m/%d/%Y"
+          format: "%Y-%m-%d"
 
   # Print the output of a shell command
   - trigger: ":shell"
@@ -37,4 +37,22 @@ matches:
         params:
           cmd: "echo 'Hello from your shell'"
 
+  - trigger: "::youtube"
+    label: "YouTube Summary (de, en)"
+    replace: "{{output}}"
+    vars:
+      - name: "input"
+        type: form
+        params:
+          layout: |
+            YouTube URL or Input:
+            [[text]]
+          fields:
+            text:
+              multiline: false
+      - name: "output"
+        type: shell
+        params:
+          cmd: "ytt -l de,en '{{input.text}}' | fabric-ai -p youtube_summary"
+          shell: bash
   # And much more! For more information, visit the docs: https://espanso.org/docs/
