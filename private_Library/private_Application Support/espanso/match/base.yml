@@ -37,7 +37,7 @@ matches:
         params:
           cmd: "echo 'Hello from your shell'"
 
-  - trigger: "::youtube"
+  - trigger: ":ytt"
     label: "YouTube Summary (de, en)"
     replace: "{{output}}"
     vars:
@@ -56,3 +56,30 @@ matches:
           cmd: "/Users/claus/.local/bin/ytt -l de,en '{{input.text}}' | /opt/homebrew/bin/fabric-ai -p youtube_summary"
           shell: bash
   # And much more! For more information, visit the docs: https://espanso.org/docs/
+  - trigger: ":youtube"
+    label: "YouTube Summary (de / en)"
+    replace: "{{output}}"
+    vars:
+      - name: "input"
+        type: form
+        params:
+          layout: |
+            Language:
+            [[lang]]
+
+            YouTube URL or Input:
+            [[text]]
+          fields:
+            lang:
+              type: list
+              values:
+                - de
+                - en
+              default: de
+            text:
+              multiline: false
+      - name: "output"
+        type: shell
+        params:
+          cmd: "/Users/claus/.local/bin/ytt -t -l de,en '{{input.text}}' | /opt/homebrew/bin/fabric-ai -g={{input.lang}} -p youtube_summary"
+          shell: bash
