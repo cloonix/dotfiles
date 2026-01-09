@@ -53,6 +53,6 @@ matches:
       - name: "output"
         type: shell
         params:
-          cmd: "ytt -l de,en '{{input.text}}' | fabric-ai -p youtube_summary"
+          cmd: "/Users/claus/.local/bin/ytt -l de,en '{{input.text}}' | /opt/homebrew/bin/fabric-ai -p youtube_summary"
           shell: bash
   # And much more! For more information, visit the docs: https://espanso.org/docs/
