@@ -62,7 +62,8 @@ fi
 
 # Install custom curl-based packages
 {{ range $customInstallers -}}
-{{- $installer := index $.custom . }}
+{{- $installer := index $.custom . -}}
+{{ if $installer -}}
 if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
     progress "Installing {{ . }}"
     if /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
@@ -80,6 +81,9 @@ if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
 else
     success "{{ . }} already installed"
 fi
+{{ else -}}
+warn "Installer '{{ . }}' not found in .chezmoidata/packages.yaml custom section"
+{{ end -}}
 {{ end }}
 
 # Install Homebrew packages (basic + profile)
