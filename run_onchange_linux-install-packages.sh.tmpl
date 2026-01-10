@@ -154,9 +154,9 @@ warn "Installer '{{ . }}' not found in .chezmoidata/packages.yaml custom section
 
 # Post-installation: fabric-ai setup
 {{ if has "fabric-ai" $allBrews -}}
-if command -v fabric >/dev/null 2>&1; then
+if command -v fabric-ai >/dev/null 2>&1; then
     progress "Updating fabric-ai patterns"
-    if fabric -U >/dev/null 2>&1; then
+    if fabric-ai -U >/dev/null 2>&1; then
         finish
     else
         failed
