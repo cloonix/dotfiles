@@ -95,7 +95,7 @@ if command -v fabric-ai >/dev/null 2>&1; then
     if [ ! -d "$HOME/git/fabric" ]; then
         progress "Cloning fabric patterns repository"
         mkdir -p "$HOME/git"
-        if git clone https://github.com/cloonix/fabric.git "$HOME/git/fabric" >/dev/null 2>&1; then
+        if git clone https://github.com/cloonix/fabric "$HOME/git/fabric" >/dev/null 2>&1; then
             finish
         else
             failed
