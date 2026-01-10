@@ -121,13 +121,6 @@ EOF
         failed
         exit 1
     fi
-
-    progress "Upgrading all brew packages"
-    if brew upgrade >/dev/null 2>&1; then
-        finish
-    else
-        failed
-    fi
 fi
 {{ end -}}
 

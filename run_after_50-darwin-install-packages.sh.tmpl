@@ -75,13 +75,6 @@ else
     exit 1
 fi
 
-progress "Upgrading all brew packages"
-if brew upgrade >/dev/null 2>&1; then
-    finish
-else
-    failed
-fi
-
 # Post-installation: fabric-ai setup
 {{ if has "fabric-ai" $allBrews -}}
 if command -v fabric-ai >/dev/null 2>&1; then
