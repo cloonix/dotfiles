@@ -1,8 +1,9 @@
-# Example configuration for setup-chezmoi-remote.sh
+# Configuration for setup-chezmoi-remote.sh
 # This is for REMOTE machine setup via SSH, not local file copying
 # For LOCAL file copying, use gopass-files-local.conf.tmpl
 # Format: gopass_path:remote_destination (one per line)
 # Lines starting with # are ignored
+# Remote paths use ~ which expands on the remote machine
 
 # Environment variables (sourced by .zshrc)
 config/shell/env:~/.env
@@ -11,10 +12,7 @@ config/shell/env:~/.env
 ssh/git/id_ed25519:~/.ssh/id_ed25519
 ssh/git/id_ed25519.pub:~/.ssh/id_ed25519.pub
 
-# GPG keys (if needed)
-# keys/gpg/private.asc:~/.gnupg/private.asc
-
-# Application configs (examples)
-# config/opencode/opencode.jsonc:~/.config/opencode/opencode.jsonc
-# config/opencode/auth.json:~/.local/share/opencode/auth.json
-# config/fabric/.env:~/.config/fabric/.env
+# Application configs (uncomment as needed)
+config/opencode/opencode.jsonc:~/.config/opencode/opencode.jsonc
+config/opencode/auth.json:~/.local/share/opencode/auth.json
+config/fabric/.env:~/.config/fabric/.env
