@@ -35,7 +35,7 @@ packages:
   dev:
     custom:
       - "opencode"
-      - "service-hub"
+      - "servicehub"
     apt:
       - "btop"
       - "build-essential"
