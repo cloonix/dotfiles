@@ -6,6 +6,9 @@ README.md
 # Archive folder for unused configs (kept for reference)
 .archive/
 
+# Environment variable files (managed via gopass, not templates)
+.env
+
 # OS-specific paths (use target paths, not source paths)
 {{- if ne .chezmoi.os "darwin" }}
 Library/

@@ -73,6 +73,16 @@ fpath+=~/.zsh/completions
 autoload -Uz compinit
 compinit
 
+# ========================================
+# Environment Variables (from gopass)
+# ========================================
+
+# Load environment variables from secure storage
+# File is managed via gopass and copied during 'chezmoi apply'
+if [[ -f "$HOME/.env" ]]; then
+  source "$HOME/.env"
+fi
+
 # Set terminal type
 export TERM=xterm-256color
 

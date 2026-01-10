@@ -4,6 +4,11 @@
 
 {{- if eq .chezmoi.os "darwin" }}
 # macOS-specific paths
+
+# Environment variables (sourced by .zshrc)
+config/shell/env:{{ .chezmoi.homeDir }}/.env
+
+# Application configs
 config/opencode/opencode.jsonc:{{ .chezmoi.homeDir }}/.config/opencode/opencode.jsonc
 config/opencode/auth.json:{{ .chezmoi.homeDir }}/.local/share/opencode/auth.json
 config/fabric/.env:{{ .chezmoi.homeDir }}/.config/fabric/.env
@@ -15,6 +20,11 @@ config/fabric/.env:{{ .chezmoi.homeDir }}/.config/fabric/.env
 
 {{- if eq .chezmoi.os "linux" }}
 # Linux-specific paths
+
+# Environment variables (sourced by .zshrc)
+config/shell/env:{{ .chezmoi.homeDir }}/.env
+
+# Application configs
 config/opencode/opencode.jsonc:{{ .chezmoi.homeDir }}/.config/opencode/opencode.jsonc
 config/opencode/auth.json:{{ .chezmoi.homeDir }}/.local/share/opencode/auth.json
 config/fabric/.env:{{ .chezmoi.homeDir }}/.config/fabric/.env
