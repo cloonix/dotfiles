@@ -154,18 +154,25 @@ if command -v fabric-ai >/dev/null 2>&1; then
         failed
     fi
 
-    if [ ! -d "$HOME/git/fabric" ]; then
-        progress "Cloning fabric patterns repository"
-        mkdir -p "$HOME/git"
-        if git clone https://github.com/cloonix/fabric "$HOME/git/fabric" >/dev/null 2>&1; then
-            finish
-        else
-            failed
-        fi
-    else
+    if [ -d "$HOME/git/fabric/.git" ]; then
+        # Repository exists, update it
         progress "Updating fabric patterns repository"
         if git -C "$HOME/git/fabric" fetch origin >/dev/null 2>&1 && \
            git -C "$HOME/git/fabric" reset --hard origin/main >/dev/null 2>&1; then
+            finish
+        else
+            # Update failed, remove and re-clone
+            warn "Update failed, removing and re-cloning"
+            rm -rf "$HOME/git/fabric"
+        fi
+    fi
+    
+    if [ ! -d "$HOME/git/fabric" ]; then
+        # Clone fresh
+        progress "Cloning fabric patterns repository"
+        mkdir -p "$HOME/git"
+        rm -rf "$HOME/git/fabric"  # Ensure clean slate
+        if git clone https://github.com/cloonix/fabric "$HOME/git/fabric" >/dev/null 2>&1; then
             finish
         else
             failed
