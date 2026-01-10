@@ -1,6 +1,48 @@
 #!/usr/bin/env bash
 {{ template "helpers.sh" . }}
 
+set -e
+
+{{- $profile := .profile | default "basic" }}
+
+section "Frameworks"
+
+# Setup/Update Zsh Prezto
+prezto_dir="${ZDOTDIR:-{{ .chezmoi.homeDir }}}/.zprezto"
+
+if [ -d "$prezto_dir" ]; then
+    progress "Updating Prezto"
+    if cd "$prezto_dir" && git pull --quiet && git submodule update --init --recursive --quiet; then
+        finish
+    else
+        failed
+        exit 1
+    fi
+else
+    progress "Installing Prezto"
+    if git clone --recursive --quiet https://github.com/sorin-ionescu/prezto.git "$prezto_dir"; then
+        finish
+    else
+        failed
+        exit 1
+    fi
+fi
+
+{{- if or (eq $profile "dev") (eq $profile "mac") }}
+# Configure gopass (dev/mac profiles only)
+if command -v gopass >/dev/null 2>&1; then
+    progress "Configuring gopass"
+    gopass config show.safecontent true >/dev/null 2>&1
+    gopass config show.autoclip false >/dev/null 2>&1
+    gopass config core.notifications false >/dev/null 2>&1
+    gopass git remote set-url --add --push origin {{ .gopass_push_url_1 | quote }} >/dev/null 2>&1
+    gopass git remote set-url --add --push origin {{ .gopass_push_url_2 | quote }} >/dev/null 2>&1
+    finish
+else
+    info "gopass not found, skipping"
+fi
+{{- end }}
+
 section "Finalization"
 
 # Ensure Homebrew is in PATH

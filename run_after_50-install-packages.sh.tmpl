@@ -1,4 +1,3 @@
-{{ if eq .chezmoi.os "linux" -}}
 #!/usr/bin/env bash
 # profile: {{ .profile | default "basic" }}
 {{ template "helpers.sh" . }}
@@ -45,45 +44,93 @@ set -e
 {{- $allCasks := $basicPackages.casks | default list }}
 {{- range (index $profilePackages "casks" | default list) }}{{ $allCasks = append $allCasks . }}{{ end }}
 
+{{ if eq .chezmoi.os "darwin" -}}
+section "macOS Packages ({{ $profile }})"
+
+{{ if and (ne $profile "basic") (not $profilePackages) -}}
+warn "Profile '{{ $profile }}' has no packages, installing basic only"
+{{ end -}}
+
+# Install custom curl-based packages (pre-brew)
+{{ range $preBrewInstallers -}}
+{{- $installer := index $.custom . }}
+if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
+    progress "Installing {{ . }}"
+    if /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
+        finish
+        {{ if eq . "homebrew" -}}
+        # Add Homebrew to PATH for Apple Silicon Macs
+        if [ -f "/opt/homebrew/bin/brew" ]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        fi
+        {{ end -}}
+    else
+        failed
+        exit 1
+    fi
+else
+    success "{{ . }} already installed"
+fi
+{{ end }}
+
+# Install Homebrew packages (basic + profile)
+{{- $allPkgs := list }}
+{{- range $allBrews }}{{ $allPkgs = append $allPkgs . }}{{ end }}
+{{- range $allCasks }}{{ $allPkgs = append $allPkgs . }}{{ end }}
+progress "Installing/upgrading brew packages ({{ $allPkgs | join ", " }})"
+if brew bundle --quiet --file=/dev/stdin <<EOF >/dev/null 2>&1
+{{ range $allBrews -}}
+brew {{ . | quote }}
+{{ end -}}
+{{ range $allCasks -}}
+cask {{ . | quote }}
+{{ end -}}
+EOF
+then
+    finish
+else
+    failed
+    exit 1
+fi
+
+# Post-installation: fabric-ai setup
+{{ if has "fabric-ai" $allBrews -}}
+if command -v fabric-ai >/dev/null 2>&1; then
+    progress "Updating fabric-ai patterns"
+    if fabric-ai -U >/dev/null 2>&1; then
+        finish
+    else
+        failed
+    fi
+
+    progress "Cloning fabric patterns repository"
+    rm -rf "$HOME/git/fabric"
+    mkdir -p "$HOME/git"
+    if git clone https://github.com/cloonix/fabric "$HOME/git/fabric" >/dev/null 2>&1; then
+        finish
+    else
+        failed
+    fi
+fi
+{{ end -}}
+{{ end -}}
+
+{{ if eq .chezmoi.os "linux" -}}
 section "Linux Packages ({{ $profile }})"
 
 {{ if and (ne $profile "basic") (not $profilePackages) -}}
 warn "Profile '{{ $profile }}' has no packages, installing basic only"
 {{ end -}}
 
-# Install APT packages first (may be needed for curl-based installers)
-{{ if $allApt -}}
-if command -v apt-get >/dev/null 2>&1; then
-    progress "Updating APT"
-    if sudo apt-get update -qq >/dev/null 2>&1; then
-        finish
-    else
-        failed
-        exit 1
-    fi
-
-    progress "Installing APT packages ({{ $allApt | join ", " }})"
-    if sudo apt-get install -y -qq {{ range $allApt }}{{ . }} {{ end }}>/dev/null 2>&1; then
-        finish
-    else
-        failed
-        exit 1
-    fi
-else
-    warn "APT not found, skipping APT packages"
-fi
-{{ end -}}
-
-# Install custom curl-based packages (pre-brew)
+# Install custom curl-based packages (pre-brew: everything except servicehub)
 {{ range $preBrewInstallers -}}
-{{- $installer := index $.custom . -}}
-{{ if $installer -}}
+{{- $installer := index $.custom . }}
 if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
     progress "Installing {{ . }}"
     if /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
         finish
         {{ if eq . "homebrew" -}}
-        # Add Homebrew to PATH
+        # Add Homebrew to PATH for Linux
         if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         fi
@@ -95,39 +142,38 @@ if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
 else
     success "{{ . }} already installed"
 fi
-{{ else -}}
-warn "Installer '{{ . }}' not found in .chezmoidata/packages.yaml custom section"
-{{ end -}}
 {{ end }}
 
-# Install Homebrew packages (basic + profile)
-{{ if or $allBrews $allCasks -}}
-if command -v brew >/dev/null 2>&1; then
-    {{- $allBrewPkgs := list }}
-    {{- range $allBrews }}{{ $allBrewPkgs = append $allBrewPkgs . }}{{ end }}
-    {{- range $allCasks }}{{ $allBrewPkgs = append $allBrewPkgs . }}{{ end }}
-    progress "Installing/upgrading brew packages ({{ $allBrewPkgs | join ", " }})"
-    if brew bundle --quiet --file=/dev/stdin <<EOF >/dev/null 2>&1
-{{ range $allBrews -}}
-brew {{ . | quote }}
-{{ end -}}
-{{ range $allCasks -}}
-cask {{ . | quote }}
-{{ end -}}
-EOF
-    then
-        finish
-    else
-        failed
-        exit 1
-    fi
+# Install APT packages (basic + profile)
+{{ if $allApt -}}
+progress "Installing APT packages ({{ $allApt | join ", " }})"
+if sudo apt-get update -qq && sudo apt-get install -y {{ $allApt | join " " }} >/dev/null 2>&1; then
+    finish
+else
+    failed
+    exit 1
 fi
 {{ end -}}
 
-# Install custom curl-based packages (post-brew, requires pipx)
+# Install Homebrew packages (basic + profile)
+{{ if $allBrews -}}
+progress "Installing/upgrading brew packages ({{ $allBrews | join ", " }})"
+if brew bundle --quiet --file=/dev/stdin <<EOF >/dev/null 2>&1
+{{ range $allBrews -}}
+brew {{ . | quote }}
+{{ end -}}
+EOF
+then
+    finish
+else
+    failed
+    exit 1
+fi
+{{ end -}}
+
+# Install custom curl-based packages (post-brew: servicehub)
 {{ range $postBrewInstallers -}}
-{{- $installer := index $.custom . -}}
-{{ if $installer -}}
+{{- $installer := index $.custom . }}
 if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
     progress "Installing {{ . }}"
     if /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
@@ -139,9 +185,6 @@ if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
 else
     success "{{ . }} already installed"
 fi
-{{ else -}}
-warn "Installer '{{ . }}' not found in .chezmoidata/packages.yaml custom section"
-{{ end -}}
 {{ end }}
 
 # Post-installation: fabric-ai setup
