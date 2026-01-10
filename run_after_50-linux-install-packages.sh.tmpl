@@ -1,6 +1,5 @@
 {{ if eq .chezmoi.os "linux" -}}
 #!/usr/bin/env bash
-# hash: {{ include ".chezmoidata/packages.yaml" | sha256sum }}
 # profile: {{ .profile | default "basic" }}
 {{ template "helpers.sh" . }}
 
