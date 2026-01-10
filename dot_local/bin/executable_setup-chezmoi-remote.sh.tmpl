@@ -239,16 +239,6 @@ bash -l -c \"
   # --- Install and initialize chezmoi with official installer ---
   echo Installing and initializing chezmoi with repository: $CHEZMOI_REPO
   sh -c \\\"\\\$(curl -fsLS get.chezmoi.io)\\\" -- init --apply --force $BRANCH_FLAG $CHEZMOI_REPO
-  
-  # --- Pull latest changes if chezmoi was already initialized ---
-  if [ -d ~/.local/share/chezmoi/.git ]; then
-    echo Pulling latest changes from repository...
-    # Find chezmoi in common locations (Homebrew or ~/.local/bin)
-    CHEZMOI_BIN=\\\$(command -v chezmoi || echo ~/.local/bin/chezmoi)
-    if [ -x \\\"\\\$CHEZMOI_BIN\\\" ]; then
-      \\\$CHEZMOI_BIN update --force
-    fi
-  fi
 \""
 
 echo ""
