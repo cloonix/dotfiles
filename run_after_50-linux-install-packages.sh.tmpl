@@ -164,10 +164,10 @@ if command -v fabric-ai >/dev/null 2>&1; then
         fi
     else
         progress "Updating fabric patterns repository"
-        if git -C "$HOME/git/fabric" pull >/dev/null 2>&1; then
+        if git -C "$HOME/git/fabric" pull --ff-only >/dev/null 2>&1; then
             finish
         else
-            failed
+            warn "Failed to pull latest changes (may have local modifications)"
         fi
     fi
 fi
