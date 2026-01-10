@@ -85,8 +85,9 @@ if command -v fabric-ai >/dev/null 2>&1; then
         failed
     fi
 
+    # Check if repository exists and is valid
     if [ -d "$HOME/git/fabric/.git" ]; then
-        # Repository exists, update it
+        # Valid repository exists, update it
         progress "Updating fabric patterns repository"
         if git -C "$HOME/git/fabric" fetch origin >/dev/null 2>&1 && \
            git -C "$HOME/git/fabric" reset --hard origin/main >/dev/null 2>&1; then
@@ -96,13 +97,16 @@ if command -v fabric-ai >/dev/null 2>&1; then
             warn "Update failed, removing and re-cloning"
             rm -rf "$HOME/git/fabric"
         fi
+    elif [ -d "$HOME/git/fabric" ]; then
+        # Directory exists but not a valid git repo, remove it
+        warn "Invalid repository found, removing"
+        rm -rf "$HOME/git/fabric"
     fi
     
+    # Clone if directory doesn't exist
     if [ ! -d "$HOME/git/fabric" ]; then
-        # Clone fresh
         progress "Cloning fabric patterns repository"
         mkdir -p "$HOME/git"
-        rm -rf "$HOME/git/fabric"  # Ensure clean slate
         if git clone https://github.com/cloonix/fabric "$HOME/git/fabric" >/dev/null 2>&1; then
             finish
         else
