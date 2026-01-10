@@ -8,11 +8,26 @@ set -e
 
 {{- $profile := .profile | default "basic" }}
 
-{{/* Collect custom installers: always basic, plus profile if not basic */}}
-{{- $customInstallers := (index .packages "basic").custom | default list }}
+{{/* Collect custom installers and separate them by dependency order */}}
+{{- $preBrewInstallers := list }}
+{{- $postBrewInstallers := list }}
+
+{{/* Collect all custom installers from basic + profile */}}
+{{- $allCustomInstallers := (index .packages "basic").custom | default list }}
 {{- if ne $profile "basic" }}
 {{- $profileCustom := (index .packages $profile).custom | default list }}
-{{- range $profileCustom }}{{ $customInstallers = append $customInstallers . }}{{ end }}
+{{- range $profileCustom }}{{ $allCustomInstallers = append $allCustomInstallers . }}{{ end }}
+{{- end }}
+
+{{/* Separate installers: homebrew must run first, servicehub must run after brew packages */}}
+{{- range $allCustomInstallers }}
+{{- if eq . "homebrew" }}
+{{- $preBrewInstallers = append $preBrewInstallers . }}
+{{- else if eq . "servicehub" }}
+{{- $postBrewInstallers = append $postBrewInstallers . }}
+{{- else }}
+{{- $preBrewInstallers = append $preBrewInstallers . }}
+{{- end }}
 {{- end }}
 
 {{/* Merge consolidated packages: basic + profile */}}
@@ -60,8 +75,8 @@ else
 fi
 {{ end -}}
 
-# Install custom curl-based packages
-{{ range $customInstallers -}}
+# Install custom curl-based packages (pre-brew)
+{{ range $preBrewInstallers -}}
 {{- $installer := index $.custom . -}}
 {{ if $installer -}}
 if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
@@ -116,6 +131,26 @@ EOF
     fi
 fi
 {{ end -}}
+
+# Install custom curl-based packages (post-brew, requires pipx)
+{{ range $postBrewInstallers -}}
+{{- $installer := index $.custom . -}}
+{{ if $installer -}}
+if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
+    progress "Installing {{ . }}"
+    if /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
+        finish
+    else
+        failed
+        exit 1
+    fi
+else
+    success "{{ . }} already installed"
+fi
+{{ else -}}
+warn "Installer '{{ . }}' not found in .chezmoidata/packages.yaml custom section"
+{{ end -}}
+{{ end }}
 
 # Post-installation: fabric-ai setup
 {{ if has "fabric-ai" $allBrews -}}
