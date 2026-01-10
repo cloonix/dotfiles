@@ -1,4 +1,3 @@
-{{ if lookPath "fabric-ai" -}}
 # Fabric AI Configuration
 # Custom patterns directory
 DEFAULT_VENDOR=OpenRouter
@@ -8,4 +7,3 @@ PATTERNS_LOADER_GIT_REPO_PATTERNS_FOLDER=data/patterns
 CUSTOM_PATTERNS_DIRECTORY={{ .chezmoi.homeDir }}/git/fabric
 PROMPT_STRATEGIES_GIT_REPO_URL=https://github.com/danielmiessler/fabric.git
 PROMPT_STRATEGIES_GIT_REPO_STRATEGIES_FOLDER=data/strategies
-{{ end -}}
