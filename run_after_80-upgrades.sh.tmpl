@@ -8,6 +8,6 @@ progress "OpenCode"
 if opencode upgrade >/dev/null 2>&1; then
     finish
 else
-    failed
+    warn "OpenCode upgrade failed or skipped"
 fi
 {{ end -}}
