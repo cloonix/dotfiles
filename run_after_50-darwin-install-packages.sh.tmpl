@@ -95,10 +95,11 @@ if command -v fabric-ai >/dev/null 2>&1; then
         fi
     else
         progress "Updating fabric patterns repository"
-        if git -C "$HOME/git/fabric" pull --ff-only >/dev/null 2>&1; then
+        if git -C "$HOME/git/fabric" fetch origin >/dev/null 2>&1 && \
+           git -C "$HOME/git/fabric" reset --hard origin/main >/dev/null 2>&1; then
             finish
         else
-            warn "Failed to pull latest changes (may have local modifications)"
+            failed
         fi
     fi
 fi
