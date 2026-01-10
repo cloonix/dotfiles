@@ -6,6 +6,9 @@ custom:
   opencode:
     check: "opencode"
     url: "https://opencode.ai/install"
+  servicehub:
+    check: "crawl"
+    url: "https://raw.githubusercontent.com/cloonix/service-hub/main/install.sh"
 
 # Package installation is ADDITIVE:
 # - basic is always installed first
@@ -32,6 +35,7 @@ packages:
   dev:
     custom:
       - "opencode"
+      - "service-hub"
     apt:
       - "btop"
       - "build-essential"
