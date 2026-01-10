@@ -28,13 +28,13 @@ if command -v dstask >/dev/null 2>&1; then
 fi
 
 alias pass=gopass
+alias fabric="fabric-ai"
+alias f="fabric-ai"
 
 # Darwin-specific aliases
 {{- if eq .chezmoi.os "darwin" }}
   alias pp="pbpaste"
   alias pc="pbcopy"
-  alias fabric="fabric-ai"
-  alias f="fabric-ai"
 {{- end }}
 
 # Mac profile aliases
