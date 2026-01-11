@@ -96,17 +96,17 @@ fi
 # Post-installation: fabric-ai setup
 {{ if has "fabric-ai" $allBrews -}}
 if command -v fabric-ai >/dev/null 2>&1; then
-    progress "Updating fabric-ai patterns"
-    if fabric-ai -U >/dev/null 2>&1; then
+    progress "Cloning fabric patterns repository"
+    rm -rf "$HOME/git/fabric"
+    mkdir -p "$HOME/git"
+    if git clone https://github.com/cloonix/fabric "$HOME/git/fabric" >/dev/null 2>&1; then
         finish
     else
         failed
     fi
 
-    progress "Cloning fabric patterns repository"
-    rm -rf "$HOME/git/fabric"
-    mkdir -p "$HOME/git"
-    if git clone https://github.com/cloonix/fabric "$HOME/git/fabric" >/dev/null 2>&1; then
+    progress "Updating fabric-ai patterns"
+    if fabric-ai -U >/dev/null 2>&1; then
         finish
     else
         failed
@@ -190,17 +190,17 @@ fi
 # Post-installation: fabric-ai setup
 {{ if has "fabric-ai" $allBrews -}}
 if command -v fabric-ai >/dev/null 2>&1; then
-    progress "Updating fabric-ai patterns"
-    if fabric-ai -U >/dev/null 2>&1; then
+    progress "Cloning fabric patterns repository"
+    rm -rf "$HOME/git/fabric"
+    mkdir -p "$HOME/git"
+    if git clone https://github.com/cloonix/fabric "$HOME/git/fabric" >/dev/null 2>&1; then
         finish
     else
         failed
     fi
 
-    progress "Cloning fabric patterns repository"
-    rm -rf "$HOME/git/fabric"
-    mkdir -p "$HOME/git"
-    if git clone https://github.com/cloonix/fabric "$HOME/git/fabric" >/dev/null 2>&1; then
+    progress "Updating fabric-ai patterns"
+    if fabric-ai -U >/dev/null 2>&1; then
         finish
     else
         failed
