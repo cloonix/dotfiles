@@ -106,3 +106,12 @@ desc = "Copy filename"
 on   = [ "y", "." ]
 run  = "copy filename_without_ext"
 desc = "Copy filename without extension"
+
+# Unbind default 'q' behavior and use it for tab_close only
+[[mgr.remove_keymap]]
+on   = [ "q" ]
+
+[[mgr.prepend_keymap]]
+on   = "q"
+run  = "tab_close"
+desc = "Close current tab"
