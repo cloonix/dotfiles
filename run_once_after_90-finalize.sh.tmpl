@@ -35,8 +35,18 @@ if command -v gopass >/dev/null 2>&1; then
     gopass config show.safecontent true >/dev/null 2>&1
     gopass config show.autoclip false >/dev/null 2>&1
     gopass config core.notifications false >/dev/null 2>&1
-    gopass git remote set-url --add --push origin {{ .gopass_push_url_1 | quote }} >/dev/null 2>&1
-    gopass git remote set-url --add --push origin {{ .gopass_push_url_2 | quote }} >/dev/null 2>&1
+    
+    # Setup push URLs (idempotent - check if already configured)
+    current_pushurls=$(gopass git remote get-url --push --all origin 2>/dev/null | sort)
+    expected_pushurls=$(printf "%s\n%s" {{ .gopass_push_url_1 | quote }} {{ .gopass_push_url_2 | quote }} | sort)
+    
+    if [ "$current_pushurls" != "$expected_pushurls" ]; then
+        # Reset push URLs to match fetch URL
+        gopass git remote set-url --push origin {{ .gopass_push_url_1 | quote }} >/dev/null 2>&1
+        # Add second push URL
+        gopass git remote set-url --add --push origin {{ .gopass_push_url_2 | quote }} >/dev/null 2>&1
+    fi
+    
     finish
 else
     info "gopass not found, skipping"
