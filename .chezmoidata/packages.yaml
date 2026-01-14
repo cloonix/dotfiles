@@ -62,6 +62,7 @@ packages:
   mac:
     custom:
       - "opencode"
+      - "servicehub"
     brews:
       - "ansible"
       - "btop"
@@ -79,9 +80,11 @@ packages:
       - "logrotate"
       - "ncdu"
       - "nmap"
+      - "mole"
       - "sevenzip"
       - "syncthing"
       - "yazi"
     casks:
       - "claude-code"
+      - "mountain-duck"
       - "typora"
