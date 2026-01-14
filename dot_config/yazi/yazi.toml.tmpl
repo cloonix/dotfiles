@@ -46,7 +46,11 @@ run  = "git"
 
 [open]
 rules = [
+{{- if eq .chezmoi.os "darwin" }}
+    { url = "*/", use = [ "terminal", "edit", "code", "ncdu", "archive" ] },
+{{- else }}
     { url = "*/", use = [ "edit", "code", "ncdu", "archive" ] },
+{{- end }}
 {{- if lookPath "open" }}
 {{-   $typoraPath := "/Applications/Typora.app" }}
 {{-   if stat $typoraPath }}
@@ -80,8 +84,8 @@ code = [
 ]
 
 ncdu = [
-    { run = 'ncdu --color dark "$1"', block = true, desc = "Ncdu", for = "macos" },
-    { run = 'ncdu --color dark "$1"', block = true, desc = "Ncdu", for = "unix" },
+    { run = 'ncdu --color dark "$1"', block = true, desc = "󰕰  Disk Usage (ncdu)", for = "macos" },
+    { run = 'ncdu --color dark "$1"', block = true, desc = "󰕰  Disk Usage (ncdu)", for = "unix" },
 ]
 
 reveal = [
@@ -103,3 +107,9 @@ copy_path = [
 open_default = [
     { run = 'open "$1"', orphan = true, desc = "🚀 Open with Default App", for = "macos" },
 ]
+
+{{- if eq .chezmoi.os "darwin" }}
+terminal = [
+    { run = 'open -a Ghostty "$1"', orphan = true, desc = "  Terminal (Ghostty)", for = "macos" },
+]
+{{- end }}

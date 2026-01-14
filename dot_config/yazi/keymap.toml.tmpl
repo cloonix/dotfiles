@@ -88,22 +88,22 @@ run  = "cd ~/dotfiles"
 desc = "Go to dotfiles"
 
 [[mgr.prepend_keymap]]
-on   = [ "y", "p" ]
+on   = [ "Y", "p" ]
 run  = "copy path"
 desc = "Copy absolute path"
 
 [[mgr.prepend_keymap]]
-on   = [ "y", "d" ]
+on   = [ "Y", "d" ]
 run  = "copy dirname"
 desc = "Copy directory path"
 
 [[mgr.prepend_keymap]]
-on   = [ "y", "n" ]
+on   = [ "Y", "n" ]
 run  = "copy filename"
 desc = "Copy filename"
 
 [[mgr.prepend_keymap]]
-on   = [ "y", "." ]
+on   = [ "Y", "." ]
 run  = "copy filename_without_ext"
 desc = "Copy filename without extension"
 
@@ -115,3 +115,11 @@ on   = [ "q" ]
 on   = "q"
 run  = "tab_close"
 desc = "Close current tab"
+
+{{- if eq .chezmoi.os "darwin" }}
+
+[[mgr.prepend_keymap]]
+on   = [ "g", "t" ]
+run  = 'shell "open -a Ghostty $PWD" --orphan --confirm'
+desc = "Open current folder in Ghostty"
+{{- end }}
