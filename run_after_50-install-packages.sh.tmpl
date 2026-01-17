@@ -93,6 +93,22 @@ else
     exit 1
 fi
 
+# Install custom curl-based packages (post-brew: servicehub)
+{{ range $postBrewInstallers -}}
+{{- $installer := index $.custom . }}
+if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
+    progress "Installing {{ . }}"
+    if /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
+        finish
+    else
+        failed
+        exit 1
+    fi
+else
+    success "{{ . }} already installed"
+fi
+{{ end }}
+
 # Post-installation: fabric-ai setup
 {{ if has "fabric-ai" $allBrews -}}
 if command -v fabric-ai >/dev/null 2>&1; then
