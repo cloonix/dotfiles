@@ -250,13 +250,14 @@ bash -l -c \"
   
   # --- Install and initialize chezmoi with official installer ---
   echo Installing and initializing chezmoi with repository: $CHEZMOI_REPO
-  bash -c \\\"\\\$(curl -fsLS get.chezmoi.io)\\\" -- init --apply --force $BRANCH_FLAG $CHEZMOI_REPO
   
-  # --- Force update to get latest changes if already initialized ---
-  if command -v chezmoi >/dev/null 2>&1; then
-    echo Updating chezmoi to latest changes...
-    chezmoi update --force
+  # --- If chezmoi already exists, pull latest changes first ---
+  if [ -d ~/.local/share/chezmoi/.git ]; then
+    echo Pulling latest changes from repository...
+    git -C ~/.local/share/chezmoi pull
   fi
+  
+  bash -c \\\"\\\$(curl -fsLS get.chezmoi.io)\\\" -- init --apply --force $BRANCH_FLAG $CHEZMOI_REPO
 \""
 
 echo ""
