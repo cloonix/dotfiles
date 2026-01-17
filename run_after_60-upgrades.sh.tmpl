@@ -4,6 +4,18 @@
 
 section "Upgrades"
 
+# Ensure Homebrew is in PATH if installed
+{{ if eq .chezmoi.os "darwin" -}}
+if [ -f "/opt/homebrew/bin/brew" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+{{- end }}
+{{ if eq .chezmoi.os "linux" -}}
+if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+{{- end }}
+
 {{ if lookPath "brew" -}}
 progress "Homebrew update"
 if brew update >/dev/null 2>&1; then
