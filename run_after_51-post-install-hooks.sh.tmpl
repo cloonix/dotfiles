@@ -13,9 +13,10 @@ set -e
 {{- $allBrews := $basicPackages.brews | default list }}
 {{- range (index $profilePackages "brews" | default list) }}{{ $allBrews = append $allBrews . }}{{ end }}
 
+{{/* Fabric AI post-install setup */}}
 {{ if has "fabric-ai" $allBrews -}}
 if command -v fabric-ai >/dev/null 2>&1; then
-    section "Fabric AI Setup"
+    section "Post-Install: Fabric AI"
     
     progress "Cloning fabric patterns repository"
     rm -rf "$HOME/git/fabric"
@@ -34,3 +35,15 @@ if command -v fabric-ai >/dev/null 2>&1; then
     fi
 fi
 {{ end -}}
+
+{{/* Add more post-install hooks here as needed */}}
+{{/* Example:
+{{ if has "docker" $allBrews -}}
+if command -v docker >/dev/null 2>&1; then
+    section "Post-Install: Docker"
+    progress "Setting up Docker"
+    # Docker setup commands here
+    finish
+fi
+{{ end -}}
+*/}}

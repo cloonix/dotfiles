@@ -1,14 +1,25 @@
 # Custom installers - curl-based install scripts
+# Metadata fields:
+#   check: Command to check if installed
+#   url: Install script URL
+#   install_when: "missing" (only if not installed) or "always" (run every time)
+#   requires: List of command dependencies (must exist before running)
 custom:
   homebrew:
     check: "brew"
     url: "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+    install_when: "missing"
+    requires: []
   opencode:
     check: "opencode"
     url: "https://opencode.ai/install"
+    install_when: "always"
+    requires: ["brew"]
   servicehub:
     check: "crawl"
     url: "https://raw.githubusercontent.com/cloonix/service-hub/main/install.sh"
+    install_when: "always"
+    requires: ["brew", "pipx"]
 
 # Package installation combines basic + profile:
 # - Combinations: basic+dev (Linux) OR basic+mac (macOS)
