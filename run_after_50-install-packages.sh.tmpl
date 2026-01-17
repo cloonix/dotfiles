@@ -1,34 +1,11 @@
 #!/usr/bin/env bash
-# profile: {{ .profile | default "basic" }}
 {{ template "helpers.sh" . }}
 
 set -e
 
 {{- $profile := .profile | default "basic" }}
 
-{{/* Collect custom installers and separate them by dependency order */}}
-{{- $preBrewInstallers := list }}
-{{- $postBrewInstallers := list }}
-
-{{/* Collect all custom installers from basic + profile */}}
-{{- $allCustomInstallers := (index .packages "basic").custom | default list }}
-{{- if ne $profile "basic" }}
-{{- $profileCustom := (index .packages $profile).custom | default list }}
-{{- range $profileCustom }}{{ $allCustomInstallers = append $allCustomInstallers . }}{{ end }}
-{{- end }}
-
-{{/* Separate installers: homebrew must run first, servicehub must run after brew packages */}}
-{{- range $allCustomInstallers }}
-{{- if eq . "homebrew" }}
-{{- $preBrewInstallers = append $preBrewInstallers . }}
-{{- else if eq . "servicehub" }}
-{{- $postBrewInstallers = append $postBrewInstallers . }}
-{{- else }}
-{{- $preBrewInstallers = append $preBrewInstallers . }}
-{{- end }}
-{{- end }}
-
-{{/* Merge consolidated packages: basic + profile */}}
+{{/* Merge packages: basic + profile */}}
 {{- $basicPackages := index .packages "basic" | default dict }}
 {{- $profilePackages := dict }}
 {{- if ne $profile "basic" }}
@@ -45,47 +22,17 @@ set -e
 {{- range (index $profilePackages "casks" | default list) }}{{ $allCasks = append $allCasks . }}{{ end }}
 
 {{ if eq .chezmoi.os "darwin" -}}
-section "macOS Packages ({{ $profile }})"
+section "Packages ({{ $profile }})"
 
 {{ if and (ne $profile "basic") (not $profilePackages) -}}
 warn "Profile '{{ $profile }}' has no packages, installing basic only"
 {{ end -}}
 
-# Install custom curl-based packages (pre-brew)
-{{ range $preBrewInstallers -}}
-{{- $installer := index $.custom . }}
-{{ if eq . "homebrew" -}}
-if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
-    progress "Installing {{ . }}"
-    if /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
-        finish
-        # Add Homebrew to PATH for Apple Silicon Macs
-        if [ -f "/opt/homebrew/bin/brew" ]; then
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-        fi
-    else
-        failed
-        exit 1
-    fi
-else
-    success "{{ . }} already installed"
-fi
-{{ else -}}
-progress "Installing/upgrading {{ . }}"
-if /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
-    finish
-else
-    failed
-    exit 1
-fi
-{{ end -}}
-{{ end }}
-
-# Install Homebrew packages (basic + profile)
 {{- $allPkgs := list }}
 {{- range $allBrews }}{{ $allPkgs = append $allPkgs . }}{{ end }}
 {{- range $allCasks }}{{ $allPkgs = append $allPkgs . }}{{ end }}
-progress "Installing/upgrading brew packages ({{ $allPkgs | join ", " }})"
+{{ if gt (len $allPkgs) 0 -}}
+progress "Installing/upgrading packages ({{ $allPkgs | join ", " }})"
 if brew bundle --quiet --file=/dev/stdin <<EOF >/dev/null 2>&1
 {{ range $allBrews -}}
 brew {{ . | quote }}
@@ -100,80 +47,18 @@ else
     failed
     exit 1
 fi
-
-# Install custom curl-based packages (post-brew: servicehub)
-{{ range $postBrewInstallers -}}
-{{- $installer := index $.custom . }}
-progress "Installing/upgrading {{ . }}"
-if /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
-    finish
-else
-    failed
-    exit 1
-fi
-{{ end }}
-
-# Post-installation: fabric-ai setup
-{{ if has "fabric-ai" $allBrews -}}
-if command -v fabric-ai >/dev/null 2>&1; then
-    progress "Cloning fabric patterns repository"
-    rm -rf "$HOME/git/fabric"
-    mkdir -p "$HOME/git"
-    if git clone https://github.com/cloonix/fabric "$HOME/git/fabric" >/dev/null 2>&1; then
-        finish
-    else
-        failed
-    fi
-
-    progress "Updating fabric-ai patterns"
-    if fabric-ai -U >/dev/null 2>&1; then
-        finish
-    else
-        failed
-    fi
-fi
 {{ end -}}
 {{ end -}}
 
 {{ if eq .chezmoi.os "linux" -}}
-section "Linux Packages ({{ $profile }})"
+section "Packages ({{ $profile }})"
 
 {{ if and (ne $profile "basic") (not $profilePackages) -}}
 warn "Profile '{{ $profile }}' has no packages, installing basic only"
 {{ end -}}
 
-# Install custom curl-based packages (pre-brew: everything except servicehub)
-{{ range $preBrewInstallers -}}
-{{- $installer := index $.custom . }}
-{{ if eq . "homebrew" -}}
-if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
-    progress "Installing {{ . }}"
-    if /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
-        finish
-        # Add Homebrew to PATH for Linux
-        if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-        fi
-    else
-        failed
-        exit 1
-    fi
-else
-    success "{{ . }} already installed"
-fi
-{{ else -}}
-progress "Installing/upgrading {{ . }}"
-if /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
-    finish
-else
-    failed
-    exit 1
-fi
-{{ end -}}
-{{ end }}
-
-# Install APT packages (basic + profile)
-{{ if $allApt -}}
+# Install APT packages
+{{ if gt (len $allApt) 0 -}}
 progress "Installing APT packages ({{ $allApt | join ", " }})"
 if sudo apt-get update -qq && sudo apt-get install -y {{ $allApt | join " " }} >/dev/null 2>&1; then
     finish
@@ -183,8 +68,8 @@ else
 fi
 {{ end -}}
 
-# Install Homebrew packages (basic + profile)
-{{ if $allBrews -}}
+# Install Homebrew packages
+{{ if gt (len $allBrews) 0 -}}
 progress "Installing/upgrading brew packages ({{ $allBrews | join ", " }})"
 if brew bundle --quiet --file=/dev/stdin <<EOF >/dev/null 2>&1
 {{ range $allBrews -}}
@@ -196,39 +81,6 @@ then
 else
     failed
     exit 1
-fi
-{{ end -}}
-
-# Install custom curl-based packages (post-brew: servicehub)
-{{ range $postBrewInstallers -}}
-{{- $installer := index $.custom . }}
-progress "Installing/upgrading {{ . }}"
-if /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
-    finish
-else
-    failed
-    exit 1
-fi
-{{ end }}
-
-# Post-installation: fabric-ai setup
-{{ if has "fabric-ai" $allBrews -}}
-if command -v fabric-ai >/dev/null 2>&1; then
-    progress "Cloning fabric patterns repository"
-    rm -rf "$HOME/git/fabric"
-    mkdir -p "$HOME/git"
-    if git clone https://github.com/cloonix/fabric "$HOME/git/fabric" >/dev/null 2>&1; then
-        finish
-    else
-        failed
-    fi
-
-    progress "Updating fabric-ai patterns"
-    if fabric-ai -U >/dev/null 2>&1; then
-        finish
-    else
-        failed
-    fi
 fi
 {{ end -}}
 {{ end -}}

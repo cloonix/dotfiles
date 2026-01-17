@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+{{ template "helpers.sh" . }}
+
+set -e
+
+{{- $profile := .profile | default "basic" }}
+{{- $basicPackages := index .packages "basic" | default dict }}
+{{- $profilePackages := dict }}
+{{- if ne $profile "basic" }}
+{{- $profilePackages = index .packages $profile | default dict }}
+{{- end }}
+
+{{- $allBrews := $basicPackages.brews | default list }}
+{{- range (index $profilePackages "brews" | default list) }}{{ $allBrews = append $allBrews . }}{{ end }}
+
+{{ if has "fabric-ai" $allBrews -}}
+if command -v fabric-ai >/dev/null 2>&1; then
+    section "Fabric AI Setup"
+    
+    progress "Cloning fabric patterns repository"
+    rm -rf "$HOME/git/fabric"
+    mkdir -p "$HOME/git"
+    if git clone https://github.com/cloonix/fabric "$HOME/git/fabric" >/dev/null 2>&1; then
+        finish
+    else
+        failed
+    fi
+
+    progress "Updating fabric-ai patterns"
+    if fabric-ai -U >/dev/null 2>&1; then
+        finish
+    else
+        failed
+    fi
+fi
+{{ end -}}

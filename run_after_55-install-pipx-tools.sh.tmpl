@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+{{ template "helpers.sh" . }}
+{{ template "install_tool.sh" . }}
+
+set -e
+
+{{- $profile := .profile | default "basic" }}
+
+{{/* Collect pipx-dependent tools (currently just servicehub) from basic + profile */}}
+{{- $pipxTools := list }}
+{{- $basicCustom := (index .packages "basic").custom | default list }}
+{{- range $basicCustom }}
+{{- if eq . "servicehub" }}{{ $pipxTools = append $pipxTools . }}{{ end }}
+{{- end }}
+
+{{- if ne $profile "basic" }}
+{{- $profileCustom := (index .packages $profile).custom | default list }}
+{{- range $profileCustom }}
+{{- if eq . "servicehub" }}{{ $pipxTools = append $pipxTools . }}{{ end }}
+{{- end }}
+{{- end }}
+
+{{ if gt (len $pipxTools) 0 -}}
+# Check if pipx is available (required dependency)
+if ! command -v pipx >/dev/null 2>&1; then
+    warn "pipx not found, skipping pipx-dependent tools"
+    info "Install pipx via brew/apt, then run 'chezmoi apply' again"
+    exit 0
+fi
+
+section "Pipx Tools ({{ $profile }})"
+
+{{ range $pipxTools -}}
+{{- $installer := index $.custom . }}
+install_tool "{{ . }}" "{{ $installer.url }}" "{{ $installer.check }}" "true"
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+{{ end -}}
+{{ end -}}

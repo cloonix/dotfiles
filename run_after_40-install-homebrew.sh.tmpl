@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+{{ template "helpers.sh" . }}
+
+set -e
+
+{{ if eq .chezmoi.os "darwin" -}}
+section "Homebrew (macOS)"
+
+if ! command -v brew >/dev/null 2>&1; then
+    progress "Installing Homebrew"
+    if /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" >/dev/null 2>&1; then
+        finish
+        # Add Homebrew to PATH for Apple Silicon Macs
+        if [ -f "/opt/homebrew/bin/brew" ]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        fi
+    else
+        failed
+        exit 1
+    fi
+else
+    success "Homebrew already installed"
+fi
+{{ end -}}
+
+{{ if eq .chezmoi.os "linux" -}}
+section "Homebrew (Linux)"
+
+if ! command -v brew >/dev/null 2>&1; then
+    progress "Installing Homebrew"
+    if /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" >/dev/null 2>&1; then
+        finish
+        # Add Homebrew to PATH for Linux
+        if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        fi
+    else
+        failed
+        exit 1
+    fi
+else
+    success "Homebrew already installed"
+fi
+{{ end -}}
