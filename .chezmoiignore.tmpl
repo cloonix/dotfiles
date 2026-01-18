@@ -2,6 +2,8 @@
 .chezmoi.toml
 
 README.md
+AGENTS.md
+PROFILES.md
 
 # Archive folder for unused configs (kept for reference)
 .archive/
@@ -12,7 +14,4 @@ README.md
 # OS-specific paths (use target paths, not source paths)
 {{- if ne .chezmoi.os "darwin" }}
 Library/
-{{- end }}
-{{- if ne .chezmoi.os "linux" }}
-.config/lazygit/
 {{- end }}
