@@ -37,6 +37,15 @@ if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
     fi
 else
     success "Homebrew already installed"
+    
+    # Update Homebrew
+    progress "Updating Homebrew"
+    if brew update >/dev/null 2>&1; then
+        finish
+    else
+        failed
+        exit 1
+    fi
 fi
 {{- end }}
 
@@ -55,6 +64,15 @@ if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
     fi
 else
     success "Homebrew already installed"
+    
+    # Update Homebrew
+    progress "Updating Homebrew"
+    if brew update >/dev/null 2>&1; then
+        finish
+    else
+        failed
+        exit 1
+    fi
 fi
 {{- end }}
 

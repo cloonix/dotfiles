@@ -17,15 +17,7 @@ fi
 {{- end }}
 
 {{ if lookPath "brew" -}}
-progress "Homebrew update"
-if brew update >/dev/null 2>&1; then
-    finish
-else
-    failed
-    exit 1
-fi
-
-progress "Homebrew upgrade"
+progress "Upgrading Homebrew packages"
 if brew upgrade >/dev/null 2>&1; then
     finish
 else
