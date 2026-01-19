@@ -39,10 +39,10 @@ packages:
       - "rsync"
       - "zsh"
       - "zoxide"
-      - "fd"
-      - "fzf"
     brews:
       - "fastfetch"
+      - "fzf"
+      - "fd"
       - "neovim"
       - "starship"
       - "zellij"
