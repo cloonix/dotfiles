@@ -46,7 +46,7 @@ Your `.zshrc` configuration is well-structured and makes good use of chezmoi tem
 
 ## Detailed Improvement Analysis
 
-### 1. Performance Optimizations ⚡(#doit)
+### 1. Performance Optimizations ⚡ (#done)
 
 **Current Issues:**
 - `fastfetch` runs on every shell startup (including subshells)
@@ -86,7 +86,7 @@ fi
 
 ---
 
-### 2. FZF Integration 🔍 (#doit but not only for dev and mac, but if fzf/fd are available)
+### 2. FZF Integration 🔍 (#done)
 
 **Current State:**
 - FZF installed in dev/mac profiles
@@ -144,7 +144,7 @@ fi
 
 ---
 
-### 3. History Configuration 📜 (#doit)
+### 3. History Configuration 📜 (#done)
 
 **Current State:**
 - No explicit history settings in `.zshrc`
@@ -180,7 +180,7 @@ setopt INC_APPEND_HISTORY        # Write to history file immediately, not on exi
 
 ---
 
-### 4. Completion Enhancements 🎯 (#doit)
+### 4. Completion Enhancements 🎯 (#done)
 
 **Current Issues:**
 - Completion setup runs AFTER Prezto (should be before)
@@ -225,7 +225,7 @@ zstyle ':completion:*:*:docker-*:*' option-stacking yes
 
 ---
 
-### 5. Smart Directory Navigation 🗂️ (#doit and use zoxide)
+### 5. Smart Directory Navigation 🗂️ (#done)
 
 **Current State:**
 - Manual `cd` required for directory changes
@@ -283,7 +283,7 @@ fi
 
 ---
 
-### 6. Environment Variable Organization 🌍 (#doit)
+### 6. Environment Variable Organization 🌍 (#done)
 
 **Current State:**
 - Environment variables scattered across the file
@@ -489,7 +489,7 @@ fi
 
 ---
 
-### 9. Security Hardening 🔐 (#doit)
+### 9. Security Hardening 🔐 (#done)
 
 **Current Issues:**
 - `.env` file loaded without permission checks
