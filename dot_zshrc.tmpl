@@ -158,10 +158,6 @@ if command -v fzf >/dev/null 2>&1; then
   elif [[ -d /home/linuxbrew/.linuxbrew/opt/fzf ]]; then
     source /home/linuxbrew/.linuxbrew/opt/fzf/shell/completion.zsh
     source /home/linuxbrew/.linuxbrew/opt/fzf/shell/key-bindings.zsh
-  elif [[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]]; then
-    # Debian/Ubuntu apt package
-    source /usr/share/doc/fzf/examples/key-bindings.zsh
-    source /usr/share/doc/fzf/examples/completion.zsh 2>/dev/null
   fi
 
   # FZF customization
@@ -186,13 +182,12 @@ if command -v fzf >/dev/null 2>&1; then
   if command -v bat >/dev/null 2>&1; then
     export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :500 {}'"
   fi
-  
-  # Additional keybinding: Ctrl+G for directory search (Alt+C alternative)
-  # Alt+C is the default but doesn't work well in some terminals/SSH
-  if (( ${+functions[fzf-cd-widget]} )); then
-    bindkey '^g' fzf-cd-widget
-  fi
 fi
+
+{{- if eq .chezmoi.os "darwin" }}
+# macOS: Remap Alt+C to Ctrl+G for directory search (Alt doesn't work well on macOS)
+bindkey '^g' fzf-cd-widget
+{{- end }}
 
 # ========================================
 # Environment Variables
