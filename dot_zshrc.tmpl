@@ -182,12 +182,10 @@ if command -v fzf >/dev/null 2>&1; then
   if command -v bat >/dev/null 2>&1; then
     export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :500 {}'"
   fi
+  
+  # Remap Alt+C to Ctrl+G for directory search (works better in all terminals/SSH)
+  bindkey '^g' fzf-cd-widget
 fi
-
-{{- if eq .chezmoi.os "darwin" }}
-# macOS: Remap Alt+C to Ctrl+G for directory search (Alt doesn't work well on macOS)
-bindkey '^g' fzf-cd-widget
-{{- end }}
 
 # ========================================
 # Environment Variables
