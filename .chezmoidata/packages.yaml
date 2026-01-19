@@ -32,10 +32,15 @@ packages:
     custom:
       - "homebrew"
     apt:
+      - "bat"
+      - "eza"
       - "git"
       - "curl"
       - "rsync"
       - "zsh"
+      - "zoxide"
+      - "fd"
+      - "fzf"
     brews:
       - "fastfetch"
       - "neovim"
