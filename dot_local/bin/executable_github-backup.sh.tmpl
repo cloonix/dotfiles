@@ -121,7 +121,7 @@ cd "$BACKUP_DIR"
 # Fetch repo list
 # =========================
 progress "Fetching repository list for $GITHUB_OWNER"
-if repos=$(gh repo list "$GITHUB_OWNER" --limit 1000 --json nameWithOwner -q '.[].nameWithOwner'); then
+if repos=$(gh repo list "$GITHUB_OWNER" --source --limit 1000 --json nameWithOwner -q '.[].nameWithOwner'); then
     finish
     repo_count=$(echo "$repos" | wc -l | xargs)
     info "Found $repo_count repositories"
