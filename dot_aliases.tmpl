@@ -81,7 +81,8 @@ alias f="fabric-ai"
 {{- end }}
 
 if command -v zellij >/dev/null 2>&1; then
-  alias z="zellij"
+  # Note: 'z' is reserved for zoxide (smart directory jumping)
+  alias zj="zellij"
   alias zl="zellij ls"
   alias za="zellij a"
   alias zs="zellij -s"
