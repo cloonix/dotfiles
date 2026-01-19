@@ -280,6 +280,11 @@ if command -v eza >/dev/null 2>&1; then
   alias ls="eza"
 fi
 
+# Use bat as cat replacement (if available)
+if command -v bat >/dev/null 2>&1; then
+  alias cat="bat"
+fi
+
 # Source custom aliases
 if [[ -f "$HOME/.aliases" ]]; then
   source "$HOME/.aliases"
