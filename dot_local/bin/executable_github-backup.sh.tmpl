@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+{{- template "helpers.sh" . }}
+set -euo pipefail
+
+# =========================
+# Usage
+# =========================
+show_usage() {
+    cat << EOF
+Usage: $(basename "$0") [OPTIONS]
+
+Backup all GitHub repositories for a user/organization as mirror clones.
+
+Options:
+  -u, --user USER         GitHub username or organization (default: {{ .chezmoi.username }})
+  -d, --dir DIRECTORY     Backup directory (default: {{ .chezmoi.homeDir }}/github-backup)
+  -h, --help              Show this help message
+
+Examples:
+  $(basename "$0")                                    # Backup {{ .chezmoi.username }} to ~/github-backup
+  $(basename "$0") -u cloonix                         # Backup cloonix to ~/github-backup
+  $(basename "$0") -u microsoft -d ~/backups/github   # Backup microsoft to custom directory
+  $(basename "$0") --user myorg --dir /mnt/backup     # Long form options
+
+Requirements:
+  - GitHub CLI (gh) must be installed and authenticated
+  - git must be installed
+
+EOF
+}
+
+# =========================
+# Configuration
+# =========================
+# Default values
+GITHUB_OWNER="{{ .chezmoi.username }}"
+BACKUP_DIR="{{ .chezmoi.homeDir }}/github-backup"
+GITHUB_HOST="git@github.com"
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        -u|--user)
+            if [[ -z "${2:-}" ]]; then
+                error "--user requires an argument"
+                exit 1
+            fi
+            GITHUB_OWNER="$2"
+            shift 2
+            ;;
+        -d|--dir)
+            if [[ -z "${2:-}" ]]; then
+                error "--dir requires an argument"
+                exit 1
+            fi
+            BACKUP_DIR="$2"
+            shift 2
+            ;;
+        -*)
+            error "Unknown option: $1"
+            show_usage
+            exit 1
+            ;;
+        *)
+            error "Unexpected argument: $1"
+            show_usage
+            exit 1
+            ;;
+    esac
+done
+
+# Optional: use GitHub CLI auth
+# gh auth login
+
+# =========================
+# Preparation
+# =========================
+section "GitHub Backup"
+
+info "Configuration:"
+info "  Owner: $GITHUB_OWNER"
+info "  Backup directory: $BACKUP_DIR"
+info "  GitHub host: $GITHUB_HOST"
+echo
+
+# Check for required commands
+if ! command -v gh >/dev/null 2>&1; then
+    error "GitHub CLI (gh) is not installed"
+    error "Install with: brew install gh"
+    exit 1
+fi
+
+if ! command -v git >/dev/null 2>&1; then
+    error "git is not installed"
+    exit 1
+fi
+
+# Check GitHub CLI authentication
+if ! gh auth status >/dev/null 2>&1; then
+    error "GitHub CLI is not authenticated"
+    error "Run: gh auth login"
+    exit 1
+fi
+
+progress "Creating backup directory"
+if mkdir -p "$BACKUP_DIR"; then
+    finish
+else
+    failed
+    exit 1
+fi
+
+cd "$BACKUP_DIR"
+
+# =========================
+# Fetch repo list
+# =========================
+progress "Fetching repository list for $GITHUB_OWNER"
+if repos=$(gh repo list "$GITHUB_OWNER" --limit 1000 --json nameWithOwner -q '.[].nameWithOwner'); then
+    finish
+    repo_count=$(echo "$repos" | wc -l | xargs)
+    info "Found $repo_count repositories"
+else
+    failed
+    error "Failed to fetch repository list"
+    exit 1
+fi
+
+echo
+
+# =========================
+# Clone or update
+# =========================
+section "Backing up repositories"
+
+for repo in $repos; do
+    repo_name=$(basename "$repo")
+    target_dir="${repo_name}.git"
+
+    if [[ -d "$target_dir" ]]; then
+        progress "Updating $repo"
+        if git -C "$target_dir" remote update --prune >/dev/null 2>&1; then
+            finish
+        else
+            failed
+            warn "Failed to update $repo"
+        fi
+    else
+        progress "Cloning $repo"
+        if git clone --mirror "${GITHUB_HOST}:${repo}.git" "$target_dir" >/dev/null 2>&1; then
+            finish
+        else
+            failed
+            warn "Failed to clone $repo"
+        fi
+    fi
+done
+
+echo
+success "Backup completed successfully"
+info "Backup location: $BACKUP_DIR"
