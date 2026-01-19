@@ -160,6 +160,10 @@ if command -v fzf >/dev/null 2>&1; then
     export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :500 {}'"
   fi
 fi
+
+# macOS: Remap Alt+C to Ctrl+G for directory search (Alt doesn't work well on macOS)
+bindkey '^g' fzf-cd-widget
+
 {{- end }}
 
 # ========================================
