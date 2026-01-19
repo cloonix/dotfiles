@@ -144,7 +144,6 @@ zstyle ':completion:*:kill:*' force-list always
 zstyle ':completion:*:*:docker:*' option-stacking yes
 zstyle ':completion:*:*:docker-*:*' option-stacking yes
 
-{{- if or (eq $profile "dev") (eq $profile "mac") }}
 # ========================================
 # FZF Configuration
 # ========================================
@@ -185,9 +184,9 @@ if command -v fzf >/dev/null 2>&1; then
   fi
 fi
 
+{{- if eq .chezmoi.os "darwin" }}
 # macOS: Remap Alt+C to Ctrl+G for directory search (Alt doesn't work well on macOS)
 bindkey '^g' fzf-cd-widget
-
 {{- end }}
 
 # ========================================
@@ -289,7 +288,6 @@ fi
 # History search keybinding
 bindkey '^R' history-incremental-search-backward
 
-{{- if or (eq $profile "dev") (eq $profile "mac") }}
 # ========================================
 # Smart Directory Navigation (zoxide)
 # ========================================
@@ -299,7 +297,6 @@ if command -v zoxide >/dev/null 2>&1; then
   eval "$(zoxide init zsh)"
   # Usage: z <dir>, zi (interactive with fzf)
 fi
-{{- end }}
 
 # ========================================
 # Local Overrides
