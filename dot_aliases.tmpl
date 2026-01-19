@@ -1,8 +1,11 @@
 {{- $profile := .profile | default "basic" }}
 
-alias vi="nvim"
-alias vim="nvim"
-alias view="nvim -R"
+# neovim aliases (runtime check)
+if command -v nvim >/dev/null 2>&1; then
+  alias vi="nvim"
+  alias vim="nvim"
+  alias view="nvim -R"
+fi
 
 alias gitpullall='for d in ~/git/*/.git; do (cd "${d%/.git}" && echo "Updating $(basename "$PWD")" && git pull); done'
 
@@ -67,9 +70,16 @@ if command -v dstask >/dev/null 2>&1; then
   alias tsy="dstask sync"
 fi
 
-alias pass=gopass
-alias fabric="fabric-ai"
-alias f="fabric-ai"
+# gopass aliases (runtime check)
+if command -v gopass >/dev/null 2>&1; then
+  alias pass=gopass
+fi
+
+# fabric-ai aliases (runtime check)
+if command -v fabric-ai >/dev/null 2>&1; then
+  alias fabric="fabric-ai"
+  alias f="fabric-ai"
+fi
 
 # Darwin-specific aliases
 {{- if eq .chezmoi.os "darwin" }}
@@ -90,13 +100,11 @@ if command -v zellij >/dev/null 2>&1; then
   alias zjs="zellij -s"
 fi
 
-{{- if or (eq $profile "dev") (eq $profile "mac") }}
+# bat aliases (runtime check - bat in basic profile)
 if command -v bat >/dev/null 2>&1; then
-  alias cat="bat"
   alias catp="bat --style=plain"  # Plain cat without decorations
   export MANPAGER="sh -c 'col -bx | bat -l man -p'"  # Use bat for man pages
 fi
-{{- end }}
 
 if command -v opencode >/dev/null 2>&1; then
   alias oc="opencode"
