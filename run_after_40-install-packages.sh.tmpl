@@ -48,6 +48,9 @@ else
     exit 1
 fi
 {{ end -}}
+
+# Remind about shell restart for new tools to be available
+info "New packages installed - restart shell after setup completes"
 {{ end -}}
 
 {{ if eq .chezmoi.os "linux" -}}
@@ -88,4 +91,7 @@ else
     exit 1
 fi
 {{ end -}}
+
+# Remind about shell restart for new tools to be available
+info "New packages installed - restart shell after setup completes"
 {{ end -}}

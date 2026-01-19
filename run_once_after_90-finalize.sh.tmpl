@@ -102,6 +102,10 @@ log "Dotfiles setup complete!"
 info "Host: {{ .chezmoi.hostname }}"
 info "OS: {{ .chezmoi.os }}/{{ .chezmoi.arch }}"
 
+# Remind to restart shell for new tools
+warn "IMPORTANT: Restart your shell to activate new tools"
+info "Run: exec zsh  (or logout and login)"
+
 {{- if lookPath "nvim" }}
 info "Open nvim - Lazy will auto-sync plugins"
 {{- end }}
