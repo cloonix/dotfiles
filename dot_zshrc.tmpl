@@ -37,14 +37,14 @@ if [[ -z "$SSH_AUTH_SOCK" ]] && command -v keychain >/dev/null 2>&1; then
 fi
 {{- end }}
 
-# Start gpg-agent if available
+# GPG agent setup (lazy-load, agent starts on first GPG use)
 if command -v gpg-connect-agent >/dev/null 2>&1; then
   export GPG_TTY=$(tty)
-  gpg-connect-agent updatestartuptty /bye &> /dev/null
+  # Don't connect automatically - let GPG start agent on demand
 fi
 
-# Display system info with fastfetch if available
-if command -v fastfetch >/dev/null 2>&1; then
+# Display system info with fastfetch (only on login shells, not subshells)
+if [[ -o login ]] && command -v fastfetch >/dev/null 2>&1; then
   fastfetch
 fi
 
@@ -56,6 +56,23 @@ fi
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
+
+# ========================================
+# History Configuration
+# ========================================
+
+HISTFILE="${ZDOTDIR:-$HOME}/.zsh_history"
+HISTSIZE=50000                  # Lines of history in memory
+SAVEHIST=50000                  # Lines of history to save to file
+
+# History options
+setopt EXTENDED_HISTORY          # Record timestamp of command
+setopt HIST_EXPIRE_DUPS_FIRST    # Delete duplicates first when HISTFILE size exceeds HISTSIZE
+setopt HIST_IGNORE_DUPS          # Ignore duplicated commands history list
+setopt HIST_IGNORE_SPACE         # Ignore commands that start with space
+setopt HIST_VERIFY               # Show command with history expansion before running
+setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks from history
+setopt INC_APPEND_HISTORY        # Write to history file immediately, not on exit
 
 # ========================================
 # Prompt Configuration
@@ -71,23 +88,88 @@ fi
 # ========================================
 
 fpath+=~/.zsh/completions
+
+# Cache completion dumps for 24h (Prezto's completion module also runs compinit)
+# This prevents duplicate initialization
 autoload -Uz compinit
-compinit
-
-# ========================================
-# Environment Variables (from gopass)
-# ========================================
-
-# Load environment variables from secure storage
-# File is managed via gopass and copied during 'chezmoi apply'
-if [[ -f "$HOME/.env" ]]; then
-  source "$HOME/.env"
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
+  compinit
+else
+  compinit -C  # Skip security checks for cached file
 fi
 
-# Set terminal type
+# Completion options
+zstyle ':completion:*' menu select                          # Menu selection
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'  # Case-insensitive
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"    # Colored listings
+zstyle ':completion:*' group-name ''                        # Group matches
+zstyle ':completion:*:descriptions' format '%B%d%b'         # Format group names
+zstyle ':completion:*:warnings' format 'No matches found'   # No match message
+
+# Partial completion (cd /u/lo/b -> /usr/local/bin)
+zstyle ':completion:*' list-suffixes
+zstyle ':completion:*' expand prefix suffix
+
+# Cache completions for better performance
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "${ZDOTDIR:-$HOME}/.zcompcache"
+
+# Completion for common commands
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:kill:*' force-list always
+zstyle ':completion:*:*:docker:*' option-stacking yes
+zstyle ':completion:*:*:docker-*:*' option-stacking yes
+
+{{- if or (eq $profile "dev") (eq $profile "mac") }}
+# ========================================
+# FZF Configuration
+# ========================================
+
+if command -v fzf >/dev/null 2>&1; then
+  # Enable FZF keybindings and completions
+  if [[ -f ~/.fzf.zsh ]]; then
+    source ~/.fzf.zsh
+  elif [[ -d /opt/homebrew/opt/fzf ]]; then
+    source /opt/homebrew/opt/fzf/shell/completion.zsh
+    source /opt/homebrew/opt/fzf/shell/key-bindings.zsh
+  elif [[ -d /home/linuxbrew/.linuxbrew/opt/fzf ]]; then
+    source /home/linuxbrew/.linuxbrew/opt/fzf/shell/completion.zsh
+    source /home/linuxbrew/.linuxbrew/opt/fzf/shell/key-bindings.zsh
+  fi
+
+  # FZF customization
+  export FZF_DEFAULT_OPTS="
+    --height 40%
+    --layout=reverse
+    --border
+    --inline-info
+    --color=dark
+    --color=fg:-1,bg:-1,hl:#5fff87,fg+:-1,bg+:-1,hl+:#ffaf5f
+    --color=info:#af87ff,prompt:#5fff87,pointer:#ff87d7,marker:#ff87d7,spinner:#ff87d7
+  "
+  
+  # Use fd for better file search if available
+  if command -v fd >/dev/null 2>&1; then
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+  fi
+  
+  # Preview files with bat if available
+  if command -v bat >/dev/null 2>&1; then
+    export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :500 {}'"
+  fi
+fi
+{{- end }}
+
+# ========================================
+# Environment Variables
+# ========================================
+
+# Terminal
 export TERM=xterm-256color
 
-# Set editor variables
+# Editor
 if command -v nvim >/dev/null 2>&1; then
   export EDITOR=nvim
   export VISUAL=nvim
@@ -96,22 +178,75 @@ else
   export VISUAL=vim
 fi
 
-# Add local bin to PATH
+# XDG Base Directory
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+
+# Privacy settings - disable telemetry
+export HOMEBREW_NO_ANALYTICS=1
+export DOTNET_CLI_TELEMETRY_OPTOUT=1
+export NEXT_TELEMETRY_DISABLED=1
+
+# ========================================
+# PATH Configuration
+# ========================================
+
+# Local bin (append)
 if [[ -d "$HOME/.local/bin" ]] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
   export PATH="$PATH:$HOME/.local/bin"
 fi
 
-{{- if or (eq $profile "dev") (eq $profile "mac") }}
-# Add go bin to PATH (dev/mac profiles only)
-if [[ -d "$HOME/go/bin" ]] && [[ ":$PATH:" != *":$HOME/go/bin:"* ]]; then
-  export PATH="$PATH:$HOME/go/bin"
-fi
-{{- end }}
-
-# opencode
+# OpenCode (prepend - higher priority)
 if [[ -d "{{ .chezmoi.homeDir }}/.opencode/bin" ]] && [[ ":$PATH:" != *":{{ .chezmoi.homeDir }}/.opencode/bin:"* ]]; then
   export PATH="{{ .chezmoi.homeDir }}/.opencode/bin:$PATH"
 fi
+
+{{- if or (eq $profile "dev") (eq $profile "mac") }}
+# Go bin (dev/mac profiles)
+if [[ -d "$HOME/go/bin" ]] && [[ ":$PATH:" != *":$HOME/go/bin:"* ]]; then
+  export PATH="$HOME/go/bin:$PATH"
+fi
+{{- end }}
+
+# ========================================
+# Secure Environment Variables
+# ========================================
+
+# Secure .env loading with validation
+load_env_file() {
+  local env_file="$1"
+  
+  if [[ ! -f "$env_file" ]]; then
+    return 0
+  fi
+  
+  # Check file permissions (should be 600 or 400)
+  local perms
+  if [[ "$OSTYPE" == darwin* ]]; then
+    perms=$(stat -f %A "$env_file" 2>/dev/null)
+  else
+    perms=$(stat -c %a "$env_file" 2>/dev/null)
+  fi
+  
+  if [[ "$perms" != "600" && "$perms" != "400" ]]; then
+    echo "Warning: $env_file has insecure permissions ($perms)"
+    echo "  Run: chmod 600 $env_file"
+    return 1
+  fi
+  
+  # Check file ownership
+  if [[ ! -O "$env_file" ]]; then
+    echo "Warning: $env_file is not owned by you"
+    return 1
+  fi
+  
+  source "$env_file"
+}
+
+# Load environment files with security checks
+load_env_file "$HOME/.env"
+load_env_file "$HOME/.env.local"
 
 # Use eza as ls replacement (if available)
 if command -v eza >/dev/null 2>&1; then
@@ -126,7 +261,17 @@ fi
 # History search keybinding
 bindkey '^R' history-incremental-search-backward
 
+{{- if or (eq $profile "dev") (eq $profile "mac") }}
+# ========================================
+# Smart Directory Navigation (zoxide)
+# ========================================
 
+# Smart directory jumping with zoxide (learns frecency)
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+  # Usage: z <dir>, zi (interactive with fzf)
+fi
+{{- end }}
 
 # ========================================
 # End of Configuration
