@@ -30,6 +30,8 @@ zstyle ':prezto:*:*' color 'yes'
 # Set the Prezto modules to load (browse modules).
 # The order matters.
 # NOTE: 'prompt' module is disabled to use Starship instead
+# NOTE: 'tmux' module removed (using zellij instead)
+{{- if eq .chezmoi.os "darwin" }}
 zstyle ':prezto:load' pmodule \
   'environment' \
   'terminal' \
@@ -43,9 +45,24 @@ zstyle ':prezto:load' pmodule \
   'osx' \
   'git' \
   'python' \
-  'tmux' \
   'syntax-highlighting' \
   'history-substring-search'
+{{- else }}
+zstyle ':prezto:load' pmodule \
+  'environment' \
+  'terminal' \
+  'editor' \
+  'history' \
+  'directory' \
+  'spectrum' \
+  'utility' \
+  'completion' \
+  'homebrew' \
+  'git' \
+  'python' \
+  'syntax-highlighting' \
+  'history-substring-search'
+{{- end }}
 
 #
 # Autosuggestions

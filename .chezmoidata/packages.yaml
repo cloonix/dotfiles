@@ -54,6 +54,7 @@ packages:
       - "keychain"
       - "nmap"
     brews:
+      - "bat"
       - "dstask"
       - "eza"
       - "fabric-ai"
@@ -77,6 +78,7 @@ packages:
       - "servicehub"
     brews:
       - "ansible"
+      - "bat"
       - "btop"
       - "dstask"
       - "eza"

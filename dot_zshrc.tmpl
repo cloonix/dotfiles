@@ -75,6 +75,30 @@ setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks from history
 setopt INC_APPEND_HISTORY        # Write to history file immediately, not on exit
 
 # ========================================
+# Shell Options
+# ========================================
+
+# Changing Directories
+setopt AUTO_CD              # Type directory name to cd
+setopt AUTO_PUSHD           # Make cd push old directory onto stack
+setopt PUSHD_IGNORE_DUPS    # Don't push duplicates
+setopt PUSHD_SILENT         # Don't print stack after pushd/popd
+setopt PUSHD_TO_HOME        # pushd with no args goes to home
+
+# Expansion & Globbing
+setopt EXTENDED_GLOB        # Use extended globbing (#, ~, ^)
+setopt GLOB_DOTS            # Include dotfiles in globs
+
+# Input/Output
+setopt INTERACTIVE_COMMENTS # Allow comments in interactive shell
+setopt NO_BEEP              # Disable terminal bell
+setopt RC_QUOTES            # Allow '' to escape ' in single quotes
+
+# Job Control
+setopt LONG_LIST_JOBS       # List jobs in long format
+setopt NOTIFY               # Report job status immediately
+
+# ========================================
 # Prompt Configuration
 # ========================================
 
@@ -276,6 +300,15 @@ if command -v zoxide >/dev/null 2>&1; then
   # Usage: z <dir>, zi (interactive with fzf)
 fi
 {{- end }}
+
+# ========================================
+# Local Overrides
+# ========================================
+
+# Machine-specific configuration overrides
+if [[ -f "$HOME/.zshrc.local" ]]; then
+  source "$HOME/.zshrc.local"
+fi
 
 # ========================================
 # End of Configuration

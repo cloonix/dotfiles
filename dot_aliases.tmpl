@@ -88,6 +88,14 @@ if command -v zellij >/dev/null 2>&1; then
   alias zjs="zellij -s"
 fi
 
+{{- if or (eq $profile "dev") (eq $profile "mac") }}
+if command -v bat >/dev/null 2>&1; then
+  alias cat="bat"
+  alias catp="bat --style=plain"  # Plain cat without decorations
+  export MANPAGER="sh -c 'col -bx | bat -l man -p'"  # Use bat for man pages
+fi
+{{- end }}
+
 if command -v opencode >/dev/null 2>&1; then
   alias oc="opencode"
 
