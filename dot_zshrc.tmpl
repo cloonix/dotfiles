@@ -23,8 +23,9 @@ fi
 # ========================================
 
 # Start ssh-agent on login (Linux-specific)
+# Skip if SSH_AUTH_SOCK is already set (indicates agent forwarding is active)
 {{- if eq .chezmoi.os "linux" }}
-if command -v keychain >/dev/null 2>&1; then
+if [[ -z "$SSH_AUTH_SOCK" ]] && command -v keychain >/dev/null 2>&1; then
   if [ -f "{{ .chezmoi.homeDir }}/.ssh/id_ed25519" ]; then
     keychain --nogui {{ .chezmoi.homeDir }}/.ssh/id_ed25519
   elif [ -f "{{ .chezmoi.homeDir }}/.ssh/id_rsa" ]; then
