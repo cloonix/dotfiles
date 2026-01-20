@@ -92,6 +92,11 @@ fi
   alias typora="open -a typora"
 {{- end }}
 
+# zoxide aliases (runtime check - smart directory jumping)
+if command -v zoxide >/dev/null 2>&1; then
+  alias cd="z"
+fi
+
 if command -v zellij >/dev/null 2>&1; then
   # Note: 'z' is reserved for zoxide (smart directory jumping)
   alias zj="zellij"
