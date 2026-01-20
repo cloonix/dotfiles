@@ -1,0 +1,357 @@
+#!/usr/bin/env bash
+{{ template "helpers.sh" . }}
+
+set -euo pipefail
+
+# =========================
+# Usage
+# =========================
+show_usage() {
+    cat << EOF
+Usage: $(basename "$0") [OPTIONS]
+
+Backup all GitHub and Gitea repositories for a user/organization as mirror clones.
+By default, backs up from both platforms if configured.
+
+Options:
+  -d, --dir DIRECTORY        Backup directory (REQUIRED)
+  -p, --platform PLATFORM    Platform to backup from: github, gitea, or both (default: both)
+  --github-user USER         GitHub username or organization (default: cloonix)
+  --gitea-user USER          Gitea username or organization (default: claus)
+  -h, --help                 Show this help message
+
+Examples:
+  $(basename "$0") -d ~/backups                           # Backup cloonix (GitHub) and claus (Gitea)
+  $(basename "$0") -d ~/backups -p github                 # Backup only from GitHub (cloonix)
+  $(basename "$0") -d ~/backups -p gitea                  # Backup only from Gitea (claus)
+  $(basename "$0") -d ~/backups --github-user myuser      # Custom GitHub user
+
+Requirements:
+  GitHub:
+    - GitHub CLI (gh) must be installed and authenticated
+    - git must be installed
+  
+  Gitea:
+    - git must be installed
+    - Environment variables: GITEA_API_URL, GITEA_API_KEY
+    - Example: GITEA_API_URL=https://gitea.example.com GITEA_API_KEY=your_token
+
+EOF
+}
+
+# =========================
+# Configuration
+# =========================
+# Default values
+PLATFORM="both"
+GITHUB_USER="cloonix"
+GITEA_USER="claus"
+BACKUP_DIR=""
+GITHUB_HOST="git@github.com"
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            show_usage
+            exit 0
+            ;;
+        --github-user)
+            if [[ -z "${2:-}" ]]; then
+                error "--github-user requires an argument"
+                exit 1
+            fi
+            GITHUB_USER="$2"
+            shift 2
+            ;;
+        --gitea-user)
+            if [[ -z "${2:-}" ]]; then
+                error "--gitea-user requires an argument"
+                exit 1
+            fi
+            GITEA_USER="$2"
+            shift 2
+            ;;
+        -d|--dir)
+            if [[ -z "${2:-}" ]]; then
+                error "--dir requires an argument"
+                exit 1
+            fi
+            BACKUP_DIR="$2"
+            shift 2
+            ;;
+        -p|--platform)
+            if [[ -z "${2:-}" ]]; then
+                error "--platform requires an argument"
+                exit 1
+            fi
+            if [[ "$2" != "github" && "$2" != "gitea" && "$2" != "both" ]]; then
+                error "Platform must be 'github', 'gitea', or 'both'"
+                exit 1
+            fi
+            PLATFORM="$2"
+            shift 2
+            ;;
+        -*)
+            error "Unknown option: $1"
+            show_usage
+            exit 1
+            ;;
+        *)
+            error "Unexpected argument: $1"
+            show_usage
+            exit 1
+            ;;
+    esac
+done
+
+# Validate that backup directory is specified
+if [[ -z "$BACKUP_DIR" ]]; then
+    error "The -d/--dir option is required"
+    show_usage
+    exit 1
+fi
+
+# =========================
+# Functions
+# =========================
+backup_github() {
+    local platform_dir="$BACKUP_DIR/github"
+    
+    section "GitHub Backup"
+    
+    info "Configuration:"
+    info "  User: $GITHUB_USER"
+    info "  Directory: $platform_dir"
+    info "  GitHub host: $GITHUB_HOST"
+    echo
+    
+    # Check GitHub requirements
+    if ! command -v gh >/dev/null 2>&1; then
+        error "GitHub CLI (gh) is not installed"
+        error "Install with: brew install gh"
+        return 1
+    fi
+    
+    if ! gh auth status >/dev/null 2>&1; then
+        error "GitHub CLI is not authenticated"
+        error "Run: gh auth login"
+        return 1
+    fi
+    
+    progress "Creating GitHub backup directory"
+    if mkdir -p "$platform_dir"; then
+        finish
+    else
+        failed
+        return 1
+    fi
+    
+    cd "$platform_dir"
+    
+    # Fetch repo list
+    progress "Fetching GitHub repository list for $GITHUB_USER"
+    if repos=$(gh repo list "$GITHUB_USER" --source --limit 1000 --json nameWithOwner -q '.[].nameWithOwner'); then
+        finish
+        repo_count=$(echo "$repos" | wc -l | xargs)
+        info "Found $repo_count repositories"
+    else
+        failed
+        error "Failed to fetch GitHub repository list"
+        return 1
+    fi
+    
+    echo
+    section "Backing up GitHub repositories"
+    
+    for repo in $repos; do
+        repo_name=$(basename "$repo")
+        target_dir="${repo_name}.git"
+        git_url="${GITHUB_HOST}:${repo}.git"
+        
+        if [[ -d "$target_dir" ]]; then
+            progress "Updating $repo"
+            if git -C "$target_dir" remote update --prune >/dev/null 2>&1; then
+                finish
+            else
+                failed
+                warn "Failed to update $repo"
+            fi
+        else
+            progress "Cloning $repo"
+            if git clone --mirror "$git_url" "$target_dir" >/dev/null 2>&1; then
+                finish
+            else
+                failed
+                warn "Failed to clone $repo"
+            fi
+        fi
+    done
+    
+    echo
+    success "GitHub backup completed"
+    cd "$BACKUP_DIR"
+}
+
+backup_gitea() {
+    local platform_dir="$BACKUP_DIR/gitea"
+    
+    section "Gitea Backup"
+    
+    info "Configuration:"
+    info "  User: $GITEA_USER"
+    info "  Directory: $platform_dir"
+    info "  Gitea API URL: ${GITEA_API_URL:-<not set>}"
+    echo
+    
+    # Check Gitea requirements
+    if ! command -v curl >/dev/null 2>&1; then
+        error "curl is not installed"
+        return 1
+    fi
+    
+    if ! command -v jq >/dev/null 2>&1; then
+        error "jq is not installed"
+        error "Install with: brew install jq"
+        return 1
+    fi
+    
+    if [[ -z "${GITEA_API_URL:-}" ]]; then
+        warn "GITEA_API_URL not set, skipping Gitea backup"
+        return 0
+    fi
+    
+    if [[ -z "${GITEA_API_KEY:-}" ]]; then
+        warn "GITEA_API_KEY not set, skipping Gitea backup"
+        return 0
+    fi
+    
+    progress "Creating Gitea backup directory"
+    if mkdir -p "$platform_dir"; then
+        finish
+    else
+        failed
+        return 1
+    fi
+    
+    cd "$platform_dir"
+    
+    # Fetch repo list from Gitea API
+    api_url="${GITEA_API_URL%/}"
+    progress "Fetching Gitea repository list for $GITEA_USER"
+    
+    # Try user repos
+    if user_repos=$(curl -s -H "Authorization: token $GITEA_API_KEY" \
+        "${api_url}/api/v1/users/${GITEA_USER}/repos?limit=100" 2>/dev/null | \
+        jq -r '.[].full_name' 2>/dev/null); then
+        repos="$user_repos"
+    fi
+    
+    # Also try org repos
+    if org_repos=$(curl -s -H "Authorization: token $GITEA_API_KEY" \
+        "${api_url}/api/v1/orgs/${GITEA_USER}/repos?limit=100" 2>/dev/null | \
+        jq -r '.[].full_name' 2>/dev/null); then
+        if [[ -n "$org_repos" ]]; then
+            if [[ -n "$repos" ]]; then
+                repos=$(printf "%s\n%s" "$repos" "$org_repos" | sort -u)
+            else
+                repos="$org_repos"
+            fi
+        fi
+    fi
+    
+    if [[ -z "$repos" ]]; then
+        failed
+        error "Failed to fetch Gitea repository list or no repositories found"
+        return 1
+    fi
+    
+    finish
+    repo_count=$(echo "$repos" | wc -l | xargs)
+    info "Found $repo_count repositories"
+    
+    echo
+    section "Backing up Gitea repositories"
+    
+    # Extract protocol and host from GITEA_API_URL
+    api_url_clean="${GITEA_API_URL%/}"
+    if [[ "$api_url_clean" =~ ^(https?://)(.+)$ ]]; then
+        protocol="${BASH_REMATCH[1]}"
+        host="${BASH_REMATCH[2]}"
+        host="${host%%/*}"
+    else
+        error "Invalid GITEA_API_URL format: $GITEA_API_URL"
+        return 1
+    fi
+    
+    for repo in $repos; do
+        repo_name=$(basename "$repo")
+        target_dir="${repo_name}.git"
+        git_url="${protocol}${GITEA_API_KEY}@${host}/${repo}.git"
+        
+        if [[ -d "$target_dir" ]]; then
+            progress "Updating $repo"
+            if git -C "$target_dir" remote update --prune >/dev/null 2>&1; then
+                finish
+            else
+                failed
+                warn "Failed to update $repo"
+            fi
+        else
+            progress "Cloning $repo"
+            if git clone --mirror "$git_url" "$target_dir" >/dev/null 2>&1; then
+                finish
+            else
+                failed
+                warn "Failed to clone $repo"
+            fi
+        fi
+    done
+    
+    echo
+    success "Gitea backup completed"
+    cd "$BACKUP_DIR"
+}
+
+# =========================
+# Main execution
+# =========================
+section "Git Backup"
+
+info "Configuration:"
+info "  Platform: $PLATFORM"
+info "  GitHub user: $GITHUB_USER"
+info "  Gitea user: $GITEA_USER"
+info "  Backup directory: $BACKUP_DIR"
+echo
+
+# Check for git
+if ! command -v git >/dev/null 2>&1; then
+    error "git is not installed"
+    exit 1
+fi
+
+progress "Creating backup directory"
+if mkdir -p "$BACKUP_DIR"; then
+    finish
+else
+    failed
+    exit 1
+fi
+
+echo
+
+# Run backups based on platform selection
+if [[ "$PLATFORM" == "github" ]]; then
+    backup_github
+elif [[ "$PLATFORM" == "gitea" ]]; then
+    backup_gitea
+elif [[ "$PLATFORM" == "both" ]]; then
+    backup_github
+    echo
+    backup_gitea
+fi
+
+echo
+success "All backups completed"
+info "Backup location: $BACKUP_DIR"
