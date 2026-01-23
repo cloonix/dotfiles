@@ -85,7 +85,6 @@ packages:
       - "ansible"
       - "bat"
       - "btop"
-      - "copilot-cli"
       - "dstask"
       - "eza"
       - "fabric-ai"
@@ -107,5 +106,6 @@ packages:
       - "zoxide"
     casks:
       - "claude-code"
+      - "copilot-cli"
       - "mountain-duck"
       - "typora"
