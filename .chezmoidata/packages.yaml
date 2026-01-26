@@ -20,6 +20,11 @@ custom:
     url: "https://raw.githubusercontent.com/cloonix/service-hub/main/install.sh"
     install_when: "always"
     requires: ["brew", "pipx"]
+  pkmdex:
+    check: "pkm"
+    url: "https://raw.githubusercontent.com/cloonix/pkmdex/main/install.sh"
+    install_when: "always"
+    requires: ["brew", "pipx"]
 
 # Package installation combines basic + profile:
 # - Combinations: basic+dev (Linux) OR basic+mac (macOS)
@@ -57,6 +62,8 @@ packages:
       - "btop"
       - "build-essential"
       - "keychain"
+      - "tokei"
+      - "jq"
       - "nmap"
     brews:
       - "bat"
@@ -81,6 +88,7 @@ packages:
     custom:
       - "opencode"
       - "servicehub"
+      - "pkmdex"
     brews:
       - "ansible"
       - "bat"
