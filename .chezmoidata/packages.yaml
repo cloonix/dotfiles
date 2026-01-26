@@ -78,6 +78,7 @@ packages:
       - "lazygit"
       - "ncdu"
       - "pipx"
+      - "uv"
       - "yazi"
       - "zoxide"
     casks: []
@@ -112,6 +113,7 @@ packages:
       - "syncthing"
       - "yazi"
       - "zoxide"
+      - "uv"
     casks:
       - "claude-code"
       - "copilot-cli"
