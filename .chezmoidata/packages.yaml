@@ -36,6 +36,7 @@ packages:
   basic:
     custom:
       - "homebrew"
+    taps: []
     apt:
       - "bat"
       - "eza"
@@ -58,6 +59,8 @@ packages:
     custom:
       - "opencode"
       - "servicehub"
+    taps:
+      - "steveyegge/beads"
     apt:
       - "btop"
       - "build-essential"
@@ -67,6 +70,7 @@ packages:
       - "nmap"
     brews:
       - "bat"
+      - "bd"
       - "dstask"
       - "eza"
       - "fabric-ai"
@@ -90,9 +94,12 @@ packages:
       - "opencode"
       - "servicehub"
       - "pkmdex"
+    taps:
+      - "steveyegge/beads"
     brews:
       - "ansible"
       - "bat"
+      - "bd"
       - "btop"
       - "dstask"
       - "eza"
