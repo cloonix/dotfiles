@@ -22,6 +22,19 @@ fi
 # Agent Setup
 # ========================================
 
+# SSH Agent Forwarding Fix for tmux/zellij
+# Creates a stable symlink to the agent socket that survives reconnects
+if [[ -n "$SSH_CONNECTION" ]] && [[ -n "$SSH_AUTH_SOCK" ]] && [[ "$SSH_AUTH_SOCK" != "$HOME/.ssh/agent.sock" ]]; then
+  # Create stable symlink for multiplexer sessions
+  mkdir -p ~/.ssh
+  ln -sf "$SSH_AUTH_SOCK" ~/.ssh/agent.sock
+fi
+
+# Always use the stable socket path when SSH forwarding is active
+if [[ -n "$SSH_CONNECTION" ]] && [[ -S "$HOME/.ssh/agent.sock" ]]; then
+  export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
+fi
+
 # Start ssh-agent on login (Linux-specific)
 # Skip if SSH_AUTH_SOCK is already set (indicates agent forwarding is active)
 {{- if eq .chezmoi.os "linux" }}
