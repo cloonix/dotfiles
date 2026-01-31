@@ -25,18 +25,7 @@ install_tool() {
         return 0
     fi
     
-    # Special case for service-hub (broken upstream installer)
-    if [[ "$name" == "service-hub" ]]; then
-        if /bin/bash -c "$(cat "${CHEZMOI_SOURCE_DIR}/.chezmoitemplates/install_servicehub.sh")" >/dev/null 2>&1; then
-            finish
-            return 0
-        else
-            failed
-            return 1
-        fi
-    fi
-    
-    # Run installer for other tools
+    # Run installer
     if /bin/bash -c "$(curl -fsSL "$url")" >/dev/null 2>&1; then
         finish
         return 0
