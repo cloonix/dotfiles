@@ -25,12 +25,23 @@ install_tool() {
         return 0
     fi
     
-    # Run installer
-    if /bin/bash -c "$(curl -fsSL "$url")" >/dev/null 2>&1; then
+    # Run installer - capture output but show errors on failure
+    local tmp_output
+    tmp_output=$(mktemp)
+    
+    if /bin/bash -c "$(curl -fsSL "$url")" >"$tmp_output" 2>&1; then
         finish
+        rm -f "$tmp_output"
         return 0
     else
+        local exit_code=$?
         failed
-        return 1
+        # Show last 10 lines of output for debugging
+        if [ -s "$tmp_output" ]; then
+            echo ""
+            tail -10 "$tmp_output" | sed 's/^/  /'
+        fi
+        rm -f "$tmp_output"
+        return $exit_code
     fi
 }

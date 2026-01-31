@@ -40,9 +40,6 @@ fi
 {{- if eq $installer.install_when "missing" }}
 # Generic install-once tool
 install_tool "{{ . }}" "{{ $installer.url }}" "{{ $installer.check }}" "false"
-if [ $? -ne 0 ]; then
-    exit 1
-fi
 {{- end }}
 {{- end }}
 {{- end }}
@@ -54,26 +51,20 @@ fi
 
 # Check dependencies for {{ . }}
 {{- if gt (len $installer.requires) 0 }}
-DEPS_MET=true
+deps_met_{{ . }}=true
 {{- range $installer.requires }}
 if ! command -v {{ . }} >/dev/null 2>&1; then
     warn "Skipping {{ $installer.check }}: requires {{ . }}"
-    DEPS_MET=false
+    deps_met_{{ $installer.check }}=false
 fi
 {{- end }}
 
-if [ "$DEPS_MET" = "true" ]; then
+if [ "$deps_met_{{ . }}" = "true" ]; then
     install_tool "{{ . }}" "{{ $installer.url }}" "{{ $installer.check }}" "true"
-    if [ $? -ne 0 ]; then
-        exit 1
-    fi
 fi
 {{- else }}
 # No dependencies, install directly
 install_tool "{{ . }}" "{{ $installer.url }}" "{{ $installer.check }}" "true"
-if [ $? -ne 0 ]; then
-    exit 1
-fi
 {{- end }}
 {{- end }}
 {{- end }}
