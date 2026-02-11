@@ -15,6 +15,11 @@ custom:
     url: "https://opencode.ai/install"
     install_when: "always"
     requires: ["brew"]
+  protonpass:
+    check: "pass-cli"
+    url: "https://proton.me/download/pass-cli/install.sh"
+    install_when: "always"
+    requires: ["brew"]
   servicehub:
     check: "crawl"
     url: "https://raw.githubusercontent.com/cloonix/service-hub/main/install.sh"
@@ -92,6 +97,7 @@ packages:
   mac:
     custom:
       - "opencode"
+      - "protonpass"
       - "servicehub"
       - "pkmdex"
     taps:
