@@ -73,6 +73,7 @@ fi
 # gopass aliases (runtime check)
 if command -v gopass >/dev/null 2>&1; then
   alias pass=gopass
+  alias unlock-pve="gopass show -o encryption/proxmox/disk | ssh -T pve 'sudo /home/claus/unlock-encrypted.sh'"
 fi
 
 # fabric-ai aliases (runtime check)
