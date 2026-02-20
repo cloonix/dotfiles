@@ -6,22 +6,10 @@ This is a **chezmoi dotfiles repository** managing system configuration across m
 
 - **Type**: Shell scripts + Go templates (chezmoi)
 - **Version Control**: Git
-- **Issue Tracking**: bd (beads)
 - **Languages**: Bash, YAML, Go templates
 - **Platforms**: macOS, Linux
 
 ## Quick Reference Commands
-
-### Issue Management (bd)
-```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --status in_progress  # Claim work
-bd close <id>         # Complete work
-bd sync               # Sync with git
-bd create "Title"     # Create new issue
-bd list               # List all issues
-```
 
 ### Chezmoi Operations
 ```bash
@@ -174,7 +162,6 @@ packages:
 
 ```
 .
-├── .beads/                      # bd issue tracking database
 ├── .chezmoidata/                # Data files (packages.yaml)
 ├── .chezmoitemplates/           # Shared templates (helpers.sh)
 ├── dot_*                        # Files → ~/.filename
@@ -212,23 +199,20 @@ packages:
 
 **MANDATORY WORKFLOW:**
 
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed):
+1. **Run quality gates** (if code changed):
    ```bash
    chezmoi diff          # Verify changes look correct
    bash -n <script>      # Syntax check any modified scripts
    ```
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
+2. **PUSH TO REMOTE** - This is MANDATORY:
    ```bash
    git pull --rebase
-   bd sync
    git push
    git status  # MUST show "up to date with origin"
    ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
+3. **Clean up** - Clear stashes, prune remote branches
+4. **Verify** - All changes committed AND pushed
+5. **Hand off** - Provide context for next session
 
 **CRITICAL RULES:**
 - Work is NOT complete until `git push` succeeds
