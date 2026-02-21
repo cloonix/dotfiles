@@ -40,6 +40,11 @@ if command -v fabric-ai >/dev/null 2>&1; then
     
     if [ "$needs_update" = true ]; then
         # Clone or update git repository
+        # Remove directory if it exists but is not a valid git repo (e.g. failed previous clone)
+        if [ -d "$FABRIC_REPO_DIR" ] && [ ! -d "$FABRIC_REPO_DIR/.git" ]; then
+            rm -rf "$FABRIC_REPO_DIR"
+        fi
+
         if [ ! -d "$FABRIC_REPO_DIR" ]; then
             progress "Cloning fabric patterns repository"
             mkdir -p "$HOME/git"
