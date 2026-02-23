@@ -15,6 +15,18 @@ set -e
 
 {{/* Fabric AI post-install setup */}}
 {{ if has "fabric-ai" $allBrews -}}
+# Ensure Homebrew is in PATH (each run script starts in a fresh shell)
+{{ if eq .chezmoi.os "darwin" -}}
+if [ -f "/opt/homebrew/bin/brew" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+{{- end }}
+{{ if eq .chezmoi.os "linux" -}}
+if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+{{- end }}
+
 if command -v fabric-ai >/dev/null 2>&1; then
     section "Post-Install: Fabric AI"
     
