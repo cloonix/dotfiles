@@ -24,6 +24,9 @@ set -e
 {{- $allCasks := $basicPackages.casks | default list }}
 {{- range (index $profilePackages "casks" | default list) }}{{ $allCasks = append $allCasks . }}{{ end }}
 
+{{- $allNpm := $basicPackages.npm | default list }}
+{{- range (index $profilePackages "npm" | default list) }}{{ $allNpm = append $allNpm . }}{{ end }}
+
 {{ if eq .chezmoi.os "darwin" -}}
 section "Packages ({{ $profile }})"
 
@@ -61,6 +64,16 @@ cask {{ . | quote }}
 {{ end -}}
 EOF
 then
+    finish
+else
+    failed
+    exit 1
+fi
+{{ end -}}
+
+{{ if gt (len $allNpm) 0 -}}
+progress "Installing npm global packages ({{ $allNpm | join ", " }})"
+if npm install -g {{ $allNpm | join " " }} >/dev/null 2>&1; then
     finish
 else
     failed
@@ -120,6 +133,16 @@ brew {{ . | quote }}
 {{ end -}}
 EOF
 then
+    finish
+else
+    failed
+    exit 1
+fi
+{{ end -}}
+
+{{ if gt (len $allNpm) 0 -}}
+progress "Installing npm global packages ({{ $allNpm | join ", " }})"
+if npm install -g {{ $allNpm | join " " }} >/dev/null 2>&1; then
     finish
 else
     failed
