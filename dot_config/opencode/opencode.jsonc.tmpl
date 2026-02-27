@@ -1,0 +1,54 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "share": "disabled",
+  "autoupdate": true,
+  "command": {
+    "review": {
+      "template": "Review the changes I just made for quality, best practices, redundancy, exposed sensitive data and potential issues.",
+      "agent": "code-reviewer"
+    }
+  },
+  "agent": {
+    "security-check": {
+      "description": "Check code for security issues and unwilling exposed sensitive data",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-5-20250929",
+      "prompt": "You are a software security expert. Focus on security and sensitive data before a public commit happens",
+      "tools": {
+        "write": false,
+        "edit": false
+      }
+    },
+    "code-reviewer": {
+      "description": "Expert code reviewer specializing in code quality, security vulnerabilities, and best practices across multiple languages. Masters static analysis, design patterns, and performance optimization with focus on maintainability and technical debt reduction.",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-5-20250929",
+      "prompt": "{file:./prompts/code-reviewer.txt}",
+      "tools": {
+        "write": false,
+        "edit": false,
+        "bash": false
+      }
+    }
+  },
+  "mcp": {
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "x-api-key": "{{ gopass "api/context7" }}"
+      },
+      "enabled": true
+    },
+    "crawl4ai": {
+      "type": "remote",
+      "url": "{{ output "gopass" "--password" "api/crawl4ai" "url" | trim }}/mcp/sse",
+      "enabled": true
+    },
+    "service-hub": {
+      "type": "remote",
+      "url": "{{ output "gopass" "--password" "api/crawl4ai" "url" | trim }}/mcp",
+      "enabled": true
+    }
+  },
+}
