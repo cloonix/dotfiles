@@ -1,0 +1,28 @@
+{
+  "github-copilot": {
+    "type": "oauth",
+    "refresh": "{{ output "gopass" "--password" "work/api/github" "refresh" | trim }}",
+    "access": "{{ output "gopass" "--password" "work/api/github" "access" | trim }}",
+    "expires": {{ output "gopass" "--password" "work/api/github" "expires" | trim }}
+  },
+  "fhgenie": {
+    "type": "api",
+    "key": "{{ gopass "work/api/fhgenie" }}"
+  },
+  "azure": {
+    "type": "api",
+    "key": "{{ gopass "work/api/azure" }}"
+  },
+  "azure-anthropic": {
+    "type": "api",
+    "key": "{{ gopass "work/api/azure" }}"
+  },
+  "azure-openai": {
+    "type": "api",
+    "key": "{{ gopass "work/api/azure" }}"
+  },
+  "azure-else": {
+    "type": "api",
+    "key": "{{ gopass "work/api/azure" }}"
+  }
+}
