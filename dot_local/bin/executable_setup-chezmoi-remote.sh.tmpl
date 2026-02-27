@@ -183,7 +183,7 @@ render_and_copy_dotfiles() {
     --format tar \
     | ssh "$ssh_target" "
         mkdir -p '$remote_home'
-        tar -x --no-same-owner -C '$remote_home'
+        tar -x --no-same-owner --overwrite -C '$remote_home'
         echo 'Dotfiles extracted to $remote_home'
       "
 
