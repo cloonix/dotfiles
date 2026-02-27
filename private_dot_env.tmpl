@@ -1,0 +1,12 @@
+export CONTEXT7_API_KEY={{ output "gopass" "--password" "api/context7" "opencode" | trim }}
+export CRAWL4AI_ENDPOINT={{ output "gopass" "--password" "api/crawl4ai" "url" | trim }}
+export DEEPL_API_KEY={{ gopass "api/deepl" }}
+export LINKDING_API_KEY={{ gopass "api/linkding" }}
+export LINKDING_URL={{ output "gopass" "--password" "api/linkding" "url" | trim }}
+export MINIFLUX_API_KEY={{ gopass "api/miniflux" }}
+export MINIFLUX_URL={{ output "gopass" "--password" "api/miniflux" "url" | trim }}
+export OPENROUTER_API_BASE_URL=https://openrouter.ai/api/v1
+export OPENROUTER_API_KEY={{ output "gopass" "--password" "api/openrouter" "fabric" | trim }}
+export GITEA_API_KEY={{ gopass "api/gitea" }}
+export GITEA_API_URL={{ output "gopass" "--password" "api/gitea" "url" | trim }}
+export FABRIC_RSS_PATTERN=rss_summary
