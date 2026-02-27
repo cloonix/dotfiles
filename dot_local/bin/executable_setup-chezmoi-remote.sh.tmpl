@@ -265,9 +265,15 @@ bash -l -c \"
     git -C ~/.local/share/chezmoi pull
   fi
 
-  # --- Install chezmoi and apply (dotfiles already in place, only run scripts execute) ---
-  echo 'Running chezmoi init --apply...'
-  bash -c \\\"\\\$(curl -fsLS get.chezmoi.io)\\\" -- init --apply --force $BRANCH_FLAG $CHEZMOI_REPO
+  # --- Install chezmoi and clone the source repo (no apply yet) ---
+  echo 'Installing chezmoi and cloning repo...'
+  bash -c \\\"\\\$(curl -fsLS get.chezmoi.io)\\\" -- init --force $BRANCH_FLAG $CHEZMOI_REPO
+
+  # --- Apply run scripts only — dotfiles are already extracted from the local archive ---
+  # --exclude files: skip re-rendering dotfiles (gopass not available here)
+  # run scripts (packages, upgrades, finalize) still execute normally
+  echo 'Running chezmoi apply (run scripts only)...'
+  ~/.local/bin/chezmoi apply --force --exclude files
 \""
 
 echo ""
