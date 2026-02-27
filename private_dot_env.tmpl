@@ -1,4 +1,4 @@
-export CONTEXT7_API_KEY={{ output "gopass" "--password" "api/context7" "opencode" | trim }}
+export CONTEXT7_API_KEY={{ gopass "api/context7" }}
 export CRAWL4AI_ENDPOINT={{ output "gopass" "--password" "api/crawl4ai" "url" | trim }}
 export DEEPL_API_KEY={{ gopass "api/deepl" }}
 export LINKDING_API_KEY={{ gopass "api/linkding" }}
