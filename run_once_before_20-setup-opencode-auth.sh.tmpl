@@ -23,7 +23,7 @@ mkdir -p "$AUTH_DIR"
 
 # Retrieve refresh tokens
 ANTHROPIC_REFRESH=$(gopass show --password api/anthropic-refresh 2>/dev/null || echo "")
-COPILOT_REFRESH=$(gopass show --password api/copilot-refresh 2>/dev/null || echo "")
+COPILOT_REFRESH=$(gopass show --password api/github refresh 2>/dev/null || echo "")
 ZEN_KEY=$(gopass show --password api/zen 2>/dev/null || echo "")
 OPENROUTER_KEY=$(gopass show --password api/openrouter opencode 2>/dev/null || echo "")
 
