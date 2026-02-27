@@ -35,8 +35,13 @@ install_tool() {
         return 0
     else
         local exit_code=$?
+        # If rate-limited or version fetch failed, skip gracefully
+        if grep -q "Failed to fetch version\|rate limit\|API rate" "$tmp_output" 2>/dev/null; then
+            rm -f "$tmp_output"
+            warn "$name: skipped (rate limited, already up to date)"
+            return 0
+        fi
         failed
-        # Show last 10 lines of output for debugging
         if [ -s "$tmp_output" ]; then
             echo ""
             tail -10 "$tmp_output" | sed 's/^/  /'
