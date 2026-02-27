@@ -86,10 +86,6 @@ fi
 {{- if eq .chezmoi.os "darwin" }}
   alias pp="pbpaste"
   alias pc="pbcopy"
-{{- end }}
-
-# Mac profile aliases
-{{- if eq .profile "mac" }}
   alias typora="open -a typora"
 {{- end }}
 
@@ -127,36 +123,29 @@ if command -v opencode >/dev/null 2>&1; then
   }
 fi
 
-yts() {
-  if ! command -v ytt >/dev/null 2>&1; then
-    echo "Error: ytt not found" >&2
-    return 1
-  fi
-  if ! command -v glow >/dev/null 2>&1; then
-    echo "Error: glow not found" >&2
-    return 1
-  fi
-  
-  local lang="en"
-  local f_lang="en"
+if command -v ytt >/dev/null 2>&1 && command -v glow >/dev/null 2>&1; then
+  yts() {
+    local lang="en"
+    local f_lang="en"
 
-  while [[ $# -gt 0 ]]; do
-    case "$1" in
-      -l)
-        lang="$2"
-        shift 2
-        ;;
-      -g=*)
-        f_lang="${1#-g=}"
-        shift
-        ;;
-      *)
-        break
-        ;;
-    esac
-  done
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        -l)
+          lang="$2"
+          shift 2
+          ;;
+        -g=*)
+          f_lang="${1#-g=}"
+          shift
+          ;;
+        *)
+          break
+          ;;
+      esac
+    done
 
-  ytt -l "$lang" "$@" \
-    | f -g="$f_lang" -p youtube_summary \
-    | glow -p
-}
+    ytt -l "$lang" "$@" \
+      | f -g="$f_lang" -p youtube_summary \
+      | glow -p
+  }
+fi
