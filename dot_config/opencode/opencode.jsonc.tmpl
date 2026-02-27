@@ -32,14 +32,14 @@
     }
   },
   "provider": {
-    "anthropic": {
-      "options": {
-        "apiKey": "{{ gopass "api/anthropic" }}"
-      }
-    },
     "openrouter": {
       "options": {
         "apiKey": "{{ output "gopass" "--password" "api/openrouter" "opencode" | trim }}"
+      }
+    },
+    "opencode": {
+      "options": {
+        "apiKey": "{{ gopass "api/zen" }}"
       }
     }
   },
