@@ -1,4 +1,5 @@
 {{- $rsn := output "gopass" "--password" "work/api/azure" "rsn" | trim -}}
+{{- $fhgenie := output "gopass" "--password" "work/api/fhgenie" "url" | trim -}}
 {
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": true,
@@ -225,7 +226,7 @@
       "id": "fhgenie",
       "npm": "@ai-sdk/openai-compatible",
       "name": "fhgenie",
-      "api": "https://fhgenie.fraunhofer.de/v1",
+      "api": "{{ $fhgenie }}/v1",
       "models": {
         // Chat models (verified working on production endpoint 2026-02-09)
         "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8": {
