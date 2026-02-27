@@ -1,0 +1,15 @@
+urls-source "miniflux"
+miniflux-url "https://rss.cmvps.de/"
+miniflux-token "{{ gopass "api/miniflux" }}"
+history-limit 500
+miniflux-flag-star "a"
+bind s articlelist,article edit-flags -- "Star/unstar article"
+
+bind-key j next
+bind-key k prev
+bind-key l open
+bind-key h quit
+
+bind y everywhere set browser "echo %u | pbcopy"; open-in-browser-noninteractively; set browser& -- "Yank URL to clipboard"
+
+include ~/.newsboat/themes/catppuccin-dark
