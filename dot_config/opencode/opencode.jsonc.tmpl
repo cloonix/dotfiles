@@ -31,6 +31,18 @@
       }
     }
   },
+  "provider": {
+    "anthropic": {
+      "options": {
+        "apiKey": "{{ gopass "api/anthropic" }}"
+      }
+    },
+    "openrouter": {
+      "options": {
+        "apiKey": "{{ output "gopass" "--password" "api/openrouter" "opencode" | trim }}"
+      }
+    }
+  },
   "mcp": {
     "context7": {
       "type": "remote",
