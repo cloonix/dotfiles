@@ -1,0 +1,22 @@
+{
+  "anthropic": {
+    "type": "oauth",
+    "refresh": "{{ output "gopass" "--password" "api/anthropic" "refresh" | trim }}",
+    "access": "{{ output "gopass" "--password" "api/anthropic" "access" | trim }}",
+    "expires": {{ output "gopass" "--password" "api/anthropic" "expires" | trim }}
+  },
+  "github-copilot": {
+    "type": "oauth",
+    "refresh": "{{ output "gopass" "--password" "api/github" "refresh" | trim }}",
+    "access": "{{ output "gopass" "--password" "api/github" "access" | trim }}",
+    "expires": {{ output "gopass" "--password" "api/github" "expires" | trim }}
+  },
+  "opencode": {
+    "type": "api",
+    "key": "{{ gopass "api/zen" }}"
+  },
+  "openrouter": {
+    "type": "api",
+    "key": "{{ output "gopass" "--password" "api/openrouter" "opencode" | trim }}"
+  }
+}

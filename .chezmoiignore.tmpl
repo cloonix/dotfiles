@@ -8,9 +8,6 @@ PROFILES.md
 # Archive folder for unused configs (kept for reference)
 .archive/
 
-# Ignore runtime auth tokens (managed by apps)
-.local/share/opencode/auth.json
-
 # OS-specific paths (use target paths, not source paths)
 {{- if ne .chezmoi.os "darwin" }}
 Library/
