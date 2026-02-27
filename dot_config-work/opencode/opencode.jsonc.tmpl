@@ -1,0 +1,241 @@
+{{- $rsn := output "gopass" "--password" "work/api/azure" "rsn" | trim -}}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "autoupdate": true,
+  "provider": {
+    // SDK: @ai-sdk/azure — Azure Cognitive Services endpoint (GPT, Grok)
+    // All standard OpenAI params supported for GPT models.
+    // Grok Code Fast 1 is a reasoning model: presencePenalty/frequencyPenalty unsupported.
+    "azure-openai": {
+      "name": "Azure Fraunhofer (Cognitive Services)",
+      "npm": "@ai-sdk/azure",
+      "options": {
+        "baseURL": "https://{{ $rsn }}.cognitiveservices.azure.com/openai"
+      },
+      "models": {
+        "gpt-5.1-codex": {
+          "name": "GPT-5.1 Codex",
+          "id": "gpt-5.1-codex",
+          "limit": {
+            "context": 200000,
+            "output": 65536
+          },
+          "options": {
+            "temperature": 0.3,
+            "topP": 0.9,
+            "frequencyPenalty": 0.15,
+            "presencePenalty": 0.15
+          }
+        },
+        "gpt-5.1-codex-mini": {
+          "name": "GPT-5.1 Codex Mini",
+          "id": "gpt-5.1-codex-mini",
+          "limit": {
+            "context": 200000,
+            "output": 32768
+          },
+          "options": {
+            "temperature": 0.3,
+            "topP": 0.9,
+            "frequencyPenalty": 0.15,
+            "presencePenalty": 0.15
+          }
+        },
+        "gpt-5.1": {
+          "name": "GPT-5.1",
+          "id": "gpt-5.1",
+          "limit": {
+            "context": 200000,
+            "output": 65536
+          },
+          "options": {
+            "temperature": 0.4,
+            "topP": 0.92,
+            "frequencyPenalty": 0.15,
+            "presencePenalty": 0.15
+          }
+        },
+        "gpt-5.2": {
+          "name": "GPT-5.2",
+          "id": "gpt-5.2",
+          "limit": {
+            "context": 200000,
+            "output": 65536
+          },
+          "options": {
+            "temperature": 0.4,
+            "topP": 0.92,
+            "frequencyPenalty": 0.15,
+            "presencePenalty": 0.15
+          }
+        },
+        // Reasoning model: presencePenalty + frequencyPenalty unsupported (xAI docs)
+        "grok-code-fast-1": {
+          "name": "Grok Code Fast 1",
+          "id": "grok-code-fast-1",
+          "limit": {
+            "context": 131072,
+            "output": 32768
+          },
+          "options": {
+            "temperature": 0.3,
+            "topP": 0.9
+          }
+        }
+      }
+    },
+    // SDK: @ai-sdk/anthropic — Azure AI Foundry Anthropic endpoint
+    // Extended thinking constraints (Anthropic docs):
+    //   - temperature MUST be 1
+    //   - topK is NOT allowed
+    //   - topP must be omitted or between 0.95–1
+    "azure-anthropic": {
+      "name": "Azure Fraunhofer (Anthropic)",
+      "npm": "@ai-sdk/anthropic",
+      "options": {
+        "baseURL": "https://{{ $rsn }}.services.ai.azure.com/anthropic/v1"
+      },
+      "models": {
+        "claude-opus-4-5": {
+          "id": "claude-opus-4-5",
+          "name": "Claude Opus 4.5",
+          "limit": {
+            "context": 200000,
+            "output": 32768
+          },
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 32000
+            },
+            "temperature": 1
+          }
+        },
+        "claude-sonnet-4-6": {
+          "id": "claude-sonnet-4-6",
+          "name": "Claude Sonnet 4.6",
+          "limit": {
+            "context": 200000,
+            "output": 32768
+          },
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 28000
+            },
+            "temperature": 1
+          }
+        },
+        "claude-sonnet-4-5": {
+          "id": "claude-sonnet-4-5",
+          "name": "Claude Sonnet 4.5",
+          "limit": {
+            "context": 200000,
+            "output": 32768
+          },
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 28000
+            },
+            "temperature": 1
+          }
+        },
+        "claude-haiku-4-5": {
+          "id": "claude-haiku-4-5",
+          "name": "Claude Haiku 4.5",
+          "limit": {
+            "context": 200000,
+            "output": 32768
+          },
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 20000
+            },
+            "temperature": 1
+          }
+        }
+      }
+    },
+    // SDK: @ai-sdk/openai-compatible — Azure AI Foundry OpenAI-compatible endpoint
+    // Kimi K2.5: temperature, topP, presencePenalty, frequencyPenalty are fixed by API — omit all
+    // Kimi K2 Thinking: reasoning model, temperature defaults to 1.0 per Moonshot docs
+    // DeepSeek V3.2: topP, frequencyPenalty, presencePenalty unsupported on Azure endpoint
+    // Codestral 2501: full Mistral param support (temperature, topP, frequencyPenalty, presencePenalty)
+    "azure-kimi": {
+      "name": "Azure Fraunhofer (AI Foundry)",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://{{ $rsn }}.services.ai.azure.com/openai/v1"
+      },
+      "models": {
+        // Reasoning model: temperature fixed to 1.0 by API
+        "Kimi-K2-Thinking": {
+          "name": "Kimi K2 Thinking",
+          "id": "Kimi-K2-Thinking",
+          "limit": {
+            "context": 131072,
+            "output": 32768
+          },
+          "options": {
+            "temperature": 1.0
+          }
+        },
+        // K2.5: all sampling params fixed by API — no options needed
+        "Kimi-K2.5": {
+          "name": "Kimi K2.5",
+          "id": "Kimi-K2.5",
+          "limit": {
+            "context": 131072,
+            "output": 32768
+          }
+        },
+        // Only temperature confirmed supported on Azure AI Foundry endpoint
+        "DeepSeek-V3.2": {
+          "name": "DeepSeek V3.2",
+          "id": "DeepSeek-V3.2",
+          "limit": {
+            "context": 131072,
+            "output": 32768
+          },
+          "options": {
+            "temperature": 0.3
+          }
+        },
+        // Mistral: full param support confirmed
+        "Codestral-2501": {
+          "name": "Codestral 2501",
+          "id": "Codestral-2501",
+          "limit": {
+            "context": 131072,
+            "output": 32768
+          },
+          "options": {
+            "temperature": 0.2,
+            "topP": 0.9,
+            "frequencyPenalty": 0.1,
+            "presencePenalty": 0.1
+          }
+        }
+      }
+    },
+    // SDK: @ai-sdk/openai-compatible — Fraunhofer internal gateway (different baseURL, separate group)
+    "fhgenie": {
+      "id": "fhgenie",
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "fhgenie",
+      "api": "https://fhgenie.fraunhofer.de/v1",
+      "models": {
+        // Chat models (verified working on production endpoint 2026-02-09)
+        "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8": {
+          "name": "Qwen3 Coder 480B",
+          "limit": {
+            "context": 131072,
+            "output": 32768
+          }
+        }
+      }
+    }
+  }
+}
