@@ -269,11 +269,14 @@ bash -l -c \"
   echo 'Installing chezmoi and cloning repo...'
   bash -c \\\"\\\$(curl -fsLS get.chezmoi.io)\\\" -- init --force $BRANCH_FLAG $CHEZMOI_REPO
 
+  # --- Locate the chezmoi binary (installer puts it in ~/.local/bin) ---
+  CHEZMOI_BIN=\$(command -v chezmoi 2>/dev/null || echo \$HOME/.local/bin/chezmoi)
+
   # --- Apply run scripts only — dotfiles are already extracted from the local archive ---
   # --exclude files: skip re-rendering dotfiles (gopass not available here)
   # run scripts (packages, upgrades, finalize) still execute normally
   echo 'Running chezmoi apply (run scripts only)...'
-  ~/.local/bin/chezmoi apply --force --exclude files
+  \$CHEZMOI_BIN apply --force --exclude files
 \""
 
 echo ""
