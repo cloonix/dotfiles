@@ -26,6 +26,5 @@
 # OS files
 Thumbs.db
 
-# Chezmoi generated config (contains secrets)
+# Chezmoi rendered config (contains secrets — template is tracked separately)
 .chezmoi.toml
-.chezmoi.toml.*

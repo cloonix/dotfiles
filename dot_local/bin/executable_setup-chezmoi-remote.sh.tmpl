@@ -8,7 +8,10 @@ set -euo pipefail
 #   'chezmoi archive' with OS/arch/homeDir overridden to match the remote.
 #   The resulting tarball contains already-rendered dotfiles with secrets
 #   baked in. It is copied to the remote and extracted before chezmoi runs,
-#   so the run_once_before / run_after scripts never need gopass on the remote.
+#   so run_after_* scripts never need gopass on the remote.
+#
+#   chezmoi.toml is generated from .chezmoi.toml.tmpl locally and streamed
+#   to the remote — no gopass needed there.
 
 show_usage() {
   cat << EOF
@@ -20,8 +23,7 @@ Arguments:
   ssh-target              SSH target in user@host format or SSH hostname/alias (required)
 
 Options:
-  -c, --config NAME       Config name in gopass: basic, dev, or mac (default: basic)
-                          Resolves to config/chezmoi/<name>.toml in gopass
+  -c, --config NAME       Profile: basic, dev, or mac (default: basic)
   -r, --repo REPO         Git repository for chezmoi (default: cloonix)
   -b, --branch BRANCH     Git branch to use (optional, uses repo default if not specified)
   -u, --remote-user USER  Remote username (default: detected via SSH whoami)
@@ -31,8 +33,7 @@ Options:
 Examples:
   $(basename "$0") dev
   $(basename "$0") -c dev user@192.168.1.100
-  $(basename "$0") --config mac --repo myuser staging
-  $(basename "$0") -c dev -b testing-branch -r cloonix root@example.com
+  $(basename "$0") -c dev -b feature-branch -r cloonix root@example.com
   $(basename "$0") -c dev -u claus -a arm64 my-server
 
 EOF
@@ -54,42 +55,27 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     -c|--config)
-      if [[ -z "${2:-}" ]]; then
-        echo "Error: --config requires an argument" >&2
-        exit 1
-      fi
+      [[ -z "${2:-}" ]] && { echo "Error: --config requires an argument" >&2; exit 1; }
       CONFIG_NAME="$2"
       shift 2
       ;;
     -r|--repo)
-      if [[ -z "${2:-}" ]]; then
-        echo "Error: --repo requires an argument" >&2
-        exit 1
-      fi
+      [[ -z "${2:-}" ]] && { echo "Error: --repo requires an argument" >&2; exit 1; }
       CHEZMOI_REPO="$2"
       shift 2
       ;;
     -b|--branch)
-      if [[ -z "${2:-}" ]]; then
-        echo "Error: --branch requires an argument" >&2
-        exit 1
-      fi
+      [[ -z "${2:-}" ]] && { echo "Error: --branch requires an argument" >&2; exit 1; }
       CHEZMOI_BRANCH="$2"
       shift 2
       ;;
     -u|--remote-user)
-      if [[ -z "${2:-}" ]]; then
-        echo "Error: --remote-user requires an argument" >&2
-        exit 1
-      fi
+      [[ -z "${2:-}" ]] && { echo "Error: --remote-user requires an argument" >&2; exit 1; }
       REMOTE_USER="$2"
       shift 2
       ;;
     -a|--arch)
-      if [[ -z "${2:-}" ]]; then
-        echo "Error: --arch requires an argument" >&2
-        exit 1
-      fi
+      [[ -z "${2:-}" ]] && { echo "Error: --arch requires an argument" >&2; exit 1; }
       REMOTE_ARCH="$2"
       shift 2
       ;;
@@ -111,71 +97,45 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Check if SSH target is provided
-if [[ -z "$SSH_TARGET" ]]; then
-  echo "Error: SSH target (user@host or hostname) is required" >&2
-  show_usage
-  exit 1
-fi
-
-# Validate config name
-if [[ ! "$CONFIG_NAME" =~ ^(basic|dev|mac)$ ]]; then
-  echo "Error: config-name must be one of: basic, dev, mac" >&2
-  exit 1
-fi
-
-# Validate arch
-if [[ ! "$REMOTE_ARCH" =~ ^(amd64|arm64)$ ]]; then
-  echo "Error: --arch must be one of: amd64, arm64" >&2
-  exit 1
-fi
-
-GOPASS_PATH="config/chezmoi/${CONFIG_NAME}.toml"
+# Validate
+[[ -z "$SSH_TARGET" ]] && { echo "Error: SSH target is required" >&2; show_usage; exit 1; }
+[[ ! "$CONFIG_NAME" =~ ^(basic|dev|mac)$ ]] && { echo "Error: --config must be one of: basic, dev, mac" >&2; exit 1; }
+[[ ! "$REMOTE_ARCH" =~ ^(amd64|arm64)$ ]] && { echo "Error: --arch must be one of: amd64, arm64" >&2; exit 1; }
 
 # ---------------------------------------------------------------------------
-# Helper: detect remote username and home dir
+# Detect remote username and home dir
 # ---------------------------------------------------------------------------
 detect_remote_info() {
   local ssh_target="$1"
   local user home_dir
-  user=$(ssh -n "$ssh_target" "whoami" 2>/dev/null) || {
-    echo "Error: Cannot connect to $ssh_target" >&2
-    exit 1
-  }
+  user=$(ssh -n "$ssh_target" "whoami" 2>/dev/null) || { echo "Error: Cannot connect to $ssh_target" >&2; exit 1; }
   home_dir=$(ssh -n "$ssh_target" "echo \$HOME" 2>/dev/null) || home_dir="/home/$user"
   echo "$user $home_dir"
 }
 
 # ---------------------------------------------------------------------------
-# Helper: render all dotfile templates locally and stream to remote
+# Render all dotfile templates locally and stream to remote.
 #
-# Uses 'chezmoi archive' with:
-#   --config            → the remote profile TOML (fetched from gopass)
-#   --destination       → remote $HOME so paths render correctly
-#   --override-data     → override .chezmoi.os / .chezmoi.arch to match remote
+# chezmoi archive is called with:
+#   --config         → locally-rendered chezmoi.toml for the remote profile
+#   --destination    → remote $HOME so paths render correctly
+#   --override-data  → inject os/arch/homeDir to match the remote
 #
 # The archive is extracted on the remote BEFORE chezmoi init runs, so every
-# file that chezmoi would produce (including secret-bearing ones) is already
-# in place. Chezmoi then sees no diff for those files and skips them.
+# secret-bearing file is already in place. Chezmoi sees no diff and skips them.
 # ---------------------------------------------------------------------------
 render_and_copy_dotfiles() {
-  local config_toml="$1"   # path to local temp file with remote profile TOML
+  local config_toml="$1"
   local ssh_target="$2"
   local remote_home="$3"
   local remote_arch="$4"
 
   echo "Rendering templates locally for linux/$remote_arch (secrets from gopass)..."
 
-  # Build JSON override: tell chezmoi the remote is Linux with the right arch/home.
-  # .chezmoi.os and .chezmoi.arch are normally auto-detected; --override-data lets
-  # us inject different values so OS-conditional blocks render correctly.
   local override_json
   override_json=$(printf '{"chezmoi":{"os":"linux","arch":"%s","homeDir":"%s"}}' \
     "$remote_arch" "$remote_home")
 
-  # Generate rendered archive locally, pipe directly into tar on the remote.
-  # We use --format tar (uncompressed) to stream without a temp file.
-  # 'tar x' on the remote extracts into $HOME, respecting the archive paths.
   chezmoi archive \
     --config "$config_toml" \
     --destination "$remote_home" \
@@ -194,55 +154,49 @@ render_and_copy_dotfiles() {
 # Main
 # ---------------------------------------------------------------------------
 echo "Setting up chezmoi on $SSH_TARGET..."
-echo "Using config: $CONFIG_NAME (gopass: $GOPASS_PATH)"
-echo "Chezmoi repository: $CHEZMOI_REPO"
+echo "Profile: $CONFIG_NAME | Repo: $CHEZMOI_REPO"
 [[ -n "$CHEZMOI_BRANCH" ]] && echo "Branch: $CHEZMOI_BRANCH"
 echo ""
 
-# Detect remote user/home if not provided
+# Detect remote environment
 echo "Detecting remote environment..."
 read -r DETECTED_USER REMOTE_HOME <<< "$(detect_remote_info "$SSH_TARGET")"
-if [[ -z "$REMOTE_USER" ]]; then
-  REMOTE_USER="$DETECTED_USER"
-fi
+[[ -z "$REMOTE_USER" ]] && REMOTE_USER="$DETECTED_USER"
 echo "  Remote user: $REMOTE_USER"
 echo "  Remote home: $REMOTE_HOME"
 echo "  Remote arch: $REMOTE_ARCH"
 echo ""
 
-# Fetch remote profile config from gopass to a temp file
+# Render chezmoi.toml locally from .chezmoi.toml.tmpl, injecting the profile.
+# promptStringOnce is bypassed by supplying the answer via --override-data.
 TEMP_CONFIG="/tmp/chezmoi-remote-$$.toml"
 trap 'rm -f "$TEMP_CONFIG"' EXIT
 
-echo "Fetching config from gopass ($GOPASS_PATH)..."
-gopass fscopy "$GOPASS_PATH" "$TEMP_CONFIG"
+echo "Rendering chezmoi.toml locally (profile: $CONFIG_NAME)..."
+override_json=$(printf '{"chezmoi":{"os":"linux","arch":"%s","homeDir":"%s"},"profile":"%s"}' \
+  "$REMOTE_ARCH" "$REMOTE_HOME" "$CONFIG_NAME")
+chezmoi execute-template \
+  --override-data "$override_json" \
+  < "{{ .chezmoi.sourceDir }}/.chezmoi.toml.tmpl" \
+  > "$TEMP_CONFIG"
 echo "  Done"
 echo ""
 
-# Render all dotfile templates locally (resolves gopass secrets here) and
-# extract the rendered archive on the remote
+# Render and copy all dotfiles to remote
 render_and_copy_dotfiles "$TEMP_CONFIG" "$SSH_TARGET" "$REMOTE_HOME" "$REMOTE_ARCH"
 echo ""
 
 # Build branch flag
 BRANCH_FLAG=""
-if [[ -n "$CHEZMOI_BRANCH" ]]; then
-  BRANCH_FLAG="--branch $CHEZMOI_BRANCH"
-fi
+[[ -n "$CHEZMOI_BRANCH" ]] && BRANCH_FLAG="--branch $CHEZMOI_BRANCH"
 
-# Now run chezmoi on the remote.
-# - The config is streamed in (same as before).
-# - run_once_before_10 exits early because config already exists.
-# - Dotfiles with secrets are already extracted → chezmoi sees no diff.
-# - run_after_* scripts (package installs, etc.) run normally.
+# Stream the rendered config to the remote and run chezmoi
 echo "Connecting to $SSH_TARGET and running chezmoi (packages + run scripts)..."
 cat "$TEMP_CONFIG" | ssh "$SSH_TARGET" "
 bash -l -c \"
-  # --- Detect OS and install prerequisites ---
   echo 'Installing curl and git...'
   if command -v apt-get >/dev/null 2>&1; then
-    sudo apt-get update -qq
-    sudo apt-get install -y curl git
+    sudo apt-get update -qq && sudo apt-get install -y curl git
   elif command -v yum >/dev/null 2>&1; then
     sudo yum install -y curl git
   elif command -v brew >/dev/null 2>&1; then
@@ -251,27 +205,20 @@ bash -l -c \"
     echo 'Warning: Unknown package manager, assuming curl and git are installed'
   fi
 
-  # --- Write chezmoi config (already rendered locally, just set it up) ---
   mkdir -p ~/.config/chezmoi
   cat > ~/.config/chezmoi/chezmoi.toml
 
-  # --- Non-interactive environment ---
   export NONINTERACTIVE=1
   export CI=1
 
-  # --- Pull latest if chezmoi source already exists ---
   if [ -d ~/.local/share/chezmoi/.git ]; then
-    echo 'Pulling latest changes from repository...'
+    echo 'Pulling latest changes...'
     git -C ~/.local/share/chezmoi pull
   fi
 
-  # --- Install chezmoi and clone the source repo (no apply yet) ---
   echo 'Installing chezmoi and cloning repo...'
   bash -c \\\"\\\$(curl -fsLS get.chezmoi.io)\\\" -- init --force $BRANCH_FLAG $CHEZMOI_REPO
 
-  # --- Apply run scripts only — dotfiles are already extracted from the local archive ---
-  # --exclude files: skip re-rendering dotfiles (gopass not available here)
-  # run scripts (packages, upgrades, finalize) still execute normally
   echo 'Running chezmoi apply (run scripts only)...'
   export PATH=\$HOME/.local/bin:\$PATH
   chezmoi apply --force --exclude files

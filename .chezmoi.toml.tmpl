@@ -1,0 +1,13 @@
+{{- $profile := promptStringOnce . "profile" "Profile (basic/dev/mac)" -}}
+{{- $s := fromToml (output "gopass" "fscopy" "config/chezmoi/secrets.toml" "/dev/stdout") -}}
+
+[data]
+    profile       = "{{ $profile }}"
+    name          = "{{ $s.name }}"
+    email         = "{{ $s.email }}"
+    signingkey    = "{{ $s.signingkey }}"
+    github_email  = "{{ $s.github_email }}"
+    gitlab_email  = "{{ $s.gitlab_email }}"
+    gitlab_domain = "{{ $s.gitlab_domain }}"
+    gopass_push_url_1 = "{{ $s.gopass_push_url_1 }}"
+    gopass_push_url_2 = "{{ $s.gopass_push_url_2 }}"

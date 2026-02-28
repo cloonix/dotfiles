@@ -4,16 +4,21 @@ Personal dotfiles managed with [chezmoi](https://www.chezmoi.io/).
 
 No README.md needed. @Claude, don't touch this 😂
 
+## Bootstrap
+
+On a fresh machine:
+
+```bash
+chezmoi init --apply cloonix
+```
+
+chezmoi reads `.chezmoi.toml.tmpl` from the repo, prompts once for a profile (`basic` / `dev` / `mac`), and pulls the two secrets (`gopass_push_url_1/2`) from `config/chezmoi/secrets.toml` in gopass. Everything else (name, email, GPG key, git config) is hardcoded in the template — no secrets in the repo.
+
+For remote machines, use `setup-chezmoi-remote` which renders all templates locally (where gopass is available) and ships pre-rendered dotfiles over SSH.
+
 ## Scripts
 
 chezmoi runs scripts in filename order. `before` scripts run before files are applied, `after` scripts run after. `run_once_*` scripts only run once (tracked by content hash); `run_after_*` scripts run on every `chezmoi apply`.
-
-### Before apply (run once)
-
-| Script | What it does |
-|--------|-------------|
-| `run_once_before_10-setup-config-from-gopass.sh.tmpl` | Prompts for a profile (basic / dev / mac), fetches the matching `chezmoi.toml` from gopass and writes it to `~/.config/chezmoi/chezmoi.toml`. Exits early so the user re-runs `chezmoi apply` with the new config in place. Skipped if the config file already exists. |
-| `run_once_before_20-setup-ssh.sh.tmpl` | ~~Fetched SSH keys from GitHub~~ — replaced by the declarative `~/.ssh/authorized_keys` template. |
 
 ### After apply (every apply)
 
