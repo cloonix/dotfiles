@@ -15,6 +15,22 @@ else
     failed
     exit 1
 fi
+
+progress "Removing unused dependencies"
+if brew autoremove >/dev/null 2>&1; then
+    finish
+else
+    failed
+    exit 1
+fi
+
+progress "Cleaning up old versions and cache"
+if brew cleanup -s >/dev/null 2>&1; then
+    finish
+else
+    failed
+    exit 1
+fi
 {{ end -}}
 
 {{ end -}}
