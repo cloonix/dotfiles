@@ -1,3 +1,4 @@
+{{- $azureKey := gopass "work/api/azure" -}}
 {
   "github-copilot": {
     "type": "oauth",
@@ -11,18 +12,18 @@
   },
   "azure": {
     "type": "api",
-    "key": "{{ gopass "work/api/azure" }}"
+    "key": "{{ $azureKey }}"
   },
   "azure-anthropic": {
     "type": "api",
-    "key": "{{ gopass "work/api/azure" }}"
+    "key": "{{ $azureKey }}"
   },
   "azure-openai": {
     "type": "api",
-    "key": "{{ gopass "work/api/azure" }}"
+    "key": "{{ $azureKey }}"
   },
   "azure-else": {
     "type": "api",
-    "key": "{{ gopass "work/api/azure" }}"
+    "key": "{{ $azureKey }}"
   }
 }

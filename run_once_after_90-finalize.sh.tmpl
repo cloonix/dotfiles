@@ -12,7 +12,7 @@ prezto_dir="${ZDOTDIR:-{{ .chezmoi.homeDir }}}/.zprezto"
 
 if [ -d "$prezto_dir" ]; then
     progress "Updating Prezto"
-    if cd "$prezto_dir" && git pull --quiet && git submodule update --init --recursive --quiet; then
+    if git -C "$prezto_dir" pull --quiet && git -C "$prezto_dir" submodule update --init --recursive --quiet; then
         finish
     else
         failed
@@ -56,15 +56,8 @@ fi
 section "Finalization"
 
 # Ensure Homebrew is in PATH
-{{ if eq .chezmoi.os "darwin" -}}
-if [ -f "/opt/homebrew/bin/brew" ]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-fi
-{{ else if eq .chezmoi.os "linux" -}}
-if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
-{{ end -}}
+setup_brew_path
+
 
 # Change shell to zsh
 if command -v zsh >/dev/null 2>&1; then

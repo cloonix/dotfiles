@@ -93,9 +93,7 @@ warn "Profile '{{ $profile }}' has no packages, installing basic only"
 {{ end -}}
 
 # Ensure Homebrew is in PATH if installed
-if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
+setup_brew_path
 
 # Install APT packages
 {{ if gt (len $allApt) 0 -}}

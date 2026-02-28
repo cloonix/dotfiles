@@ -1,73 +1,56 @@
 # Agent Instructions
 
-This is a **chezmoi dotfiles repository** managing system configuration across multiple profiles (basic, dev, mac).
+**chezmoi dotfiles repository** managing system configuration across profiles (basic, dev, mac).
 
-## Project Type & Tools
-
-- **Type**: Shell scripts + Go templates (chezmoi)
-- **Version Control**: Git
-- **Languages**: Bash, YAML, Go templates
+- **Stack**: Bash, Go templates, YAML
 - **Platforms**: macOS, Linux
 
-## Quick Reference Commands
+## Quick Reference
 
-### Chezmoi Operations
 ```bash
 chezmoi diff          # Preview changes
 chezmoi apply         # Apply configuration
 chezmoi data          # View template variables
-chezmoi data | jq '.profile'  # View current profile
-chezmoi cd            # Navigate to source directory
-chezmoi edit <file>   # Edit managed file
-chezmoi add <file>    # Add new file to chezmoi
+chezmoi data | jq '.profile'
+bash -n <script>      # Syntax check
+shellcheck <script>   # Lint (if available)
 ```
 
-### Testing & Validation
-```bash
-# No automated test suite - validate manually:
-chezmoi diff          # Preview all changes before applying
-bash -n <script>      # Syntax check shell scripts
-shellcheck <script>   # Lint shell scripts (if available)
-yamllint <file>       # Lint YAML files (if available)
+## Project Structure
+
+```
+.
+├── .chezmoidata/packages.yaml       # Package definitions per profile
+├── .chezmoitemplates/               # Shared templates (helpers.sh)
+├── dot_*/private_*/executable_*     # Managed files
+├── dot_config/                      # ~/.config/ files
+├── dot_config-work/                 # Work-specific config overrides
+├── dot_local/bin/                   # Executable scripts
+│   ├── executable_setup-chezmoi-remote.sh.tmpl
+│   └── executable_git-backup.sh.tmpl
+├── run_once_before_10-setup-config-from-gopass.sh.tmpl
+├── run_once_before_20-setup-ssh.sh.tmpl
+├── run_after_35-install-homebrew.sh.tmpl
+├── run_after_40-install-packages.sh.tmpl
+├── run_after_55-install-custom-tools.sh.tmpl
+├── run_after_56-post-install-hooks.sh.tmpl
+├── run_after_60-upgrades.sh.tmpl
+└── run_once_after_90-finalize.sh.tmpl
 ```
 
-## Code Style Guidelines
+## File Naming Conventions
 
-### Shell Scripts
+| Prefix | Result |
+|--------|--------|
+| `dot_` | `.filename` |
+| `private_dot_` | `.filename` (600 perms) |
+| `executable_` | executable file |
+| `run_once_before_` | run before apply, once |
+| `run_after_` | run after every apply |
+| `.tmpl` suffix | processed as Go template |
 
-**General Principles:**
-- Use `#!/usr/bin/env bash` shebang
-- Enable strict mode: `set -e` (exit on error)
-- Use readonly for constants
-- Quote all variable references: `"$variable"`
-- Check command existence: `command -v foo >/dev/null 2>&1`
-- Redirect output when appropriate: `>/dev/null 2>&1`
+## Shell Script Style
 
-**Naming Conventions:**
-- Constants: `readonly UPPER_SNAKE_CASE`
-- Variables: `lower_snake_case`
-- Functions: `lower_snake_case()`
-
-**Output & User Feedback:**
-Use helper functions from `helpers.sh`:
-```bash
-section "Section Title"    # Bold section headers
-progress "Action"          # Start progress indicator
-finish                     # Complete progress (green "done")
-failed                     # Failed progress (red "failed")
-success "Message"          # Green checkmark
-warn "Message"             # Yellow warning
-error "Message"            # Red error
-info "Message"             # Blue info
-log "Message"              # Blue prefix
-```
-
-**Error Handling:**
-- Always check command success
-- Use `if command; then finish; else failed; exit 1; fi` pattern
-- Exit with non-zero on failure: `exit 1`
-
-**Example Pattern:**
 ```bash
 #!/usr/bin/env bash
 {{ template "helpers.sh" . }}
@@ -78,168 +61,106 @@ section "My Section"
 
 if ! command -v foo >/dev/null 2>&1; then
     progress "Installing foo"
-    if install_foo >/dev/null 2>&1; then
-        finish
-    else
-        failed
-        exit 1
-    fi
+    if install_foo >/dev/null 2>&1; then finish; else failed; exit 1; fi
 else
     success "foo already installed"
 fi
 ```
 
-### Go Templates (chezmoi)
+**Helpers** (from `helpers.sh`): `section`, `progress`, `finish`, `failed`, `success`, `warn`, `error`, `info`, `log`
 
-**Template Syntax:**
-- Access chezmoi variables: `{{ .chezmoi.os }}`, `{{ .chezmoi.homeDir }}`
-- Access custom data: `{{ .profile }}`, `{{ .name }}`, `{{ .email }}`
-- Include templates: `{{ template "helpers.sh" . }}`
-- Conditionals: `{{ if eq .chezmoi.os "darwin" }}...{{ end }}`
-- Remove whitespace: Use `-` in delimiters: `{{- if ... -}}`
+**Naming**: `readonly UPPER_SNAKE_CASE` for constants, `lower_snake_case` for vars/functions.
 
-**Profile System:**
-- Profiles are additive: basic ⊂ dev ⊂ mac
-- Always default to "basic": `{{ .profile | default "basic" }}`
-- Check profile: `{{ if eq $profile "dev" }}...{{ end }}`
-- Multi-profile check: `{{ if or (eq $profile "dev") (eq $profile "mac") }}...{{ end }}`
+## Go Templates
 
-**Common Patterns:**
 ```bash
 {{- $profile := .profile | default "basic" }}
-{{ if eq .chezmoi.os "darwin" -}}
-  # macOS-specific code
-{{- else if eq .chezmoi.os "linux" -}}
-  # Linux-specific code
-{{- end }}
+{{ if eq .chezmoi.os "darwin" -}}macOS code{{- end }}
+{{ if or (eq $profile "dev") (eq $profile "mac") -}}dev/mac code{{- end }}
 ```
 
-### YAML Configuration
+- Profiles are additive: basic ⊂ dev ⊂ mac
+- Always default: `{{ .profile | default "basic" }}`
 
-**Style:**
-- 2-space indentation
-- Use lowercase for keys
-- Quote strings with special characters
-- Use lists for arrays (not inline)
-- Comment sections clearly
+## YAML (packages.yaml)
 
-**Package Structure:**
 ```yaml
 packages:
   basic:
-    custom: ["installer1"]
-    apt: ["package1", "package2"]
-    brews: ["tool1", "tool2"]
+    custom: ["tool1"]
+    apt: ["pkg1"]
+    brews: ["brew1"]
     casks: []
-  
   dev:
-    # Additional packages on top of basic
-    brews: ["devtool1"]
+    brews: ["devtool1"]   # additive on top of basic
 ```
 
-### File Naming (Chezmoi Conventions)
+## Secrets
 
-- `dot_filename` → `.filename`
-- `private_dot_filename` → `.filename` (private, 600 permissions)
-- `executable_filename` → `filename` (executable)
-- `run_once_before_*.sh.tmpl` → Run once before apply
-- `run_after_*.sh.tmpl` → Run every time after apply
-- `filename.tmpl` → Template file (processed)
+- Never commit secrets
+- `{{ gopass "path/to/secret" }}` — plain password
+- `{{ output "gopass" "--password" "path" "field" | trim }}` — named field
+- Store in variable to avoid repeated lookups: `{{- $key := gopass "path" -}}`
+- Use `private_dot_filename` for 600 permissions
 
-### Git Commit Messages
+## Git Commits
 
-- Use conventional format: `type: description`
-- Types: `feat`, `fix`, `docs`, `style`, `refactor`, `chore`
-- Keep first line under 72 characters
-- Be descriptive but concise
-- Examples:
-  - `feat: add fabric-ai to mac profile`
-  - `fix: correct gopass config path`
-  - `docs: update profile descriptions`
-  - `chore: update homebrew packages`
+Format: `type: description` (under 72 chars)
+Types: `feat`, `fix`, `docs`, `style`, `refactor`, `chore`
 
-## Project Structure
+## setup-chezmoi-remote Script
 
-```
-.
-├── .chezmoidata/                # Data files (packages.yaml)
-├── .chezmoitemplates/           # Shared templates (helpers.sh)
-├── dot_*                        # Files → ~/.filename
-├── private_*                    # Private files (600 perms)
-├── run_once_before_*.sh.tmpl    # Setup scripts (run once)
-├── run_after_*.sh.tmpl          # Post-apply scripts
-├── dot_config/                  # Config files → ~/.config/
-├── dot_local/bin/               # Executable scripts
-│   └── setup-chezmoi-remote.sh  # Remote machine deployment
-├── AGENTS.md                    # This file
-├── PROFILES.md                  # Profile system documentation
-└── README.md                    # Project readme
+`~/.local/bin/setup-chezmoi-remote` bootstraps chezmoi on a remote host over SSH without requiring gopass there.
+
+**Core idea — render locally, apply remotely:**
+Templates are rendered on the local machine (where gopass is available) using `chezmoi archive`. The resulting tarball (with secrets already baked in) is streamed to the remote and extracted before chezmoi runs. When chezmoi then applies on the remote, it sees no diff for those files and skips re-rendering them (no gopass needed remotely). Run scripts (`run_after_*`) still execute normally on the remote.
+
+**Usage:**
+```bash
+setup-chezmoi-remote [OPTIONS] <ssh-target>
+
+# Options:
+#   -c, --config NAME      gopass config profile: basic|dev|mac (default: basic)
+#   -r, --repo   REPO      chezmoi GitHub repo to clone (default: cloonix)
+#   -b, --branch BRANCH    git branch (optional)
+#   -u, --remote-user USER remote username (auto-detected via SSH if omitted)
+#   -a, --arch   ARCH      remote CPU arch: amd64|arm64 (default: amd64)
+
+setup-chezmoi-remote dev
+setup-chezmoi-remote -c dev user@192.168.1.100
+setup-chezmoi-remote -c dev -b feature-branch -r cloonix root@example.com
+setup-chezmoi-remote -c dev -u claus -a arm64 my-server
 ```
 
-### Run Scripts Overview
+**Step-by-step execution:**
 
-**Execution order:**
-1. `run_once_before_10-setup-config-from-gopass.sh.tmpl` - Fetch chezmoi config from gopass
-2. `run_once_before_20-setup-ssh.sh.tmpl` - Configure SSH keys
-3. `run_after_25-copy-gopass-files-local.sh.tmpl` - Copy files from gopass (interactive)
-4. `run_after_50-install-packages.sh.tmpl` - Install packages (OS-specific: apt/brew/casks)
-5. `run_after_60-upgrades.sh.tmpl` - Upgrade tools (Homebrew, OpenCode)
-6. `run_once_after_90-finalize.sh.tmpl` - Setup frameworks (Prezto, gopass) and finalize
+1. **Detect remote environment** — SSH `whoami` + `echo $HOME` to get the remote user and home directory.
+2. **Fetch config from gopass** — `gopass fscopy config/chezmoi/<profile>.toml` to a local temp file (cleaned up on exit).
+3. **Render & copy dotfiles** — `chezmoi archive` is called locally with:
+   - `--config` pointing to the temp TOML
+   - `--destination` set to the remote `$HOME` so paths are correct
+   - `--override-data` injecting `chezmoi.os=linux` and the target `arch`/`homeDir`
+   - the resulting tar is piped directly into `tar -x` on the remote via SSH
+4. **Remote bootstrap** — a heredoc runs on the remote via `ssh bash -l -c`:
+   - installs `curl` and `git` via the available package manager (apt / yum / brew)
+   - writes the chezmoi config to `~/.config/chezmoi/chezmoi.toml` (piped from local)
+   - sets `NONINTERACTIVE=1` and `CI=1` for non-interactive scripts
+   - pulls latest changes if the chezmoi source dir already exists
+   - runs `chezmoi init --force` to install chezmoi and clone the repo
+   - runs `chezmoi apply --force --exclude files` — skips file rendering (already done), runs all run scripts (packages, upgrades, finalize)
 
-**Key scripts:**
-- **install-packages**: Consolidated macOS/Linux package installation with profile support
-- **upgrades**: Combined Homebrew and tool upgrades in single section
-- **finalize**: Framework setup (Prezto, gopass config) + shell change + completion message
-- **copy-gopass-files-local**: Interactive file copy from gopass (local only)
-- **setup-chezmoi-remote**: Remote deployment script (in dot_local/bin/)
+**Secret handling summary:**
 
-## Landing the Plane (Session Completion)
-
-**When ending a work session**, MUST complete ALL steps. Work is NOT complete until `git push` succeeds.
-
-**MANDATORY WORKFLOW:**
-
-1. **Run quality gates** (if code changed):
-   ```bash
-   chezmoi diff          # Verify changes look correct
-   bash -n <script>      # Syntax check any modified scripts
-   ```
-2. **PUSH TO REMOTE** - This is MANDATORY:
-   ```bash
-   git pull --rebase
-   git push
-   git status  # MUST show "up to date with origin"
-   ```
-3. **Clean up** - Clear stashes, prune remote branches
-4. **Verify** - All changes committed AND pushed
-5. **Hand off** - Provide context for next session
-
-**CRITICAL RULES:**
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
-- If push fails, resolve and retry until it succeeds
+| Stage | Where | gopass |
+|-------|-------|--------|
+| `chezmoi archive` | local machine | yes |
+| tar extraction | remote | not needed |
+| `chezmoi apply --exclude files` | remote | not needed |
 
 ## Common Tasks
 
-### Adding a New Package
-1. Edit `.chezmoidata/packages.yaml`
-2. Add to appropriate profile's brews/casks/apt list
-3. Test: `chezmoi diff`, then `chezmoi apply`
+**Add package**: Edit `.chezmoidata/packages.yaml` → `chezmoi diff` → `chezmoi apply`
 
-### Creating a New Script
-1. Use template naming: `run_after_NN-description.sh.tmpl`
-2. Include helpers: `{{ template "helpers.sh" . }}`
-3. Add `set -e` and proper error handling
-4. Use progress indicators for user feedback
+**New script**: Name as `run_after_NN-name.sh.tmpl`, include `{{ template "helpers.sh" . }}`, add `set -e`
 
-### Modifying Config Files
-1. Find in dot_config/
-2. Edit template variables ({{ ... }})
-3. Test changes: `chezmoi diff`
-4. Apply: `chezmoi apply`
-
-### Working with Secrets
-- Never commit secrets directly
-- Use gopass references in templates: `{{ .secret_var }}`
-- Mark files as private: `private_dot_filename`
+**Modify config**: Edit in `dot_config/`, verify with `chezmoi diff`, apply with `chezmoi apply`

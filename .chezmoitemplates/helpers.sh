@@ -19,3 +19,12 @@ section() { printf "\n${BOLD}%s${NC}\n" "$1"; }
 progress() { printf "${BLUE}::${NC} %s... " "$1"; }
 finish()   { printf "${GREEN}done${NC}\n"; }
 failed()   { printf "${RED}failed${NC}\n"; }
+
+# Ensure Homebrew is available in PATH
+setup_brew_path() {
+    if [ -f "/opt/homebrew/bin/brew" ]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    fi
+}
