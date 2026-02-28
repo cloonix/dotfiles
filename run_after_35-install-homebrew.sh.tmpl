@@ -20,12 +20,18 @@ set -e
 section "Homebrew"
 
 if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
+    progress "Installing Homebrew"
 {{ if eq .chezmoi.os "linux" -}}
-    run "Installing Homebrew" NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL {{ $installer.url }})"
+    if NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
 {{- else -}}
-    run "Installing Homebrew" /bin/bash -c "$(curl -fsSL {{ $installer.url }})"
+    if /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
 {{- end }}
-    setup_brew_path
+        finish
+        setup_brew_path
+    else
+        failed
+        exit 1
+    fi
 else
     success "Homebrew already installed"
     run "Updating Homebrew" brew update
