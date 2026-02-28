@@ -12,7 +12,7 @@ On a fresh machine:
 chezmoi init --apply cloonix
 ```
 
-chezmoi reads `.chezmoi.toml.tmpl` from the repo, prompts once for a profile (`basic` / `dev` / `mac`), and pulls the two secrets (`gopass_push_url_1/2`) from `config/chezmoi/secrets.toml` in gopass. Everything else (name, email, GPG key, git config) is hardcoded in the template — no secrets in the repo.
+chezmoi reads `.chezmoi.toml.tmpl` from the repo, prompts once for a profile (`basic` / `dev` / `mac`), and pulls all config values (name, email, GPG key, git config, push URLs) from `config/chezmoi/secrets.toml` in gopass. Nothing personal is hardcoded in the repo.
 
 For remote machines, use `setup-chezmoi-remote` which renders all templates locally (where gopass is available) and ships pre-rendered dotfiles over SSH.
 
