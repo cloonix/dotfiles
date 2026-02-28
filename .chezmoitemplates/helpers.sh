@@ -28,3 +28,19 @@ setup_brew_path() {
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     fi
 }
+
+# Run a command with a progress label — exits on failure
+# Usage: run "label" cmd [args...]
+run() {
+    local label="$1"; shift
+    progress "$label"
+    if "$@" >/dev/null 2>&1; then finish; else failed; exit 1; fi
+}
+
+# Run a command with a progress label — warns but continues on failure
+# Usage: try "label" cmd [args...]
+try() {
+    local label="$1"; shift
+    progress "$label"
+    if "$@" >/dev/null 2>&1; then finish; else failed; fi
+}

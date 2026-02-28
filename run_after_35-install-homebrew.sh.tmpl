@@ -4,12 +4,9 @@
 set -e
 
 {{- $profile := .profile | default "basic" }}
-
-{{/* Check if homebrew is in custom installers */}}
 {{- $allCustomTools := list }}
 {{- $basicCustom := (index .packages "basic").custom | default list }}
 {{- range $basicCustom }}{{ $allCustomTools = append $allCustomTools . }}{{ end }}
-
 {{- if ne $profile "basic" }}
 {{- $profileCustom := (index .packages $profile).custom | default list }}
 {{- range $profileCustom }}
@@ -22,58 +19,16 @@ set -e
 
 section "Homebrew"
 
-{{ if eq .chezmoi.os "darwin" -}}
 if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
-    progress "Installing Homebrew"
-    if /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
-        finish
-        # Add Homebrew to PATH for Apple Silicon Macs
-        if [ -f "/opt/homebrew/bin/brew" ]; then
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-        fi
-    else
-        failed
-        exit 1
-    fi
-else
-    success "Homebrew already installed"
-    
-    # Update Homebrew
-    progress "Updating Homebrew"
-    if brew update >/dev/null 2>&1; then
-        finish
-    else
-        failed
-        exit 1
-    fi
-fi
-{{- end }}
-
 {{ if eq .chezmoi.os "linux" -}}
-if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
-    progress "Installing Homebrew"
-    if NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
-        finish
-        # Add Homebrew to PATH for Linux
-        if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-        fi
-    else
-        failed
-        exit 1
-    fi
+    run "Installing Homebrew" NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL {{ $installer.url }})"
+{{- else -}}
+    run "Installing Homebrew" /bin/bash -c "$(curl -fsSL {{ $installer.url }})"
+{{- end }}
+    setup_brew_path
 else
     success "Homebrew already installed"
-    
-    # Update Homebrew
-    progress "Updating Homebrew"
-    if brew update >/dev/null 2>&1; then
-        finish
-    else
-        failed
-        exit 1
-    fi
+    run "Updating Homebrew" brew update
 fi
-{{- end }}
 
 {{- end }}

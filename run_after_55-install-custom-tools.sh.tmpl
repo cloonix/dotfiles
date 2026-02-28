@@ -5,12 +5,9 @@
 set -e
 
 {{- $profile := .profile | default "basic" }}
-
-{{/* Collect custom tools from basic + profile */}}
 {{- $allCustomTools := list }}
 {{- $basicCustom := (index .packages "basic").custom | default list }}
 {{- range $basicCustom }}{{ $allCustomTools = append $allCustomTools . }}{{ end }}
-
 {{- if ne $profile "basic" }}
 {{- $profileCustom := (index .packages $profile).custom | default list }}
 {{- range $profileCustom }}
@@ -23,39 +20,20 @@ section "Custom Tools ({{ $profile }})"
 
 setup_brew_path
 
-# Phase 1: Install tools that only run if missing (skip homebrew - handled in script 35)
 {{- range $allCustomTools }}
 {{- if ne . "homebrew" }}
 {{- $installer := index $.custom . }}
-{{- if eq $installer.install_when "missing" }}
-# Generic install-once tool
-install_tool "{{ . }}" "{{ $installer.url }}" "{{ $installer.check }}" "false"
-{{- end }}
-{{- end }}
-{{- end }}
 
-# Phase 2: Install tools that always run (e.g., opencode, servicehub)
-{{- range $allCustomTools }}
-{{- $installer := index $.custom . }}
-{{- if eq $installer.install_when "always" }}
-
-# Check dependencies for {{ . }}
 {{- if gt (len $installer.requires) 0 }}
 deps_met_{{ . }}=true
 {{- range $installer.requires }}
-if ! command -v {{ . }} >/dev/null 2>&1; then
-    warn "Skipping {{ $installer.check }}: requires {{ . }}"
-    deps_met_{{ . }}=false
-fi
+command -v {{ . }} >/dev/null 2>&1 || { warn "Skipping {{ . }}: requires {{ . }}"; deps_met_{{ . }}=false; }
+{{- end }}
+[ "$deps_met_{{ . }}" = "true" ] && install_tool "{{ . }}" "{{ $installer.url }}" "{{ $installer.check }}" "{{ if eq $installer.install_when "always" }}true{{ else }}false{{ end }}"
+{{- else }}
+install_tool "{{ . }}" "{{ $installer.url }}" "{{ $installer.check }}" "{{ if eq $installer.install_when "always" }}true{{ else }}false{{ end }}"
 {{- end }}
 
-if [ "$deps_met_{{ . }}" = "true" ]; then
-    install_tool "{{ . }}" "{{ $installer.url }}" "{{ $installer.check }}" "true"
-fi
-{{- else }}
-# No dependencies, install directly
-install_tool "{{ . }}" "{{ $installer.url }}" "{{ $installer.check }}" "true"
-{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

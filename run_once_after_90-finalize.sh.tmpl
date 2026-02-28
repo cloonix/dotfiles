@@ -7,47 +7,28 @@ set -e
 
 section "Frameworks"
 
-# Setup/Update Zsh Prezto
 prezto_dir="${ZDOTDIR:-{{ .chezmoi.homeDir }}}/.zprezto"
-
 if [ -d "$prezto_dir" ]; then
-    progress "Updating Prezto"
-    if git -C "$prezto_dir" pull --quiet && git -C "$prezto_dir" submodule update --init --recursive --quiet; then
-        finish
-    else
-        failed
-        exit 1
-    fi
+    try "Updating Prezto" git -C "$prezto_dir" pull --quiet
+    try "Updating Prezto submodules" git -C "$prezto_dir" submodule update --init --recursive --quiet
 else
-    progress "Installing Prezto"
-    if git clone --recursive --quiet https://github.com/sorin-ionescu/prezto.git "$prezto_dir"; then
-        finish
-    else
-        failed
-        exit 1
-    fi
+    run "Installing Prezto" git clone --recursive --quiet https://github.com/sorin-ionescu/prezto.git "$prezto_dir"
 fi
 
 {{- if or (eq $profile "dev") (eq $profile "mac") }}
-# Configure gopass (dev/mac profiles only)
 if command -v gopass >/dev/null 2>&1; then
-    progress "Configuring gopass"
+    section "gopass"
     gopass config show.safecontent true >/dev/null 2>&1
     gopass config show.autoclip false >/dev/null 2>&1
     gopass config core.notifications false >/dev/null 2>&1
-    
-    # Setup push URLs (idempotent - check if already configured)
+
     current_pushurls=$(gopass git config --get-all remote.origin.pushurl 2>/dev/null | grep -v "^⚠" | sort)
     expected_pushurls=$(printf "%s\n%s" {{ .gopass_push_url_1 | quote }} {{ .gopass_push_url_2 | quote }} | sort)
-    
     if [ "$current_pushurls" != "$expected_pushurls" ]; then
-        # Reset push URLs to match fetch URL
         gopass git remote set-url --push origin {{ .gopass_push_url_1 | quote }} >/dev/null 2>&1
-        # Add second push URL
         gopass git remote set-url --add --push origin {{ .gopass_push_url_2 | quote }} >/dev/null 2>&1
     fi
-    
-    finish
+    success "gopass configured"
 else
     info "gopass not found, skipping"
 fi
@@ -55,58 +36,33 @@ fi
 
 section "Finalization"
 
-# Ensure Homebrew is in PATH
 setup_brew_path
 
-
-# Change shell to zsh
 if command -v zsh >/dev/null 2>&1; then
     zsh_path=$(command -v zsh)
-    current_shell="$SHELL"
-
-    if [ "$current_shell" = "$zsh_path" ]; then
+    if [ "$SHELL" = "$zsh_path" ]; then
         success "Default shell is zsh"
     else
-        progress "Changing shell to zsh"
-        # Add zsh to /etc/shells if not already there
-        if ! grep -Fxq "$zsh_path" /etc/shells 2>/dev/null; then
-            echo "$zsh_path" | sudo tee -a /etc/shells >/dev/null
-        fi
-
-        if chsh -s "$zsh_path" 2>/dev/null; then
-            finish
-            info "Log out and back in for changes to take effect"
+        grep -Fxq "$zsh_path" /etc/shells 2>/dev/null || echo "$zsh_path" | sudo tee -a /etc/shells >/dev/null
+        if chsh -s "$zsh_path" 2>/dev/null || sudo chsh -s "$zsh_path" "$USER" 2>/dev/null; then
+            success "Shell changed to zsh (re-login to activate)"
         else
-            if sudo chsh -s "$zsh_path" "$USER" 2>/dev/null; then
-                finish
-                info "Log out and back in for changes to take effect"
-            else
-                failed
-                warn "Run manually: sudo chsh -s $zsh_path $USER"
-            fi
+            warn "Could not change shell — run manually: sudo chsh -s $zsh_path $USER"
         fi
     fi
 else
-    info "zsh not found (keeping current shell)"
+    info "zsh not found, keeping current shell"
 fi
 
-# Final completion message
 log "Dotfiles setup complete!"
-info "Host: {{ .chezmoi.hostname }}"
-info "OS: {{ .chezmoi.os }}/{{ .chezmoi.arch }}"
-
-# Remind to restart shell for new tools
-warn "IMPORTANT: Restart your shell to activate new tools"
-info "Run: exec zsh  (or logout and login)"
-
+info "Host: {{ .chezmoi.hostname }} | OS: {{ .chezmoi.os }}/{{ .chezmoi.arch }}"
+warn "Restart your shell to activate new tools  (exec zsh)"
 {{- if lookPath "nvim" }}
-info "Open nvim - Lazy will auto-sync plugins"
+info "Open nvim — Lazy will auto-sync plugins"
 {{- end }}
-
 {{- if and (lookPath "vim") (not (lookPath "nvim")) }}
 info "Open vim and run :PlugInstall"
 {{- end }}
-
 {{- if lookPath "tmux" }}
-info "In tmux, press <prefix> + I to install plugins"
+info "In tmux: <prefix> + I to install plugins"
 {{- end }}

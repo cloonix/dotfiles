@@ -4,33 +4,9 @@
 
 section "Upgrades"
 
-# Ensure Homebrew is in PATH if installed
 setup_brew_path
-
-{{ if lookPath "brew" -}}
-progress "Upgrading Homebrew packages"
-if brew upgrade >/dev/null 2>&1; then
-    finish
-else
-    failed
-    exit 1
-fi
-
-progress "Removing unused dependencies"
-if brew autoremove >/dev/null 2>&1; then
-    finish
-else
-    failed
-    exit 1
-fi
-
-progress "Cleaning up old versions and cache"
-if brew cleanup -s >/dev/null 2>&1; then
-    finish
-else
-    failed
-    exit 1
-fi
-{{ end -}}
+try "Upgrading Homebrew packages"  brew upgrade
+try "Removing unused dependencies" brew autoremove
+try "Cleaning up old versions"     brew cleanup -s
 
 {{ end -}}

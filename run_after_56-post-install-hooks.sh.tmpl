@@ -9,85 +9,43 @@ set -e
 {{- if ne $profile "basic" }}
 {{- $profilePackages = index .packages $profile | default dict }}
 {{- end }}
-
 {{- $allBrews := $basicPackages.brews | default list }}
 {{- range (index $profilePackages "brews" | default list) }}{{ $allBrews = append $allBrews . }}{{ end }}
 
-{{/* Fabric AI post-install setup */}}
-{{ if has "fabric-ai" $allBrews -}}
-# Ensure Homebrew is in PATH (each run script starts in a fresh shell)
+{{- if has "fabric-ai" $allBrews }}
 setup_brew_path
 
 if command -v fabric-ai >/dev/null 2>&1; then
     section "Post-Install: Fabric AI"
-    
-    # Time-based refresh: update only if older than 7 days
+
     readonly FABRIC_REPO_DIR="$HOME/git/fabric"
     readonly FABRIC_TIMESTAMP="$HOME/.cache/fabric-last-update"
     readonly UPDATE_INTERVAL_DAYS=7
-    
+
     mkdir -p "$HOME/.cache"
-    
-    # Check if update is needed
+
     needs_update=false
     if [ ! -f "$FABRIC_TIMESTAMP" ]; then
         needs_update=true
     else
-        last_update=$(cat "$FABRIC_TIMESTAMP")
-        current_time=$(date +%s)
-        time_diff=$(( (current_time - last_update) / 86400 ))
-        if [ "$time_diff" -ge "$UPDATE_INTERVAL_DAYS" ]; then
-            needs_update=true
-        fi
+        time_diff=$(( ($(date +%s) - $(cat "$FABRIC_TIMESTAMP")) / 86400 ))
+        [ "$time_diff" -ge "$UPDATE_INTERVAL_DAYS" ] && needs_update=true
     fi
-    
+
     if [ "$needs_update" = true ]; then
-        # Clone or update git repository
-        # Remove directory if it exists but is not a valid git repo (e.g. failed previous clone)
-        if [ -d "$FABRIC_REPO_DIR" ] && [ ! -d "$FABRIC_REPO_DIR/.git" ]; then
-            rm -rf "$FABRIC_REPO_DIR"
-        fi
+        [ -d "$FABRIC_REPO_DIR" ] && [ ! -d "$FABRIC_REPO_DIR/.git" ] && rm -rf "$FABRIC_REPO_DIR"
 
         if [ ! -d "$FABRIC_REPO_DIR" ]; then
-            progress "Cloning fabric patterns repository"
             mkdir -p "$HOME/git"
-            if git clone https://github.com/cloonix/fabric "$FABRIC_REPO_DIR" >/dev/null 2>&1; then
-                finish
-            else
-                failed
-            fi
+            try "Cloning fabric patterns" git clone https://github.com/cloonix/fabric "$FABRIC_REPO_DIR"
         else
-            progress "Updating fabric patterns repository"
-            if git -C "$FABRIC_REPO_DIR" pull >/dev/null 2>&1; then
-                finish
-            else
-                failed
-            fi
+            try "Updating fabric patterns" git -C "$FABRIC_REPO_DIR" pull
         fi
 
-        # Update fabric-ai patterns
-        progress "Updating fabric-ai patterns"
-        if fabric-ai -U >/dev/null 2>&1; then
-            finish
-            # Save timestamp on success
-            date +%s > "$FABRIC_TIMESTAMP"
-        else
-            failed
-        fi
+        try "Updating fabric-ai patterns" fabric-ai -U
+        date +%s > "$FABRIC_TIMESTAMP"
     else
         success "Fabric patterns up-to-date (last updated $time_diff days ago)"
     fi
 fi
-{{ end -}}
-
-{{/* Add more post-install hooks here as needed */}}
-{{/* Example:
-{{ if has "docker" $allBrews -}}
-if command -v docker >/dev/null 2>&1; then
-    section "Post-Install: Docker"
-    progress "Setting up Docker"
-    # Docker setup commands here
-    finish
-fi
-{{ end -}}
-*/}}
+{{- end }}
