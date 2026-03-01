@@ -1,4 +1,5 @@
-{{- $profile := promptStringOnce . "profile" "Profile (basic/dev/mac)" -}}
+{{- $profile := .profile | default "" -}}
+{{- if eq $profile "" -}}{{- $profile = promptStringOnce . "profile" "Profile (basic/dev/mac)" -}}{{- end -}}
 {{- $s := fromToml (output "gopass" "fscopy" "config/chezmoi/secrets.toml" "/dev/stdout") -}}
 
 [data]
