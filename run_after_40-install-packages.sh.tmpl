@@ -3,7 +3,6 @@
 
 set -e
 
-# Resolve active profile and load package lists for basic + current profile
 {{- $profile := .profile | default "basic" }}
 {{- $basicPackages := index .packages "basic" | default dict }}
 {{- $profilePackages := dict }}
@@ -11,7 +10,6 @@ set -e
 {{- $profilePackages = index .packages $profile | default dict }}
 {{- end }}
 
-# Merge basic + profile lists for each package manager
 {{- $allTaps  := $basicPackages.taps  | default list }}
 {{- range (index $profilePackages "taps"  | default list) }}{{ $allTaps  = append $allTaps  . }}{{ end }}
 {{- $allApt   := $basicPackages.apt   | default list }}
@@ -24,19 +22,20 @@ set -e
 {{- range (index $profilePackages "npm"   | default list) }}{{ $allNpm   = append $allNpm   . }}{{ end }}
 
 section "Packages ({{ $profile }})"
+
 {{ if and (ne $profile "basic") (not $profilePackages) -}}
 warn "Profile '{{ $profile }}' has no packages, installing basic only"
 {{ end -}}
 
 {{ if eq .chezmoi.os "linux" -}}
-setup_brew_path  # Make linuxbrew available on Linux before any brew commands
+setup_brew_path
 {{ if gt (len $allApt) 0 -}}
-run "Installing APT packages" sh -c 'sudo apt-get update -qq && sudo apt-get install -y {{ $allApt | join " " }} >/dev/null 2>&1'  # Install system packages via apt
+run "Installing APT packages" sh -c 'sudo apt-get update -qq && sudo apt-get install -y {{ $allApt | join " " }} >/dev/null 2>&1'
 {{ end -}}
 {{ end -}}
 
 {{ if gt (len $allTaps) 0 -}}
-run "Tapping brew repositories" brew bundle --quiet --file=/dev/stdin <<'EOF'  # Add third-party Homebrew taps
+run "Tapping brew repositories" brew bundle --quiet --file=/dev/stdin <<'EOF'
 {{ range $allTaps -}}
 tap {{ . | quote }}
 {{ end -}}
@@ -45,7 +44,7 @@ EOF
 
 {{- $allPkgs := concat $allBrews $allCasks }}
 {{ if gt (len $allPkgs) 0 -}}
-run "Installing/upgrading packages ({{ $allPkgs | join ", " }})" brew bundle --quiet --file=/dev/stdin <<'EOF'  # Install all brews and casks via Brewfile
+run "Installing/upgrading packages" brew bundle --quiet --file=/dev/stdin <<'EOF'
 {{ range $allBrews -}}
 brew {{ . | quote }}
 {{ end -}}
@@ -56,7 +55,7 @@ EOF
 {{ end -}}
 
 {{ if gt (len $allNpm) 0 -}}
-run "Installing npm global packages" npm install -g {{ $allNpm | join " " }}  # Install global npm tools
+run "Installing npm global packages" npm install -g {{ $allNpm | join " " }}
 {{ end -}}
 
-info "New packages installed - restart shell after setup completes"
+info "Restart your shell after setup completes to activate new tools"
