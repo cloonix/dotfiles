@@ -38,15 +38,16 @@ if command -v fabric-ai >/dev/null 2>&1; then
     if [ "$needs_update" = true ]; then
         [ -d "$FABRIC_REPO_DIR" ] && [ ! -d "$FABRIC_REPO_DIR/.git" ] && rm -rf "$FABRIC_REPO_DIR"  # Remove broken clone
 
-        # Clone patterns repo if missing, otherwise pull latest
+        # Clone/update personal patterns repo (cloonix/fabric -> CUSTOM_PATTERNS_DIRECTORY)
         if [ ! -d "$FABRIC_REPO_DIR" ]; then
             mkdir -p "$HOME/git"
-            try "Cloning fabric patterns" git clone https://github.com/cloonix/fabric "$FABRIC_REPO_DIR"
+            try "Cloning custom patterns (cloonix/fabric)" git clone https://github.com/cloonix/fabric "$FABRIC_REPO_DIR"
         else
-            try "Updating fabric patterns" git -C "$FABRIC_REPO_DIR" pull
+            try "Updating custom patterns (cloonix/fabric)" git -C "$FABRIC_REPO_DIR" pull
         fi
 
-        try "Updating fabric-ai patterns" fabric-ai -U  # Sync patterns into fabric-ai's data dir
+        # Sync official patterns via fabric-ai -U (danielmiessler/fabric -> PATTERNS_LOADER_GIT_REPO_URL)
+        try "Updating official patterns (danielmiessler/fabric)" fabric-ai -U
         date +%s > "$FABRIC_TIMESTAMP"                  # Record update timestamp
     else
         success "Fabric patterns up-to-date (last updated $time_diff days ago)"
