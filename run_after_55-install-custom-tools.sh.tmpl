@@ -4,6 +4,7 @@
 
 set -e
 
+# Resolve active profile and build deduplicated list of custom tools
 {{- $profile := .profile | default "basic" }}
 {{- $allCustomTools := list }}
 {{- $basicCustom := (index .packages "basic").custom | default list }}
@@ -18,20 +19,22 @@ set -e
 {{ if gt (len $allCustomTools) 0 -}}
 section "Custom Tools ({{ $profile }})"
 
-setup_brew_path
+setup_brew_path  # Ensure brew-installed runtimes are on PATH before tool checks
 
 {{- range $allCustomTools }}
+# Skip homebrew itself — handled by run_after_35
 {{- if ne . "homebrew" }}
 {{- $installer := index $.custom . }}
 
 {{- if gt (len $installer.requires) 0 }}
+# Check all declared dependencies before attempting install
 deps_met_{{ . }}=true
 {{- range $installer.requires }}
 command -v {{ . }} >/dev/null 2>&1 || { warn "Skipping {{ . }}: requires {{ . }}"; deps_met_{{ . }}=false; }
 {{- end }}
 [ "$deps_met_{{ . }}" = "true" ] && install_tool "{{ . }}" "{{ $installer.url }}" "{{ $installer.check }}" "{{ if eq $installer.install_when "always" }}true{{ else }}false{{ end }}"
 {{- else }}
-install_tool "{{ . }}" "{{ $installer.url }}" "{{ $installer.check }}" "{{ if eq $installer.install_when "always" }}true{{ else }}false{{ end }}"
+install_tool "{{ . }}" "{{ $installer.url }}" "{{ $installer.check }}" "{{ if eq $installer.install_when "always" }}true{{ else }}false{{ end }}"  # Install tool with no prerequisites
 {{- end }}
 
 {{- end }}

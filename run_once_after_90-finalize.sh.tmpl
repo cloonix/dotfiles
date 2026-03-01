@@ -3,10 +3,12 @@
 
 set -e
 
+# Resolve active profile, defaulting to "basic"
 {{- $profile := .profile | default "basic" }}
 
 section "Frameworks"
 
+# Clone or update Prezto (zsh framework) and its submodules
 prezto_dir="${ZDOTDIR:-{{ .chezmoi.homeDir }}}/.zprezto"
 if [ -d "$prezto_dir" ]; then
     try "Updating Prezto" git -C "$prezto_dir" pull --quiet
@@ -16,12 +18,14 @@ else
 fi
 
 {{- if or (eq $profile "dev") (eq $profile "mac") }}
+# Configure gopass settings and push URLs only on dev/mac profiles
 if command -v gopass >/dev/null 2>&1; then
     section "gopass"
-    gopass config show.safecontent true >/dev/null 2>&1
-    gopass config show.autoclip false >/dev/null 2>&1
-    gopass config core.notifications false >/dev/null 2>&1
+    gopass config show.safecontent true >/dev/null 2>&1   # Show secrets safely in terminal
+    gopass config show.autoclip false >/dev/null 2>&1     # Disable auto-copy to clipboard
+    gopass config core.notifications false >/dev/null 2>&1 # Suppress desktop notifications
 
+    # Sync push URLs only if they differ from expected (avoids redundant git config writes)
     current_pushurls=$(gopass git config --get-all remote.origin.pushurl 2>/dev/null | grep -v "^⚠" | sort)
     expected_pushurls=$(printf "%s\n%s" {{ .gopass_push_url_1 | quote }} {{ .gopass_push_url_2 | quote }} | sort)
     if [ "$current_pushurls" != "$expected_pushurls" ]; then
@@ -36,8 +40,9 @@ fi
 
 section "Finalization"
 
-setup_brew_path
+setup_brew_path  # Ensure Homebrew is on PATH before shell checks
 
+# Set zsh as the default shell if not already, adding it to /etc/shells if needed
 if command -v zsh >/dev/null 2>&1; then
     zsh_path=$(command -v zsh)
     if [ "$SHELL" = "$zsh_path" ]; then
@@ -54,6 +59,7 @@ else
     info "zsh not found, keeping current shell"
 fi
 
+# Print post-setup summary with actionable next steps
 log "Dotfiles setup complete!"
 info "Host: {{ .chezmoi.hostname }} | OS: {{ .chezmoi.os }}/{{ .chezmoi.arch }}"
 warn "Restart your shell to activate new tools  (exec zsh)"

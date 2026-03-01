@@ -3,6 +3,7 @@
 
 set -e
 
+# Resolve active profile and merge basic + profile brew lists
 {{- $profile := .profile | default "basic" }}
 {{- $basicPackages := index .packages "basic" | default dict }}
 {{- $profilePackages := dict }}
@@ -12,18 +13,20 @@ set -e
 {{- $allBrews := $basicPackages.brews | default list }}
 {{- range (index $profilePackages "brews" | default list) }}{{ $allBrews = append $allBrews . }}{{ end }}
 
-{{- if has "fabric-ai" $allBrews }}
+# Run post-install only if fabric-ai is in the brew list
+{{- if has "fabric-ai" $allBrews }}  # Run post-install only if fabric-ai is in the brew list
 setup_brew_path
 
 if command -v fabric-ai >/dev/null 2>&1; then
     section "Post-Install: Fabric AI"
 
-    readonly FABRIC_REPO_DIR="$HOME/git/fabric"
-    readonly FABRIC_TIMESTAMP="$HOME/.cache/fabric-last-update"
-    readonly UPDATE_INTERVAL_DAYS=7
+    readonly FABRIC_REPO_DIR="$HOME/git/fabric"          # Local clone of fabric patterns repo
+    readonly FABRIC_TIMESTAMP="$HOME/.cache/fabric-last-update"  # File tracking last update time
+    readonly UPDATE_INTERVAL_DAYS=7                       # Skip update if last run was within 7 days
 
     mkdir -p "$HOME/.cache"
 
+    # Check if patterns need updating based on timestamp age
     needs_update=false
     if [ ! -f "$FABRIC_TIMESTAMP" ]; then
         needs_update=true
@@ -33,8 +36,9 @@ if command -v fabric-ai >/dev/null 2>&1; then
     fi
 
     if [ "$needs_update" = true ]; then
-        [ -d "$FABRIC_REPO_DIR" ] && [ ! -d "$FABRIC_REPO_DIR/.git" ] && rm -rf "$FABRIC_REPO_DIR"
+        [ -d "$FABRIC_REPO_DIR" ] && [ ! -d "$FABRIC_REPO_DIR/.git" ] && rm -rf "$FABRIC_REPO_DIR"  # Remove broken clone
 
+        # Clone patterns repo if missing, otherwise pull latest
         if [ ! -d "$FABRIC_REPO_DIR" ]; then
             mkdir -p "$HOME/git"
             try "Cloning fabric patterns" git clone https://github.com/cloonix/fabric "$FABRIC_REPO_DIR"
@@ -42,8 +46,8 @@ if command -v fabric-ai >/dev/null 2>&1; then
             try "Updating fabric patterns" git -C "$FABRIC_REPO_DIR" pull
         fi
 
-        try "Updating fabric-ai patterns" fabric-ai -U
-        date +%s > "$FABRIC_TIMESTAMP"
+        try "Updating fabric-ai patterns" fabric-ai -U  # Sync patterns into fabric-ai's data dir
+        date +%s > "$FABRIC_TIMESTAMP"                  # Record update timestamp
     else
         success "Fabric patterns up-to-date (last updated $time_diff days ago)"
     fi

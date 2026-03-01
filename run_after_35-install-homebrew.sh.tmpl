@@ -3,9 +3,11 @@
 
 set -e
 
+# Resolve active profile
 {{- $profile := .profile | default "basic" }}
 {{- $allCustomTools := list }}
 {{- $basicCustom := (index .packages "basic").custom | default list }}
+# Collect custom tools from basic profile
 {{- range $basicCustom }}{{ $allCustomTools = append $allCustomTools . }}{{ end }}
 {{- if ne $profile "basic" }}
 {{- $profileCustom := (index .packages $profile).custom | default list }}
@@ -13,28 +15,31 @@ set -e
 {{- if not (has . $allCustomTools) }}{{ $allCustomTools = append $allCustomTools . }}{{ end }}
 {{- end }}
 {{- end }}
+# Append profile-specific tools, deduplicating
 
+# Only run if "homebrew" is listed as a custom tool for this profile
 {{- if has "homebrew" $allCustomTools }}
 {{- $installer := index .custom "homebrew" }}
 
 section "Homebrew"
 
+# Install Homebrew if missing, otherwise update it
 if ! command -v {{ $installer.check }} >/dev/null 2>&1; then
     progress "Installing Homebrew"
 {{ if eq .chezmoi.os "linux" -}}
-    if NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
+    if NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then  # Linux: suppress interactive prompts
 {{- else -}}
     if /bin/bash -c "$(curl -fsSL {{ $installer.url }})" >/dev/null 2>&1; then
 {{- end }}
         finish
-        setup_brew_path
+        setup_brew_path  # Add newly installed brew to PATH immediately
     else
         failed
         exit 1
     fi
 else
     success "Homebrew already installed"
-    run "Updating Homebrew" brew update
+    run "Updating Homebrew" brew update  # Refresh formula index on existing install
 fi
 
 {{- end }}
