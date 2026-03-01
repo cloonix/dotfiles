@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+{{ template "helpers.sh" . }}
 set -euo pipefail
 
 # Script to set up chezmoi on a remote host.
@@ -164,7 +165,7 @@ render_and_copy_dotfiles() {
   local remote_home="$3"
   local remote_arch="$4"
 
-  echo "Rendering templates locally for linux/$remote_arch (secrets from gopass)..."
+  progress "Rendering templates locally for linux/$remote_arch"
 
   # Build JSON override: tell chezmoi the remote is Linux with the right arch/home.
   # .chezmoi.os and .chezmoi.arch are normally auto-detected; --override-data lets
@@ -184,45 +185,37 @@ render_and_copy_dotfiles() {
     | ssh "$ssh_target" "
         mkdir -p '$remote_home'
         tar -x --no-same-owner --overwrite -C '$remote_home'
-        echo 'Dotfiles extracted to $remote_home'
       "
-
-  echo "  Done — all templates rendered with local secrets and pushed to remote."
+  finish
 }
 
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
-echo "Setting up chezmoi on $SSH_TARGET..."
-echo "Using config: $CONFIG_NAME (gopass: $GOPASS_PATH)"
-echo "Chezmoi repository: $CHEZMOI_REPO"
-[[ -n "$CHEZMOI_BRANCH" ]] && echo "Branch: $CHEZMOI_BRANCH"
-echo ""
+section "Setup: $SSH_TARGET"
+info "Config:  $CONFIG_NAME  ($GOPASS_PATH)"
+info "Repo:    $CHEZMOI_REPO${CHEZMOI_BRANCH:+  (branch: $CHEZMOI_BRANCH)}"
 
 # Detect remote user/home if not provided
-echo "Detecting remote environment..."
+progress "Detecting remote environment"
 read -r DETECTED_USER REMOTE_HOME <<< "$(detect_remote_info "$SSH_TARGET")"
 if [[ -z "$REMOTE_USER" ]]; then
   REMOTE_USER="$DETECTED_USER"
 fi
-echo "  Remote user: $REMOTE_USER"
-echo "  Remote home: $REMOTE_HOME"
-echo "  Remote arch: $REMOTE_ARCH"
-echo ""
+finish
+info "user=$REMOTE_USER  home=$REMOTE_HOME  arch=$REMOTE_ARCH"
 
 # Fetch remote profile config from gopass to a temp file
 TEMP_CONFIG="/tmp/chezmoi-remote-$$.toml"
 trap 'rm -f "$TEMP_CONFIG"' EXIT
 
-echo "Fetching config from gopass ($GOPASS_PATH)..."
+progress "Fetching config from gopass"
 gopass fscopy "$GOPASS_PATH" "$TEMP_CONFIG"
-echo "  Done"
-echo ""
+finish
 
 # Render all dotfile templates locally (resolves gopass secrets here) and
 # extract the rendered archive on the remote
 render_and_copy_dotfiles "$TEMP_CONFIG" "$SSH_TARGET" "$REMOTE_HOME" "$REMOTE_ARCH"
-echo ""
 
 # Build branch flag
 BRANCH_FLAG=""
@@ -235,7 +228,7 @@ fi
 # - run_once_before_10 exits early because config already exists.
 # - Dotfiles with secrets are already extracted → chezmoi sees no diff.
 # - run_after_* scripts (package installs, etc.) run normally.
-echo "Connecting to $SSH_TARGET and running chezmoi (packages + run scripts)..."
+section "Remote: $SSH_TARGET"
 cat "$TEMP_CONFIG" | ssh "$SSH_TARGET" "
 bash -l -c \"
   # --- Detect OS and install prerequisites ---
@@ -278,4 +271,4 @@ bash -l -c \"
 \""
 
 echo ""
-echo "Chezmoi setup complete on $SSH_TARGET"
+success "Chezmoi setup complete on $SSH_TARGET"

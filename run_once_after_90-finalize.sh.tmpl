@@ -54,9 +54,10 @@ else
     info "zsh not found, keeping current shell"
 fi
 
-log "Dotfiles setup complete!"
-info "Host: {{ .chezmoi.hostname }} | OS: {{ .chezmoi.os }}/{{ .chezmoi.arch }}"
-warn "Restart your shell to activate new tools  (exec zsh)"
+section "Done"
+success "Dotfiles applied on {{ .chezmoi.hostname }} ({{ .chezmoi.os }}/{{ .chezmoi.arch }})"
+echo ""
+warn "Restart your shell to activate new tools (exec zsh)"
 {{- if lookPath "nvim" }}
 info "Open nvim — Lazy will auto-sync plugins"
 {{- end }}
@@ -66,3 +67,4 @@ info "Open vim and run :PlugInstall"
 {{- if lookPath "tmux" }}
 info "In tmux: <prefix> + I to install plugins"
 {{- end }}
+echo ""
