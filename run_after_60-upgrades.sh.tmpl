@@ -1,13 +1,12 @@
-# Only run this script if Homebrew is available
-{{ if lookPath "brew" -}}
 #!/usr/bin/env bash
 {{ template "helpers.sh" . }}
-
+{{- if lookPath "brew" }}
 section "Upgrades"
 
 setup_brew_path  # Ensure brew is on PATH before running upgrade commands
 try "Upgrading Homebrew packages"  brew upgrade          # Upgrade all installed formulae and casks
 try "Removing unused dependencies" brew autoremove       # Remove packages no longer needed as dependencies
 try "Cleaning up old versions"     brew cleanup -s       # Delete stale downloads and old formula versions
-
-{{ end -}}
+{{- else }}
+info "Homebrew not found, skipping upgrades"
+{{- end }}
