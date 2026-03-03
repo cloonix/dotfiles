@@ -7,3 +7,5 @@ if pgrep -x yazi >/dev/null 2>&1; then
 else
   kitty yazi --client-id "$MY_ID" "$FOLDER" &
 fi
+
+osascript -e 'tell application "kitty" to activate'
