@@ -12,6 +12,16 @@ set -e
 {{- $allBrews := $basicPackages.brews | default list }}
 {{- range (index $profilePackages "brews" | default list) }}{{ $allBrews = append $allBrews . }}{{ end }}
 
+{{- if has "yazi" $allBrews }}
+setup_brew_path
+
+if command -v ya >/dev/null 2>&1; then
+    section "Post-Install: Yazi Plugins"
+    progress "Installing yazi plugins via ya pkg install"
+    if ya pkg install --cwd "$HOME/.config/yazi" >/dev/null 2>&1; then finish; else failed; exit 1; fi
+fi
+{{- end }}
+
 {{- if has "fabric-ai" $allBrews }}
 setup_brew_path
 
