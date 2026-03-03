@@ -20,16 +20,39 @@ shellcheck <script>   # Lint (if available)
 
 ```
 .
-├── .chezmoidata/packages.yaml       # Package definitions per profile
-├── .chezmoitemplates/               # Shared templates (helpers.sh)
-├── dot_*/private_*/executable_*     # Managed files
+├── .chezmoidata/packages.yaml       # Package & custom-tool definitions per profile
+├── .chezmoitemplates/
+│   ├── helpers.sh                   # Output helpers, setup_brew_path, run, try
+│   └── install_tool.sh              # Curl-based tool installer function
+├── .chezmoiignore.tmpl              # OS-conditional ignores
+├── dot_aliases.tmpl                 # Shell aliases (OS-conditional)
+├── dot_gitconfig.tmpl               # Git config
+├── dot_gitconfig-github.tmpl        # GitHub identity (alt template delimiters)
+├── dot_gitconfig-gitlab.tmpl        # GitLab identity (alt template delimiters)
+├── dot_tmux.conf                    # tmux config
+├── dot_vimrc                        # Vim config (no .tmpl)
+├── dot_zpreztorc.tmpl               # Prezto zsh framework config
+├── dot_zshrc.tmpl                   # Main zsh config
+├── dot_zsh/exact_completions/       # Zsh completions (exact_ removes unlisted files)
 ├── dot_config/                      # ~/.config/ files
-├── dot_config-work/                 # Work-specific config overrides
-├── dot_local/bin/                   # Executable scripts
-│   ├── executable_setup-chezmoi-remote.sh.tmpl
-│   └── executable_git-backup.sh.tmpl
+│   ├── kitty/                       # Kitty terminal
+│   ├── nvim/                        # Neovim (LazyVim)
+│   ├── opencode/opencode.jsonc.tmpl # Opencode AI config (gopass API keys)
+│   ├── starship.toml                # Starship prompt
+│   └── yazi/                        # Yazi file manager
+├── dot_config-work/opencode/        # Work-specific opencode config override
+├── dot_local/
+│   ├── bin/                         # Executable scripts
+│   │   ├── executable_setup-chezmoi-remote.sh.tmpl
+│   │   ├── executable_git-backup.sh.tmpl
+│   │   └── executable_yazi-open.sh  # Static script (no .tmpl)
+│   ├── share/opencode/              # Opencode personal auth
+│   └── share-work/opencode/         # Opencode work auth
+├── private_dot_env.tmpl             # ~/.env — API keys from gopass (600 perms)
+├── private_dot_gnupg/               # ~/.gnupg/ — GPG agent config
+├── private_dot_ssh/                 # ~/.ssh/ — authorized_keys from gopass
+├── private_Library/                 # ~/Library/ — macOS app configs
 ├── run_once_before_10-setup-config-from-gopass.sh.tmpl
-├── run_once_before_20-setup-ssh.sh.tmpl
 ├── run_after_35-install-homebrew.sh.tmpl
 ├── run_after_40-install-packages.sh.tmpl
 ├── run_after_55-install-custom-tools.sh.tmpl
@@ -45,6 +68,7 @@ shellcheck <script>   # Lint (if available)
 | `dot_` | `.filename` |
 | `private_dot_` | `.filename` (600 perms) |
 | `executable_` | executable file |
+| `exact_` | removes target files not in source |
 | `run_once_before_` | run before apply, once |
 | `run_after_` | run after every apply |
 | `.tmpl` suffix | processed as Go template |
@@ -67,7 +91,12 @@ else
 fi
 ```
 
-**Helpers** (from `helpers.sh`): `section`, `progress`, `finish`, `failed`, `success`, `warn`, `error`, `info`, `log`
+**Helpers** (from `helpers.sh`): `section`, `progress`, `finish`, `failed`, `success`, `warn`, `error`, `info`, `log`, `dim`
+
+**Utility functions** (from `helpers.sh`):
+- `setup_brew_path` — adds Homebrew to PATH (macOS `/opt/homebrew` or Linux `/home/linuxbrew`); call at start of any script needing `brew`
+- `run "label" cmd [args...]` — runs command with progress label; exits on failure
+- `try "label" cmd [args...]` — runs command with progress label; warns and continues on failure
 
 **Naming**: `readonly UPPER_SNAKE_CASE` for constants, `lower_snake_case` for vars/functions.
 
@@ -79,20 +108,49 @@ fi
 {{ if or (eq $profile "dev") (eq $profile "mac") -}}dev/mac code{{- end }}
 ```
 
-- Profiles are additive: basic ⊂ dev ⊂ mac
+- Profiles are additive but parallel: `basic` is always applied. `dev` (Linux) or `mac` (macOS) is merged on top. `dev` and `mac` are NOT hierarchical — they are separate platform profiles.
 - Always default: `{{ .profile | default "basic" }}`
+- Override template delimiters when `{{ }}` conflicts with target syntax:
+
+```
+{{- /* chezmoi:template:left-delimiter=[[  right-delimiter=]] */ -}}
+[section]
+  value = [[ .some_variable ]]
+```
 
 ## YAML (packages.yaml)
 
 ```yaml
+# Top-level custom installer registry (curl-based)
+custom:
+  toolname:
+    check: "binary-name"      # Command to verify installation
+    url: "https://..."        # Install script URL
+    install_when: "missing"   # or "always" (re-run on every apply)
+    requires: ["brew"]        # Command dependencies
+
+# Package installation: always basic + ONE profile (dev OR mac, not both)
 packages:
-  basic:
-    custom: ["tool1"]
-    apt: ["pkg1"]
-    brews: ["brew1"]
+  basic:                      # Installed on ALL machines (Linux + macOS)
+    custom: ["homebrew"]      # References keys from top-level custom: block
+    taps: []
+    apt: ["git", "curl"]      # Linux only
+    brews: ["fzf", "neovim"]
     casks: []
-  dev:
-    brews: ["devtool1"]   # additive on top of basic
+    npm: []
+  dev:                        # Linux additions (merged with basic)
+    custom: ["opencode"]
+    taps: []
+    apt: ["btop"]
+    brews: ["gh"]
+    casks: []
+    npm: []
+  mac:                        # macOS additions (merged with basic, parallel to dev)
+    custom: ["opencode"]
+    taps: []
+    brews: ["gopass"]
+    casks: ["typora"]
+    npm: []
 ```
 
 ## Secrets
@@ -164,3 +222,5 @@ setup-chezmoi-remote -c dev -u claus -a arm64 my-server
 **New script**: Name as `run_after_NN-name.sh.tmpl`, include `{{ template "helpers.sh" . }}`, add `set -e`
 
 **Modify config**: Edit in `dot_config/`, verify with `chezmoi diff`, apply with `chezmoi apply`
+
+**Work config override**: `dot_config-work/` and `dot_local/share-work/` hold work-specific configs. The `ocw()` shell function (in `dot_aliases.tmpl`) launches opencode with `OPENCODE_CONFIG_DIR` and `XDG_DATA_HOME` overridden to work paths, keeping personal and work sessions separated.
