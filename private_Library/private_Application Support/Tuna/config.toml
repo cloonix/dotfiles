@@ -1,0 +1,139 @@
+schemaVersion = 1
+
+[catalogConfiguration]
+customFolders = []
+
+    [[catalogConfiguration.folderDepthOverrides]]
+    catalogIdentifier = 'TunaAutomation.ScriptsCatalog'
+    depthRawValue = 3
+
+    [[catalogConfiguration.folderDepthOverrides]]
+    catalogIdentifier = 'TunaCore.UserFoldersCatalog'
+    depthRawValue = 1
+
+[extensions]
+enabledIdentifiers = [ 'com.brnbw.tuna.plugins.obsidian' ]
+
+[hotkeys]
+custom = []
+
+    [hotkeys.app.activate]
+    carbonKeyCode = 49
+    carbonModifiers = 2048
+
+    [hotkeys.app.dictation]
+    carbonKeyCode = 9
+    carbonModifiers = 6912
+
+    [hotkeys.app.leaderMode]
+    carbonKeyCode = 49
+    carbonModifiers = 4096
+
+    [hotkeys.app.textMode]
+    carbonKeyCode = 49
+    carbonModifiers = 6912
+
+[[leaderMode.bindings]]
+iconPath = '/Applications/Vivaldi.app'
+key = 'b'
+label = 'Browser'
+
+    [[leaderMode.bindings.children]]
+    iconPath = '/Applications/Vivaldi.app'
+    key = 's'
+    url = 'tuna://run/url.https:%252F%252Fstart.cmvps.de/Open%20URL'
+
+    [[leaderMode.bindings.children]]
+    key = 'm'
+    url = 'tuna://run/url.https:%252F%252Fmail.proton.me%252Fu%252F0%252Finbox/Open%20URL'
+
+[[leaderMode.bindings]]
+iconPath = 'folder.fill'
+key = 'f'
+label = 'Finder'
+
+    [[leaderMode.bindings.children]]
+    key = 'D'
+    url = 'tuna://run/path.%252FUsers%252Fclaus%252FDownloads/Open'
+
+    [[leaderMode.bindings.children]]
+    key = 'g'
+    url = 'tuna://run/path.%252FUsers%252Fclaus%252Fgit/Open'
+
+    [[leaderMode.bindings.children]]
+    key = 'c'
+    url = 'tuna://run/path.%252FUsers%252Fclaus%252FCloud/Open'
+
+    [[leaderMode.bindings.children]]
+    key = 'd'
+    url = 'tuna://run/path.%252FUsers%252Fclaus%252FDocuments/Open'
+
+[[leaderMode.bindings]]
+iconPath = 'folder.fill'
+key = 'y'
+label = 'yazi'
+
+    [[leaderMode.bindings.children]]
+    iconPath = 'cloud.fill'
+    key = 'c'
+    url = "tuna://run/text.%252FUsers%252Fclaus%252F.local%252Fbin%252Fyazi-open.sh%2520~%252FCloud%250Aosascript%2520-e%2520'tell%2520application%2520%2522kitty%2522%2520to%2520activate'/Run%20Text%20as%20Shell%20Command"
+
+    [[leaderMode.bindings.children]]
+    iconPath = 'cloud.fill'
+    key = 'd'
+    url = "tuna://run/text.%252FUsers%252Fclaus%252F.local%252Fbin%252Fyazi-open.sh%2520~%252FDownloads%250Aosascript%2520-e%2520'tell%2520application%2520%2522kitty%2522%2520to%2520activate'/Run%20Text%20as%20Shell%20Command"
+
+    [[leaderMode.bindings.children]]
+    iconPath = 'cloud.fill'
+    key = 'g'
+    url = "tuna://run/text.%252FUsers%252Fclaus%252F.local%252Fbin%252Fyazi-open.sh%2520~%252Fgit%250Aosascript%2520-e%2520'tell%2520application%2520%2522kitty%2522%2520to%2520activate'/Run%20Text%20as%20Shell%20Command"
+
+[[leaderMode.bindings]]
+iconPath = '/Applications/kitty.app'
+key = 't'
+
+    [[leaderMode.bindings.children]]
+    key = 'd'
+    url = 'tuna://run/text.kitty%2520ssh%2520dev/Run%20Text%20as%20Shell%20Command'
+
+    [[leaderMode.bindings.children]]
+    key = 'g'
+    url = 'tuna://run/text.kitty%2520~%252Fgit/Run%20Text%20as%20Shell%20Command'
+
+[settings]
+themeIdentifier = 'com.brnbw.tuna.themes.default'
+
+[[smartLinks.entries]]
+enabled = false
+name = 'Bing'
+template = 'https://www.bing.com/search?q={{input}}'
+
+[[smartLinks.entries]]
+enabled = false
+name = 'DuckDuckGo'
+template = 'https://duckduckgo.com/?q={{input}}'
+
+[[smartLinks.entries]]
+enabled = true
+name = 'GitHub'
+template = 'https://github.com/search?q={{input}}'
+
+[[smartLinks.entries]]
+enabled = true
+name = 'Google'
+template = 'https://www.google.com/search?q={{input}}'
+
+[[smartLinks.entries]]
+enabled = false
+name = 'Stack Overflow'
+template = 'https://stackoverflow.com/search?q={{input}}'
+
+[[smartLinks.entries]]
+enabled = false
+name = 'Wikipedia'
+template = 'https://en.wikipedia.org/wiki/Special:Search?search={{input}}'
+
+[[smartLinks.entries]]
+enabled = true
+name = 'YouTube'
+template = 'https://www.youtube.com/results?search_query={{input}}'
