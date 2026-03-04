@@ -260,7 +260,7 @@ bash -l -c \"
 
   # --- Install chezmoi and clone the source repo (no apply yet) ---
   echo 'Installing chezmoi and cloning repo...'
-  bash -c \\\"\\\$(curl -fsLS get.chezmoi.io)\\\" -- init --force $BRANCH_FLAG $CHEZMOI_REPO
+  bash -c \\\"\\\$(curl -fsLS get.chezmoi.io)\\\" -- -b \$HOME/.local/bin init --force $BRANCH_FLAG $CHEZMOI_REPO
 
   # --- Apply run scripts only — dotfiles are already extracted from the local archive ---
   # --exclude files: skip re-rendering dotfiles (gopass not available here)
