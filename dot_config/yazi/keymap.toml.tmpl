@@ -122,4 +122,12 @@ desc = "Close current tab"
 on   = [ "g", "t" ]
 run  = 'shell "open -a Ghostty $PWD" --orphan --confirm'
 desc = "Open current folder in Ghostty"
+
+[[mgr.prepend_keymap]]
+on  = "y"
+run = [
+  'shell -- osascript -e "set the clipboard to POSIX file \"%s\""',
+  "yank",
+]
+desc = "Yank and copy file to system clipboard"
 {{- end }}
