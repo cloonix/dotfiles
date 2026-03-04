@@ -1,5 +1,7 @@
 {{- $rsn := output "gopass" "--password" "work/api/azure" "rsn" | trim -}}
+{{- $azureKey := gopass "work/api/azure" -}}
 {{- $fhgenie := output "gopass" "--password" "work/api/fhgenie" "url" | trim -}}
+{{- $fhgenieKey := gopass "work/api/fhgenie" -}}
 {
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": true,
@@ -11,7 +13,8 @@
       "name": "Azure Fraunhofer (Cognitive Services)",
       "npm": "@ai-sdk/azure",
       "options": {
-        "baseURL": "https://{{ $rsn }}.cognitiveservices.azure.com/openai"
+        "baseURL": "https://{{ $rsn }}.cognitiveservices.azure.com/openai",
+        "apiKey": "{{ $azureKey }}"
       },
       "models": {
         "gpt-5.1-codex": {
@@ -94,7 +97,8 @@
       "name": "Azure Fraunhofer (Anthropic)",
       "npm": "@ai-sdk/anthropic",
       "options": {
-        "baseURL": "https://{{ $rsn }}.services.ai.azure.com/anthropic/v1"
+        "baseURL": "https://{{ $rsn }}.services.ai.azure.com/anthropic/v1",
+        "apiKey": "{{ $azureKey }}"
       },
       "models": {
         "claude-opus-4-5": {
@@ -168,7 +172,8 @@
       "name": "Azure Fraunhofer (AI Foundry)",
       "npm": "@ai-sdk/openai-compatible",
       "options": {
-        "baseURL": "https://{{ $rsn }}.services.ai.azure.com/openai/v1"
+        "baseURL": "https://{{ $rsn }}.services.ai.azure.com/openai/v1",
+        "apiKey": "{{ $azureKey }}"
       },
       "models": {
         // Reasoning model: temperature fixed to 1.0 by API
@@ -227,6 +232,9 @@
       "npm": "@ai-sdk/openai-compatible",
       "name": "fhgenie",
       "api": "{{ $fhgenie }}/v1",
+      "options": {
+        "apiKey": "{{ $fhgenieKey }}"
+      },
       "models": {
         // Chat models (verified working on production endpoint 2026-02-09)
         "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8": {
