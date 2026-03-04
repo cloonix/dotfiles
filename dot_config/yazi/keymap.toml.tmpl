@@ -126,7 +126,7 @@ desc = "Open current folder in Ghostty"
 [[mgr.prepend_keymap]]
 on  = "y"
 run = [
-  'shell -- osascript -e "set the clipboard to POSIX file \"%s\""',
+  'shell -- osascript -e "on run {f}" -e "set the clipboard to POSIX file f" -e "end run" -- %s',
   "yank",
 ]
 desc = "Yank and copy file to system clipboard"
