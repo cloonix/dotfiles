@@ -61,9 +61,9 @@ hash = "e56b7abf3c06e8ce496eadcca168c093"
 [[flavor.deps]]
 use = "gosxrgxx/flexoki-dark"
 rev = "28e1977"
-hash = "9dbbb64ea20f9f1271c31951dea55c7b"
+hash = "bc4620db89cf55bd91906c239f8fa1a8"
 
 [[flavor.deps]]
 use = "dangooddd/kanagawa"
 rev = "1f3b3c7"
-hash = "16ea0ff3583131788d57d5f7d34d0f61"
+hash = "fff6ae896b1c5ffa8492e46ec794f743"
