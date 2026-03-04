@@ -118,6 +118,7 @@ packages:
       - "gopass"
       - "hcloud"
       - "hugo"
+      - "kitty"
       - "lazygit"
       - "logrotate"
       - "mole"
