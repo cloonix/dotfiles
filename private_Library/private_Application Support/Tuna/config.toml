@@ -91,6 +91,7 @@ label = 'yazi'
 [[leaderMode.bindings]]
 iconPath = '/Applications/kitty.app'
 key = 't'
+label = 'kitty'
 
     [[leaderMode.bindings.children]]
     key = 'd'
@@ -101,6 +102,7 @@ key = 't'
     url = 'tuna://run/text.kitty%2520~%252Fgit/Run%20Text%20as%20Shell%20Command'
 
 [settings]
+shelfCatalogEnabled = false
 themeIdentifier = 'com.brnbw.tuna.themes.default'
 
 [[smartLinks.entries]]

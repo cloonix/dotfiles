@@ -118,7 +118,6 @@ packages:
       - "gopass"
       - "hcloud"
       - "hugo"
-      - "kitty"
       - "lazygit"
       - "logrotate"
       - "mole"
@@ -132,5 +131,6 @@ packages:
     casks:
       - "claude-code"
       - "copilot-cli"
+      - "kitty"
       - "mountain-duck"
       - "typora"
