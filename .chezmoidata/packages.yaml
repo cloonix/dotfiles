@@ -30,6 +30,11 @@ custom:
     url: "https://raw.githubusercontent.com/cloonix/pkmdex/main/install.sh"
     install_when: "always"
     requires: ["brew", "pipx"]
+  trx:
+    check: "trx"
+    url: "https://raw.githubusercontent.com/cloonix/trx/master/install.sh"
+    install_when: "always"
+    requires: []
 
 # Package installation combines basic + profile:
 # - Combinations: basic+dev (Linux) OR basic+mac (macOS)
@@ -65,6 +70,7 @@ packages:
     custom:
       - "opencode"
       - "servicehub"
+      - "trx"
     taps: []
     npm:
       - "@mariozechner/pi-coding-agent"
@@ -101,6 +107,7 @@ packages:
       - "protonpass"
       - "servicehub"
       - "pkmdex"
+      - "trx"
     taps: []
     npm:
       - "@mariozechner/pi-coding-agent"
