@@ -17,51 +17,9 @@
         "apiKey": "{{ $azureKey }}"
       },
       "models": {
-        "gpt-5.1-codex": {
-          "name": "GPT-5.1 Codex",
-          "id": "gpt-5.1-codex",
-          "limit": {
-            "context": 200000,
-            "output": 65536
-          },
-          "options": {
-            "temperature": 0.3,
-            "topP": 0.9,
-            "frequencyPenalty": 0.15,
-            "presencePenalty": 0.15
-          }
-        },
-        "gpt-5.1-codex-mini": {
-          "name": "GPT-5.1 Codex Mini",
-          "id": "gpt-5.1-codex-mini",
-          "limit": {
-            "context": 200000,
-            "output": 32768
-          },
-          "options": {
-            "temperature": 0.3,
-            "topP": 0.9,
-            "frequencyPenalty": 0.15,
-            "presencePenalty": 0.15
-          }
-        },
-        "gpt-5.1": {
-          "name": "GPT-5.1",
-          "id": "gpt-5.1",
-          "limit": {
-            "context": 200000,
-            "output": 65536
-          },
-          "options": {
-            "temperature": 0.4,
-            "topP": 0.92,
-            "frequencyPenalty": 0.15,
-            "presencePenalty": 0.15
-          }
-        },
-        "gpt-5.2": {
-          "name": "GPT-5.2",
-          "id": "gpt-5.2",
+        "gpt-5.4": {
+          "name": "GPT-5.4",
+          "id": "gpt-5.4",
           "limit": {
             "context": 200000,
             "output": 65536
@@ -101,21 +59,6 @@
         "apiKey": "{{ $azureKey }}"
       },
       "models": {
-        "claude-opus-4-5": {
-          "id": "claude-opus-4-5",
-          "name": "Claude Opus 4.5",
-          "limit": {
-            "context": 200000,
-            "output": 32768
-          },
-          "options": {
-            "thinking": {
-              "type": "enabled",
-              "budgetTokens": 32000
-            },
-            "temperature": 1
-          }
-        },
         "claude-sonnet-4-6": {
           "id": "claude-sonnet-4-6",
           "name": "Claude Sonnet 4.6",
@@ -127,36 +70,6 @@
             "thinking": {
               "type": "enabled",
               "budgetTokens": 28000
-            },
-            "temperature": 1
-          }
-        },
-        "claude-sonnet-4-5": {
-          "id": "claude-sonnet-4-5",
-          "name": "Claude Sonnet 4.5",
-          "limit": {
-            "context": 200000,
-            "output": 32768
-          },
-          "options": {
-            "thinking": {
-              "type": "enabled",
-              "budgetTokens": 28000
-            },
-            "temperature": 1
-          }
-        },
-        "claude-haiku-4-5": {
-          "id": "claude-haiku-4-5",
-          "name": "Claude Haiku 4.5",
-          "limit": {
-            "context": 200000,
-            "output": 32768
-          },
-          "options": {
-            "thinking": {
-              "type": "enabled",
-              "budgetTokens": 20000
             },
             "temperature": 1
           }
