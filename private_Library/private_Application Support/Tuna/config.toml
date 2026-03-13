@@ -2,6 +2,7 @@ schemaVersion = 1
 
 [catalogConfiguration]
 customFolders = []
+scriptsDirectories = []
 
     [[catalogConfiguration.folderDepthOverrides]]
     catalogIdentifier = 'TunaAutomation.ScriptsCatalog'
@@ -102,6 +103,7 @@ label = 'kitty'
     url = 'tuna://run/text.kitty%2520~%252Fgit/Run%20Text%20as%20Shell%20Command'
 
 [settings]
+dictationActivationMode = 'toggle'
 shelfCatalogEnabled = false
 themeIdentifier = 'com.brnbw.tuna.themes.default'
 
