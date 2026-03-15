@@ -48,6 +48,10 @@ label = 'Browser'
     key = 'm'
     url = 'tuna://run/url.https:%252F%252Fmail.proton.me%252Fu%252F0%252Finbox/Open%20URL'
 
+    [[leaderMode.bindings.children]]
+    key = 'b'
+    url = 'tuna://run/TunaCore.AllApplicationsCatalog.Vivaldi/Open'
+
 [[leaderMode.bindings]]
 iconPath = 'folder.fill'
 key = 'f'
@@ -101,6 +105,10 @@ label = 'kitty'
     [[leaderMode.bindings.children]]
     key = 'g'
     url = 'tuna://run/text.kitty%2520~%252Fgit/Run%20Text%20as%20Shell%20Command'
+
+    [[leaderMode.bindings.children]]
+    key = 't'
+    url = 'tuna://run/TunaCore.AllApplicationsCatalog.kitty/Open'
 
 [settings]
 dictationActivationMode = 'toggle'
