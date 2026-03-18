@@ -34,6 +34,18 @@ else
 fi
 {{- end }}
 
+section "tmux Plugins"
+
+if command -v tmux >/dev/null 2>&1; then
+    tpm_dir="$HOME/.tmux/plugins/tpm"
+    if [ ! -d "$tpm_dir" ]; then
+        run "Installing TPM" git clone --quiet https://github.com/tmux-plugins/tpm "$tpm_dir"
+    else
+        try "Updating TPM" git -C "$tpm_dir" pull --quiet
+    fi
+    try "Installing tmux plugins" bash "$tpm_dir/bin/install_plugins"
+fi
+
 section "Finalization"
 
 setup_brew_path
@@ -65,6 +77,6 @@ info "Open nvim — Lazy will auto-sync plugins"
 info "Open vim and run :PlugInstall"
 {{- end }}
 {{- if lookPath "tmux" }}
-info "In tmux: <prefix> + I to install plugins"
+info "Start a new tmux session to activate plugins"
 {{- end }}
 echo ""
