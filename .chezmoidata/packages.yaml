@@ -54,6 +54,7 @@ packages:
       - "git"
       - "curl"
       - "rsync"
+      - "tmux"
       - "zsh"
       - "zoxide"
     brews:
@@ -62,7 +63,6 @@ packages:
       - "fd"
       - "neovim"
       - "starship"
-      - "zellij"
     casks: []
 
   # Linux/WSL2 development tools (added to basic)
