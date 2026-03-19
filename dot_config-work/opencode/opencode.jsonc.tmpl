@@ -2,6 +2,7 @@
 {{- $azureKey := gopass "work/api/azure" -}}
 {{- $fhgenie := output "gopass" "--password" "work/api/fhgenie" "url" | trim -}}
 {{- $fhgenieKey := gopass "work/api/fhgenie" -}}
+{{- $bedrockToken := gopass "work/api/awsbedrock" -}}
 {
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": true,
@@ -155,6 +156,30 @@
           "limit": {
             "context": 131072,
             "output": 32768
+          }
+        }
+      }
+    },
+    // SDK: built-in amazon-bedrock — AWS Bedrock runtime (eu-central-1)
+    // Auth: bearer token takes precedence over profile/credential chain (opencode docs).
+    // apiKey is passed as the bearer token via the generic provider option.
+    // Bedrock model IDs use the cross-region inference prefix (eu.) for eu-central-1.
+    "amazon-bedrock": {
+      "name": "Amazon Bedrock (eu-central-1)",
+      "options": {
+        "region": "eu-central-1",
+        "apiKey": "{{ $bedrockToken }}"
+      },
+      "models": {
+        "eu.anthropic.claude-sonnet-4-6-20251002-v1:0": {
+          "name": "Claude Sonnet 4.6 (Bedrock)",
+          "id": "eu.anthropic.claude-sonnet-4-6-20251002-v1:0",
+          "limit": {
+            "context": 200000,
+            "output": 32768
+          },
+          "options": {
+            "temperature": 0.4
           }
         }
       }
