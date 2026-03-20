@@ -1,0 +1,21 @@
+# Dracula theme for newsboat
+# https://draculatheme.com
+
+color background         default   default
+color listnormal         color255  default
+color listnormal_unread  color141  default   bold
+color listfocus          color255  color236
+color listfocus_unread   color141  color236  bold
+color info               color212  color236  bold
+color article            color255  default
+color end-of-text-marker color61   default
+color hint-separator     color61   default
+color hint-description   color255  default
+color title              color212  color236  bold
+
+highlight article "^(Feed|Title|Author|Link|Date): .+" color117 default bold
+highlight article "^(Feed|Title|Author|Link|Date):"    color212 default bold
+
+highlight article "\\((link|image|video)\\)" color61  default
+highlight article "https?://[^ ]+"           color117 default
+highlight article "\[[0-9]+\]"               color141 default bold
