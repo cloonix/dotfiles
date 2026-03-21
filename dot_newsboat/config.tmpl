@@ -2,6 +2,9 @@ urls-source "miniflux"
 miniflux-url "https://rss.cmvps.de/"
 miniflux-token "{{ gopass "api/miniflux" }}"
 history-limit 500
+auto-reload yes
+reload-time 15
+refresh-on-startup yes
 miniflux-flag-star "a"
 bind s articlelist,article edit-flags -- "Star/unstar article"
 
