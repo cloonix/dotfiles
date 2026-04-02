@@ -324,5 +324,24 @@ if [[ -f "$HOME/.zshrc.local" ]]; then
 fi
 
 # ========================================
+# Yazi Shell Integration
+# ========================================
+
+# Use `y` instead of `yazi` to cd into the last directory on exit
+function y() {
+  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+  command yazi "$@" --cwd-file="$tmp"
+  IFS= read -r -d '' cwd < "$tmp"
+  [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
+  rm -f -- "$tmp"
+}
+
+# Sync yazi's CWD when cd-ing inside a yazi-spawned subshell (e.g. terminal opener)
+if [[ -n "$YAZI_ID" ]]; then
+  function _yazi_cd() { ya emit cd "$PWD" }
+  add-zsh-hook zshexit _yazi_cd
+fi
+
+# ========================================
 # End of Configuration
 # ========================================

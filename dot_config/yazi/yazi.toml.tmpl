@@ -19,6 +19,7 @@ ueberzug_scale = 1.0
 ueberzug_offset = [0, 0, 0, 0]
 tab_size = 2
 wrap = "no"
+code_theme = "Nord"  # Closest built-in theme to Kanagawa; run `bat --list-themes` to browse
 
 [tasks]
 # Visual task progress indicators
@@ -33,6 +34,10 @@ suppress_preload = false
 [[plugin.prepend_previewers]]
 url = "*.md"
 run  = 'piper -- CLICOLOR_FORCE=1 glow -s ~/.config/yazi/glow/tokyo_night.json -w=$w "$1"'
+
+[[plugin.prepend_previewers]]
+mime = "application/json"
+run  = "json"
 
 [[plugin.prepend_fetchers]]
 id   = "git"
@@ -110,6 +115,6 @@ open_default = [
 
 {{- if eq .chezmoi.os "darwin" }}
 terminal = [
-    { run = 'open -a Ghostty "$1"', orphan = true, desc = "  Terminal (Ghostty)", for = "macos" },
+    { run = 'kitty --directory "$1"', orphan = true, desc = "  Terminal (Kitty)", for = "macos" },
 ]
 {{- end }}
