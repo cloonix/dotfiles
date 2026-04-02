@@ -23,6 +23,13 @@ if command -v ya >/dev/null 2>&1; then
 fi
 {{- end }}
 
+{{- if or (eq $profile "dev") (eq $profile "mac") }}
+if command -v npx >/dev/null 2>&1; then
+    section "Context7 MCP"
+    try "Configuring context7 for Claude Code" npx ctx7 setup --claude --api-key {{ gopass "api/context7" | quote }}
+fi
+{{- end }}
+
 {{- if has "fabric-ai" $allBrews }}
 setup_brew_path
 
