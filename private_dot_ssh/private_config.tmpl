@@ -1,0 +1,34 @@
+{{- /* SSH config - managed by chezmoi + gopass */ -}}
+{{- $hosts := gopassRaw "config/ssh" | fromYaml }}
+{{ if eq .chezmoi.os "darwin" -}}
+Include {{ .chezmoi.homeDir }}/.config/colima/ssh_config
+
+{{ end -}}
+Host *
+{{- if eq .chezmoi.os "darwin" }}
+  UseKeychain yes
+{{- end }}
+  AddKeysToAgent yes
+  IdentityFile ~/.ssh/id_ed25519
+
+{{ range $hosts -}}
+Host {{ .host }}
+  HostName {{ .hostname }}
+  User {{ .user }}
+{{- if index . "port" }}
+  Port {{ index . "port" }}
+{{- end }}
+{{- if index . "forward_agent" }}
+  ForwardAgent {{ index . "forward_agent" }}
+{{- end }}
+{{- if index . "proxy_jump" }}
+  ProxyJump {{ index . "proxy_jump" }}
+{{- end }}
+{{- if index . "identity_file" }}
+  IdentityFile {{ index . "identity_file" }}
+{{- end }}
+{{- if index . "local_forward" }}
+  LocalForward {{ index . "local_forward" }}
+{{- end }}
+
+{{ end -}}
