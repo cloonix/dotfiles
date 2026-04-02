@@ -98,7 +98,8 @@ packages:
       - "uv"
       - "yazi"
       - "zoxide"
-    casks: []
+    casks:
+      - "claude-code"
 
   # macOS development tools and GUI apps (added to basic)
   # Note: Overlaps with dev are intentional (different platforms, same needs)
