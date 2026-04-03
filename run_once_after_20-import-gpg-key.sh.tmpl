@@ -20,12 +20,7 @@ fi
 TEMP_KEY=$(mktemp /tmp/gpg-public-XXXXXX.pub)
 trap 'rm -f "$TEMP_KEY"' EXIT
 
-progress "Fetching public GPG key from gopass"
-gopass fscopy "$GPG_KEY_PATH" "$TEMP_KEY"
-finish
+run "Fetching public GPG key from gopass" gopass fscopy "$GPG_KEY_PATH" "$TEMP_KEY"
 
-progress "Importing public GPG key"
-gpg --import "$TEMP_KEY"
-finish
-
+run "Importing public GPG key" gpg --import "$TEMP_KEY"
 success "Public GPG key imported (6D7E8CB6DFA0BF68)"

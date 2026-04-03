@@ -224,7 +224,7 @@ render_and_copy_dotfiles "$TEMP_CONFIG" "$SSH_TARGET" "$REMOTE_HOME" "$REMOTE_AR
 
 # Import public GPG key on remote
 progress "Importing public GPG key on remote"
-ssh "$SSH_TARGET" "gpg --import" < "$TEMP_GPG_KEY"
+ssh "$SSH_TARGET" "gpg --import 2>/dev/null" < "$TEMP_GPG_KEY"
 finish
 
 # Build branch flag
