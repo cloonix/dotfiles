@@ -26,7 +26,7 @@ fi
 {{- if or (eq $profile "dev") (eq $profile "mac") }}
 if command -v npx >/dev/null 2>&1; then
     section "Context7 MCP"
-    try "Configuring context7 for Claude Code" npx ctx7 setup --claude --api-key {{ gopass "api/context7" | quote }}
+    try "Configuring context7 for Claude Code" npx --yes ctx7 setup --claude --yes --api-key {{ gopass "api/context7" | quote }}
 fi
 {{- end }}
 
