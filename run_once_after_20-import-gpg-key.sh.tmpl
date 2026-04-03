@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+{{ template "helpers.sh" . }}
+
+set -e
+
+GPG_KEY_PATH="wichtig/gnupg/gpg-primary-6D7E8CB6DFA0BF68-public.pub"
+
+section "GPG Key"
+
+if ! command -v gpg >/dev/null 2>&1; then
+    info "gpg not found, skipping key import"
+    exit 0
+fi
+
+if ! command -v gopass >/dev/null 2>&1; then
+    info "gopass not available, skipping GPG key import"
+    exit 0
+fi
+
+TEMP_KEY=$(mktemp /tmp/gpg-public-XXXXXX.pub)
+trap 'rm -f "$TEMP_KEY"' EXIT
+
+progress "Fetching public GPG key from gopass"
+gopass fscopy "$GPG_KEY_PATH" "$TEMP_KEY"
+finish
+
+progress "Importing public GPG key"
+gpg --import "$TEMP_KEY"
+finish
+
+success "Public GPG key imported (6D7E8CB6DFA0BF68)"

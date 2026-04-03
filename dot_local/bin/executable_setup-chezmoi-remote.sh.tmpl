@@ -207,15 +207,25 @@ info "user=$REMOTE_USER  home=$REMOTE_HOME  arch=$REMOTE_ARCH"
 
 # Fetch remote profile config from gopass to a temp file
 TEMP_CONFIG="/tmp/chezmoi-remote-$$.toml"
-trap 'rm -f "$TEMP_CONFIG"' EXIT
+TEMP_GPG_KEY="/tmp/gpg-public-$$.pub"
+trap 'rm -f "$TEMP_CONFIG" "$TEMP_GPG_KEY"' EXIT
 
 progress "Fetching config from gopass"
 gopass fscopy "$GOPASS_PATH" "$TEMP_CONFIG"
 finish
 
+progress "Fetching public GPG key from gopass"
+gopass fscopy "wichtig/gnupg/gpg-primary-6D7E8CB6DFA0BF68-public.pub" "$TEMP_GPG_KEY"
+finish
+
 # Render all dotfile templates locally (resolves gopass secrets here) and
 # extract the rendered archive on the remote
 render_and_copy_dotfiles "$TEMP_CONFIG" "$SSH_TARGET" "$REMOTE_HOME" "$REMOTE_ARCH"
+
+# Import public GPG key on remote
+progress "Importing public GPG key on remote"
+ssh "$SSH_TARGET" "gpg --import" < "$TEMP_GPG_KEY"
+finish
 
 # Build branch flag
 BRANCH_FLAG=""

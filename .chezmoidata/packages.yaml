@@ -77,6 +77,7 @@ packages:
     apt:
       - "btop"
       - "build-essential"
+      - "gnupg"
       - "keychain"
       - "tokei"
       - "jq"
@@ -123,6 +124,7 @@ packages:
       - "fd"
       - "fzf"
       - "glow"
+      - "gnupg"
       - "go"
       - "gopass"
       - "hcloud"
