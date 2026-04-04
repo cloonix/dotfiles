@@ -52,7 +52,7 @@ run  = "git"
 [open]
 rules = [
 {{- if eq .chezmoi.os "darwin" }}
-    { url = "*/", use = [ "terminal", "edit", "code", "ncdu", "archive" ] },
+    { url = "*/", use = [ "terminal", "edit", "code", "ncdu" ] },
 {{- else }}
     { url = "*/", use = [ "edit", "code", "ncdu", "archive" ] },
 {{- end }}
@@ -65,7 +65,7 @@ rules = [
     { url = "*.{pdf,PDF}", use = [ "open_default", "reveal", "copy_path" ] },
     { url = "*.{doc,docx,xls,xlsx,ppt,pptx,DOC,DOCX,XLS,XLSX,PPT,PPTX}", use = [ "open_default", "reveal", "copy_path" ] },
     { url = "*.{7z,zip,rar,tar,gz,bz2,xz,Z}", use = [ "extract", "reveal", "copy_path" ] },
-    { url = "*", use = [ "edit", "code", "reveal", "archive", "copy_path" ] },
+    { url = "*", use = [ "edit", "code", "reveal", "copy_path" ] },
 ]
 
 [opener]

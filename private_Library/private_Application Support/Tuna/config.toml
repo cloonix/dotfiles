@@ -111,41 +111,53 @@ label = 'kitty'
     url = 'tuna://run/TunaCore.AllApplicationsCatalog.kitty/Open'
 
 [settings]
+activationDoublePressTrigger = 'leftOption'
+clipboardHistoryEnabled = false
 dictationActivationMode = 'toggle'
+leaderModeCheatsheetBehavior = 'always'
+leaderModeModifierConfiguration = 'optionGroupControlSticky'
+leaderModeModifierTrigger = 'leftCommand'
 shelfCatalogEnabled = false
 themeIdentifier = 'com.brnbw.tuna.themes.default'
 
 [[smartLinks.entries]]
 enabled = false
 name = 'Bing'
+requiresInput = true
 template = 'https://www.bing.com/search?q={{input}}'
 
 [[smartLinks.entries]]
 enabled = false
 name = 'DuckDuckGo'
+requiresInput = true
 template = 'https://duckduckgo.com/?q={{input}}'
 
 [[smartLinks.entries]]
 enabled = true
 name = 'GitHub'
+requiresInput = true
 template = 'https://github.com/search?q={{input}}'
 
 [[smartLinks.entries]]
 enabled = true
 name = 'Google'
+requiresInput = true
 template = 'https://www.google.com/search?q={{input}}'
 
 [[smartLinks.entries]]
 enabled = false
 name = 'Stack Overflow'
+requiresInput = true
 template = 'https://stackoverflow.com/search?q={{input}}'
 
 [[smartLinks.entries]]
 enabled = false
 name = 'Wikipedia'
+requiresInput = true
 template = 'https://en.wikipedia.org/wiki/Special:Search?search={{input}}'
 
 [[smartLinks.entries]]
-enabled = true
+enabled = false
 name = 'YouTube'
+requiresInput = true
 template = 'https://www.youtube.com/results?search_query={{input}}'
