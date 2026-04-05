@@ -24,6 +24,15 @@ fi
 {{- end }}
 
 {{- if or (eq $profile "dev") (eq $profile "mac") }}
+{{- $githubToken := output "gopass" "show" "api/github" "all" | trim }}
+# GitHub token rendered at template time from gopass — no runtime credential
+# lookup needed. GIT_TERMINAL_PROMPT=0 + GIT_ASKPASS=true prevent git from
+# ever blocking on a prompt. credential.helper= clears the macOS keychain
+# helper so it never intercepts the HTTPS auth.
+export GIT_TERMINAL_PROMPT=0
+export GIT_ASKPASS=true
+readonly GITHUB_TOKEN="{{ $githubToken }}"
+
 if command -v npx >/dev/null 2>&1; then
     section "Context7 MCP"
     [ -f "$HOME/.env" ] && source "$HOME/.env"
@@ -33,42 +42,51 @@ if command -v npx >/dev/null 2>&1; then
         info "Skipping context7 setup: CONTEXT7_API_KEY not set"
     fi
 fi
-{{- end }}
 
-{{- if or (eq $profile "dev") (eq $profile "mac") }}
 section "Claude Config Repo"
-[ -f "$HOME/.env" ] && source "$HOME/.env"
-if [ -n "${GITHUB_TOKEN:-}" ]; then
-    readonly CLAUDE_REPO="https://${GITHUB_TOKEN}@github.com/cloonix/claude.git"
-    readonly CLAUDE_REPO_DIR="$HOME/git/claude"
-
-    if [ ! -d "$CLAUDE_REPO_DIR/.git" ]; then
-        mkdir -p "$HOME/git"
-        try "Cloning cloonix/claude" git clone "$CLAUDE_REPO" "$CLAUDE_REPO_DIR"
-    else
-        try "Updating cloonix/claude" git -C "$CLAUDE_REPO_DIR" pull --ff-only
-    fi
-
-    mkdir -p "$HOME/.claude/skills"
-    try "Deploying claude skills" cp -r "$CLAUDE_REPO_DIR/skills/." "$HOME/.claude/skills/"
+readonly CLAUDE_REPO_DIR="$HOME/git/claude"
+mkdir -p "$HOME/git"
+if [ ! -d "$CLAUDE_REPO_DIR/.git" ]; then
+    try "Cloning cloonix/claude" git \
+        -c credential.helper= \
+        -c url."https://${GITHUB_TOKEN}@github.com/".insteadOf="https://github.com/" \
+        clone https://github.com/cloonix/claude.git "$CLAUDE_REPO_DIR"
 else
-    info "Skipping cloonix/claude: GITHUB_TOKEN not set"
+    try "Updating cloonix/claude" git -C "$CLAUDE_REPO_DIR" \
+        -c credential.helper= \
+        -c url."https://${GITHUB_TOKEN}@github.com/".insteadOf="https://github.com/" \
+        pull --ff-only
 fi
-{{- end }}
+mkdir -p "$HOME/.claude/skills"
+try "Deploying claude skills" cp -r "$CLAUDE_REPO_DIR/skills/." "$HOME/.claude/skills/"
 
 {{- if has "fabric-ai" $allBrews }}
 setup_brew_path
 
 if command -v fabric-ai >/dev/null 2>&1; then
     section "Post-Install: Fabric AI"
-    [ -f "$HOME/.env" ] && source "$HOME/.env"
 
     readonly FABRIC_REPO_DIR="$HOME/git/fabric"
     readonly FABRIC_TIMESTAMP="$HOME/.cache/fabric-last-update"
     readonly UPDATE_INTERVAL_DAYS=7
 
-    mkdir -p "$HOME/.cache"
+    mkdir -p "$HOME/.cache" "$HOME/git"
 
+    # Personal patterns — always sync
+    [ -d "$FABRIC_REPO_DIR" ] && [ ! -d "$FABRIC_REPO_DIR/.git" ] && rm -rf "$FABRIC_REPO_DIR"
+    if [ ! -d "$FABRIC_REPO_DIR" ]; then
+        try "Cloning personal fabric patterns" git \
+            -c credential.helper= \
+            -c url."https://${GITHUB_TOKEN}@github.com/".insteadOf="https://github.com/" \
+            clone https://github.com/cloonix/fabric.git "$FABRIC_REPO_DIR"
+    else
+        try "Updating personal fabric patterns" git -C "$FABRIC_REPO_DIR" \
+            -c credential.helper= \
+            -c url."https://${GITHUB_TOKEN}@github.com/".insteadOf="https://github.com/" \
+            pull
+    fi
+
+    # Upstream patterns — throttled to every 7 days
     needs_update=false
     if [ ! -f "$FABRIC_TIMESTAMP" ]; then
         needs_update=true
@@ -78,19 +96,11 @@ if command -v fabric-ai >/dev/null 2>&1; then
     fi
 
     if [ "$needs_update" = true ]; then
-        [ -d "$FABRIC_REPO_DIR" ] && [ ! -d "$FABRIC_REPO_DIR/.git" ] && rm -rf "$FABRIC_REPO_DIR"
-
-        if [ ! -d "$FABRIC_REPO_DIR" ]; then
-            mkdir -p "$HOME/git"
-            try "Cloning fabric patterns" git clone "https://${GITHUB_TOKEN}@github.com/cloonix/fabric.git" "$FABRIC_REPO_DIR"
-        else
-            try "Updating fabric patterns" git -C "$FABRIC_REPO_DIR" pull
-        fi
-
-        try "Updating fabric-ai patterns" fabric-ai -U
+        try "Updating upstream fabric-ai patterns" fabric-ai -U
         date +%s > "$FABRIC_TIMESTAMP"
     else
-        success "Fabric patterns up-to-date (last updated $time_diff days ago)"
+        success "Upstream fabric patterns up-to-date (last updated $time_diff days ago)"
     fi
 fi
+{{- end }}
 {{- end }}
