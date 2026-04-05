@@ -11,3 +11,4 @@ export GITEA_API_KEY={{ gopass "api/gitea" }}
 export GITEA_API_URL={{ output "gopass" "--password" "api/gitea" "url" | trim }}
 export FABRIC_RSS_PATTERN=rss_summary
 export HCLOUD_TOKEN={{ output "gopass" "--password" "api/hetzner" "dev" | trim }}
+export GITHUB_TOKEN={{ output "gopass" "show" "api/github" "all" | trim }}

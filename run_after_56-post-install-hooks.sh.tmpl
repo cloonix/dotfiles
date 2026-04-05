@@ -24,18 +24,16 @@ fi
 {{- end }}
 
 {{- if or (eq $profile "dev") (eq $profile "mac") }}
-{{- $githubToken := output "gopass" "show" "api/github" "all" | trim }}
-# GitHub token rendered at template time from gopass — no runtime credential
-# lookup needed. GIT_TERMINAL_PROMPT=0 + GIT_ASKPASS=true prevent git from
-# ever blocking on a prompt. credential.helper= clears the macOS keychain
-# helper so it never intercepts the HTTPS auth.
+# GITHUB_TOKEN is sourced from ~/.env (rendered from private_dot_env.tmpl by
+# chezmoi locally and shipped pre-rendered to remotes via chezmoi archive).
+# GIT_TERMINAL_PROMPT=0 + GIT_ASKPASS=true prevent git from ever blocking on a
+# prompt. credential.helper= clears the macOS keychain helper per git call.
+[ -f "$HOME/.env" ] && source "$HOME/.env"
 export GIT_TERMINAL_PROMPT=0
 export GIT_ASKPASS=true
-readonly GITHUB_TOKEN="{{ $githubToken }}"
 
 if command -v npx >/dev/null 2>&1; then
     section "Context7 MCP"
-    [ -f "$HOME/.env" ] && source "$HOME/.env"
     if [ -n "${CONTEXT7_API_KEY:-}" ]; then
         try "Configuring context7 for Claude Code" npx --yes ctx7 setup --claude --yes --api-key "$CONTEXT7_API_KEY"
     else
