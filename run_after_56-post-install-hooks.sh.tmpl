@@ -46,13 +46,9 @@ readonly CLAUDE_REPO_DIR="$HOME/git/claude"
 mkdir -p "$HOME/git"
 if [ ! -d "$CLAUDE_REPO_DIR/.git" ]; then
     try "Cloning cloonix/claude" git \
-        -c credential.helper= \
-        -c url."https://${GITHUB_TOKEN}@github.com/".insteadOf="https://github.com/" \
-        clone https://github.com/cloonix/claude.git "$CLAUDE_REPO_DIR"
+        clone git@github.com:cloonix/claude.git "$CLAUDE_REPO_DIR"
 else
     try "Updating cloonix/claude" git -C "$CLAUDE_REPO_DIR" \
-        -c credential.helper= \
-        -c url."https://${GITHUB_TOKEN}@github.com/".insteadOf="https://github.com/" \
         pull --ff-only
 fi
 mkdir -p "$HOME/.claude/skills"
@@ -74,13 +70,9 @@ if command -v fabric-ai >/dev/null 2>&1; then
     [ -d "$FABRIC_REPO_DIR" ] && [ ! -d "$FABRIC_REPO_DIR/.git" ] && rm -rf "$FABRIC_REPO_DIR"
     if [ ! -d "$FABRIC_REPO_DIR" ]; then
         try "Cloning personal fabric patterns" git \
-            -c credential.helper= \
-            -c url."https://${GITHUB_TOKEN}@github.com/".insteadOf="https://github.com/" \
-            clone https://github.com/cloonix/fabric.git "$FABRIC_REPO_DIR"
+            clone git@github.com:cloonix/fabric.git "$FABRIC_REPO_DIR"
     else
         try "Updating personal fabric patterns" git -C "$FABRIC_REPO_DIR" \
-            -c credential.helper= \
-            -c url."https://${GITHUB_TOKEN}@github.com/".insteadOf="https://github.com/" \
             pull
     fi
 

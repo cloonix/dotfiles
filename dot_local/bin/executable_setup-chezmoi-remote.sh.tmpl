@@ -139,11 +139,11 @@ GOPASS_PATH="config/chezmoi/${CONFIG_NAME}.toml"
 detect_remote_info() {
   local ssh_target="$1"
   local user home_dir
-  user=$(ssh -n "$ssh_target" "whoami" 2>/dev/null) || {
+  user=$(ssh -A -n "$ssh_target" "whoami" 2>/dev/null) || {
     echo "Error: Cannot connect to $ssh_target" >&2
     exit 1
   }
-  home_dir=$(ssh -n "$ssh_target" "echo \$HOME" 2>/dev/null) || home_dir="/home/$user"
+  home_dir=$(ssh -A -n "$ssh_target" "echo \$HOME" 2>/dev/null) || home_dir="/home/$user"
   echo "$user $home_dir"
 }
 
@@ -182,7 +182,7 @@ render_and_copy_dotfiles() {
     --destination "$remote_home" \
     --override-data "$override_json" \
     --format tar \
-    | ssh "$ssh_target" "
+    | ssh -A "$ssh_target" "
         mkdir -p '$remote_home'
         tar -x --no-same-owner --overwrite -C '$remote_home'
       "
@@ -240,7 +240,7 @@ fi
 # - Dotfiles with secrets are already extracted → chezmoi sees no diff.
 # - run_after_* scripts (package installs, etc.) run normally.
 section "Remote: $SSH_TARGET"
-cat "$TEMP_CONFIG" | ssh "$SSH_TARGET" "
+cat "$TEMP_CONFIG" | ssh -A "$SSH_TARGET" "
 bash -l -c \"
   # --- Detect OS and install prerequisites ---
   echo 'Installing curl, git, and gnupg...'
