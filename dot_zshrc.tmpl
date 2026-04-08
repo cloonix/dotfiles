@@ -343,5 +343,51 @@ if [[ -n "$YAZI_ID" ]]; then
 fi
 
 # ========================================
+# Claude Profile Switcher
+# ========================================
+
+CLAUDE_PROFILES_DIR="$HOME/.claude/profiles"
+
+claude-switch() {
+    local profile="$1"
+
+    if [[ -z "$profile" || "$profile" == "--list" || "$profile" == "-l" ]]; then
+        echo "Current: ${CLAUDE_CONFIG_DIR:-~/.claude (default)}"
+        echo "Profiles:"
+        if [[ -d "$CLAUDE_PROFILES_DIR" ]]; then
+            for d in "$CLAUDE_PROFILES_DIR"/*/; do
+                [[ -d "$d" ]] && echo "  $(basename "$d")"
+            done
+        else
+            echo "  (none yet)"
+        fi
+        return
+    fi
+
+    if [[ "$profile" == "default" ]]; then
+        unset CLAUDE_CONFIG_DIR
+        echo "Switched to default profile (~/.claude)"
+        return
+    fi
+
+    local profile_dir="$CLAUDE_PROFILES_DIR/$profile"
+    mkdir -p "$profile_dir"
+    export CLAUDE_CONFIG_DIR="$profile_dir"
+    echo "Switched to profile '$profile' → $profile_dir"
+    [[ ! -f "$profile_dir/.credentials.json" ]] && echo "  (no credentials yet — run 'claude' to log in)"
+}
+
+_claude_switch_complete() {
+    local profiles=("default")
+    if [[ -d "$CLAUDE_PROFILES_DIR" ]]; then
+        for d in "$CLAUDE_PROFILES_DIR"/*/; do
+            [[ -d "$d" ]] && profiles+=("$(basename "$d")")
+        done
+    fi
+    compadd -a profiles
+}
+compdef _claude_switch_complete claude-switch
+
+# ========================================
 # End of Configuration
 # ========================================
