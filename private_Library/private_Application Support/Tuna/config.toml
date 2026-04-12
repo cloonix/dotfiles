@@ -12,9 +12,6 @@ scriptsDirectories = []
     catalogIdentifier = 'TunaCore.UserFoldersCatalog'
     depthRawValue = 1
 
-[extensions]
-enabledIdentifiers = [ 'com.brnbw.tuna.plugins.obsidian' ]
-
 [hotkeys]
 custom = []
 
