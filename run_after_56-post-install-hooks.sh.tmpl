@@ -48,6 +48,10 @@ if [ ! -d "$CLAUDE_REPO_DIR/.git" ]; then
     try "Cloning cloonix/claude" git \
         clone git@github.com:cloonix/claude.git "$CLAUDE_REPO_DIR"
 else
+    current_url=$(git -C "$CLAUDE_REPO_DIR" remote get-url origin 2>/dev/null)
+    if [[ "$current_url" == https://github.com/* ]]; then
+        git -C "$CLAUDE_REPO_DIR" remote set-url origin "${current_url/https:\/\/github.com\//git@github.com:}"
+    fi
     try "Updating cloonix/claude" git -C "$CLAUDE_REPO_DIR" \
         pull --ff-only
 fi
@@ -72,6 +76,10 @@ if command -v fabric-ai >/dev/null 2>&1; then
         try "Cloning personal fabric patterns" git \
             clone git@github.com:cloonix/fabric.git "$FABRIC_REPO_DIR"
     else
+        current_url=$(git -C "$FABRIC_REPO_DIR" remote get-url origin 2>/dev/null)
+        if [[ "$current_url" == https://github.com/* ]]; then
+            git -C "$FABRIC_REPO_DIR" remote set-url origin "${current_url/https:\/\/github.com\//git@github.com:}"
+        fi
         try "Updating personal fabric patterns" git -C "$FABRIC_REPO_DIR" \
             pull
     fi
