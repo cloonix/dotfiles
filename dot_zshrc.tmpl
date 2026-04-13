@@ -349,41 +349,81 @@ fi
 CLAUDE_PROFILES_DIR="$HOME/.claude/profiles"
 
 claude-switch() {
-    local profile="$1"
+    local cmd="${1:-}"
 
-    if [[ -z "$profile" || "$profile" == "--list" || "$profile" == "-l" ]]; then
-        echo "Current: ${CLAUDE_CONFIG_DIR:-~/.claude (default)}"
-        echo "Profiles:"
+    _cs_active() {
+        if [[ -z "${CLAUDE_CONFIG_DIR:-}" ]]; then echo "default"
+        else basename "$CLAUDE_CONFIG_DIR"; fi
+    }
+
+    _cs_list_profiles() {
+        echo "default"
         if [[ -d "$CLAUDE_PROFILES_DIR" ]]; then
             for d in "$CLAUDE_PROFILES_DIR"/*/; do
-                [[ -d "$d" ]] && echo "  $(basename "$d")"
+                [[ -d "$d" ]] && echo "$(basename "$d")"
             done
-        else
-            echo "  (none yet)"
         fi
-        return
-    fi
+    }
 
-    if [[ "$profile" == "default" ]]; then
-        unset CLAUDE_CONFIG_DIR
-        echo "Switched to default profile (~/.claude)"
-        return
-    fi
+    _cs_do_switch() {
+        local profile="$1"
+        if [[ "$profile" == "default" ]]; then
+            unset CLAUDE_CONFIG_DIR
+            echo "Switched to default profile (~/.claude)"
+        else
+            local dir="$CLAUDE_PROFILES_DIR/$profile"
+            mkdir -p "$dir"
+            export CLAUDE_CONFIG_DIR="$dir"
+            echo "Switched to profile '$profile' → $dir"
+            [[ ! -f "$dir/.credentials.json" ]] && \
+                echo "  (no credentials yet — run 'claude' to log in)"
+        fi
+    }
 
-    local profile_dir="$CLAUDE_PROFILES_DIR/$profile"
-    mkdir -p "$profile_dir"
-    export CLAUDE_CONFIG_DIR="$profile_dir"
-    echo "Switched to profile '$profile' → $profile_dir"
-    [[ ! -f "$profile_dir/.credentials.json" ]] && echo "  (no credentials yet — run 'claude' to log in)"
+    case "$cmd" in
+        list|-l|--list)
+            local active; active=$(_cs_active)
+            echo "Profiles (active: $active):"
+            _cs_list_profiles | while read -r p; do
+                if [[ "$p" == "$active" ]]; then echo "  * $p"
+                else echo "    $p"; fi
+            done
+            ;;
+        add|-a|--add)
+            local name="${2:-}"
+            if [[ -z "$name" ]]; then echo "Usage: claude-switch add <name>"; return 1; fi
+            _cs_do_switch "$name"
+            ;;
+        "")
+            if command -v fzf >/dev/null 2>&1; then
+                local active choice
+                active=$(_cs_active)
+                choice=$(_cs_list_profiles | fzf --prompt="Claude profile > " \
+                    --header="Current: $active" --height=~10 --exit-0)
+                [[ -n "$choice" ]] && _cs_do_switch "$choice"
+            else
+                local -a profiles=()
+                while IFS= read -r p; do profiles+=("$p"); done < <(_cs_list_profiles)
+                select p in "${profiles[@]}"; do
+                    [[ -n "$p" ]] && _cs_do_switch "$p" && break
+                done
+            fi
+            ;;
+        *)
+            _cs_do_switch "$cmd"
+            ;;
+    esac
 }
 
 _claude_switch_complete() {
-    local profiles=("default")
+    local -a subcmds=("list" "add" "default")
+    local -a profiles=()
     if [[ -d "$CLAUDE_PROFILES_DIR" ]]; then
         for d in "$CLAUDE_PROFILES_DIR"/*/; do
             [[ -d "$d" ]] && profiles+=("$(basename "$d")")
         done
     fi
+    compadd -a subcmds
     compadd -a profiles
 }
 compdef _claude_switch_complete claude-switch
