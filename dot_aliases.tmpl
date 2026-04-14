@@ -123,6 +123,10 @@ if command -v opencode >/dev/null 2>&1; then
   }
 fi
 
+if command -v claude >/dev/null 2>&1; then
+  alias claude-unsafe="claude --allow-dangerously-skip-permissions"
+fi
+
 if command -v ytt >/dev/null 2>&1 && command -v glow >/dev/null 2>&1; then
   yts() {
     local lang="en"

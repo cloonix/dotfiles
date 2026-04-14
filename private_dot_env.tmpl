@@ -14,4 +14,5 @@ export FABRIC_RSS_PATTERN=rss_summary
 export HCLOUD_TOKEN={{ output "gopass" "--password" "api/hetzner" "dev" | trim }}
 export GITHUB_TOKEN={{ output "gopass" "show" "api/github" "all" | trim }}
 export SHLINK_API_KEY={{ gopass "api/shlink" }}
+export SHLINK_URL={{ output "gopass" "show" "api/shlink" "url" | trim }}
 export MISTRAL_API_KEY={{ gopass "api/mistral" }}
