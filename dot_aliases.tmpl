@@ -104,7 +104,7 @@ fi
 
 # bat aliases (runtime check - bat in basic profile)
 if command -v bat >/dev/null 2>&1; then
-  alias catp="bat --style=plain"  # Plain cat without decorations
+  alias catp="bat -pp"  # Plain cat without decorations
   export MANPAGER="sh -c 'col -bx | bat -l man -p'"  # Use bat for man pages
 fi
 
