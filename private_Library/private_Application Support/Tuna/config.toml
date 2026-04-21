@@ -38,7 +38,31 @@ presentation = 'hidden'
 
     [hotkeys.custom.shortcut]
     carbonKeyCode = 11
-    carbonModifiers = 768
+    carbonModifiers = 6912
+
+[[hotkeys.custom]]
+id = '33143714-29F8-496E-8CC3-BC12E9DF133C'
+presentation = 'auto'
+
+    [hotkeys.custom.command]
+    actionIdentifier = 'TunaCore.CommonActionsCatalog.Open'
+    subjectIdentifier = 'TunaCore.AllApplicationsCatalog.ChatGPT'
+
+    [hotkeys.custom.shortcut]
+    carbonKeyCode = 8
+    carbonModifiers = 6912
+
+[[hotkeys.custom]]
+id = '6C4FDB9D-6EFB-4553-8462-40E3EEC589A8'
+presentation = 'auto'
+
+    [hotkeys.custom.command]
+    actionIdentifier = 'TunaCore.CommonActionsCatalog.Open'
+    subjectIdentifier = 'TunaCore.AllApplicationsCatalog.Signal'
+
+    [hotkeys.custom.shortcut]
+    carbonKeyCode = 1
+    carbonModifiers = 6912
 
 [[hotkeys.custom]]
 id = '93F8E6DF-B1C1-44E0-A5A7-C30403D69C3D'
@@ -50,7 +74,7 @@ presentation = 'hidden'
 
     [hotkeys.custom.shortcut]
     carbonKeyCode = 17
-    carbonModifiers = 768
+    carbonModifiers = 6912
 
 [[hotkeys.custom]]
 id = 'BEC34E79-3803-4152-9EFA-003968B87615'
@@ -62,7 +86,7 @@ presentation = 'hidden'
 
     [hotkeys.custom.shortcut]
     carbonKeyCode = 31
-    carbonModifiers = 768
+    carbonModifiers = 6912
 
 [[hotkeys.custom]]
 id = 'CF540AA9-C695-4CA4-B552-9E9CEFBF7E45'
@@ -71,6 +95,10 @@ presentation = 'hidden'
     [hotkeys.custom.command]
     actionIdentifier = 'TunaCore.CommonActionsCatalog.Open'
     subjectIdentifier = 'TunaCore.AllApplicationsCatalog.Visual Studio Code'
+
+    [hotkeys.custom.shortcut]
+    carbonKeyCode = 35
+    carbonModifiers = 6912
 
 [[leaderMode.bindings]]
 iconPath = '/Applications/Vivaldi.app'
@@ -150,12 +178,14 @@ label = 'kitty'
 
 [settings]
 activationDoublePressTrigger = 'leftOption'
+clipboardHistoryEnabled = false
 clipboardHistoryRetention = 'sevenDays'
 dictationActivationMode = 'toggle'
 leaderModeCheatsheetBehavior = 'always'
 leaderModeModifierConfiguration = 'optionGroupControlSticky'
 leaderModeModifierTrigger = 'leftCommand'
 shelfCatalogEnabled = false
+shortcutDisplayUsesHyperSymbol = false
 themeIdentifier = 'com.brnbw.tuna.themes.default'
 
 [[smartLinks.entries]]
