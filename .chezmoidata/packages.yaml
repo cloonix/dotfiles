@@ -30,6 +30,11 @@ custom:
     url: "https://raw.githubusercontent.com/cloonix/pkmdex/main/install.sh"
     install_when: "always"
     requires: ["brew", "pipx"]
+  pybackup:
+    check: "pybackup"
+    url: "https://raw.githubusercontent.com/cloonix/pybackup/main/install.sh"
+    install_when: "always"
+    requires: ["brew", "uv"]
 
 # Package installation combines basic + profile:
 # - Combinations: basic+dev (Linux) OR basic+mac (macOS)
@@ -106,6 +111,7 @@ packages:
       - "protonpass"
       - "servicehub"
       - "pkmdex"
+      - "pybackup"
     taps:
       - "byteowlz/tap"
     npm:
