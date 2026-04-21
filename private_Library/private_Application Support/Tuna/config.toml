@@ -184,8 +184,8 @@ dictationActivationMode = 'toggle'
 leaderModeCheatsheetBehavior = 'always'
 leaderModeModifierConfiguration = 'optionGroupControlSticky'
 leaderModeModifierTrigger = 'leftCommand'
+physicalHyperKeySource = 'capsLock'
 shelfCatalogEnabled = false
-shortcutDisplayUsesHyperSymbol = false
 themeIdentifier = 'com.brnbw.tuna.themes.default'
 
 [[smartLinks.entries]]
