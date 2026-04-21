@@ -16,3 +16,5 @@ export GITHUB_TOKEN={{ output "gopass" "show" "api/github" "all" | trim }}
 export SHLINK_API_KEY={{ gopass "api/shlink" }}
 export SHLINK_URL={{ output "gopass" "show" "api/shlink" "url" | trim }}
 export MISTRAL_API_KEY={{ gopass "api/mistral" }}
+export OPENAI_API_KEY={{ output "gopass" "show" "api/openai" "env" | trim }}
+export ELEVENLABS_API_KEY={{ gopass "api/elevenlabs" }}
