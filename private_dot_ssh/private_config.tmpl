@@ -27,6 +27,9 @@ Host {{ .host }}
 {{- if index . "identity_file" }}
   IdentityFile {{ index . "identity_file" }}
 {{- end }}
+{{- if index . "identities_only" }}
+  IdentitiesOnly {{ index . "identities_only" }}
+{{- end }}
 {{- if index . "local_forward" }}
   LocalForward {{ index . "local_forward" }}
 {{- end }}
