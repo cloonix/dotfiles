@@ -185,13 +185,18 @@
         "apiKey": "{{ $fhgenieKey }}"
       },
       "models": {
-        // Chat models (verified working on production endpoint 2026-02-09)
-        "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8": {
-          "name": "Qwen3 Coder 480B",
-          "limit": {
-            "context": 131072,
-            "output": 32768
-          }
+        // Chat models verified against /chat/completions on 2026-04-29.
+        "MiniMaxAI/MiniMax-M2.5": {
+          "name": "MiniMax M2.5"
+        },
+        "Qwen/Qwen3-Coder-Next-FP8": {
+          "name": "Qwen3 Coder Next FP8"
+        },
+        "nvidia/Orchestrator-8B": {
+          "name": "NVIDIA Orchestrator 8B"
+        },
+        "openGPT-X/Teuken-7B-instruct-v0.6": {
+          "name": "Teuken 7B Instruct v0.6"
         }
       }
     },
