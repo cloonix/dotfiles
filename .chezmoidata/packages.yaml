@@ -35,6 +35,11 @@ custom:
     url: "https://raw.githubusercontent.com/cloonix/pybackup/main/install.sh"
     install_when: "always"
     requires: ["brew", "uv"]
+  vibe:
+    check: "vibe"
+    url: "https://mistral.ai/vibe/install.sh"
+    install_when: "missing"
+    requires: []
 
 # Package installation combines basic + profile:
 # - Combinations: basic+dev (Linux) OR basic+mac (macOS)
@@ -70,6 +75,7 @@ packages:
     custom:
       - "opencode"
       - "servicehub"
+      - "vibe"
     taps:
       - "byteowlz/tap"
     npm:
