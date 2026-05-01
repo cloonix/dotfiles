@@ -45,10 +45,14 @@ if command -v claude >/dev/null 2>&1; then
         info "Skipping context7: CONTEXT7_API_KEY not set"
     fi
 
-    try "Adding service-hub MCP" claude mcp add \
-        --transport http \
-        --scope user \
-        "service-hub" "{{ output "gopass" "--password" "api/servicehub" "url" | trim }}/mcp"
+    if [ -n "${SERVICEHUB_URL:-}" ]; then
+        try "Adding service-hub MCP" claude mcp add \
+            --transport http \
+            --scope user \
+            "service-hub" "${SERVICEHUB_URL}/mcp"
+    else
+        info "Skipping service-hub: SERVICEHUB_URL not set"
+    fi
 
     if [ -n "${FIRECRAWL_URL:-}" ]; then
         try "Adding firecrawl MCP" claude mcp add \
