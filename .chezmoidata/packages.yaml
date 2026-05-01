@@ -118,6 +118,7 @@ packages:
       - "servicehub"
       - "pkmdex"
       - "pybackup"
+      - "vibe"
     taps:
       - "byteowlz/tap"
     npm:
