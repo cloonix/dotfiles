@@ -54,13 +54,13 @@ if command -v claude >/dev/null 2>&1; then
         info "Skipping service-hub: SERVICEHUB_URL not set"
     fi
 
-    if [ -n "${FIRECRAWL_URL:-}" ]; then
+    if [ -n "${FIRECRAWL_MCP:-}" ]; then
         try "Adding firecrawl MCP" claude mcp add \
             --transport http \
             --scope user \
-            "firecrawl" "${FIRECRAWL_URL}"
+            "firecrawl" "${FIRECRAWL_MCP}/mcp"
     else
-        info "Skipping firecrawl: FIRECRAWL_URL not set"
+        info "Skipping firecrawl: FIRECRAWL_MCP not set"
     fi
 fi
 
