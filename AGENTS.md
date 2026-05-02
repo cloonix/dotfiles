@@ -51,14 +51,15 @@ shellcheck <script>   # Lint (if available)
 ├── private_dot_env.tmpl             # ~/.env — API keys from gopass (600 perms)
 ├── private_dot_gnupg/               # ~/.gnupg/ — GPG agent config
 ├── private_dot_ssh/                 # ~/.ssh/ — authorized_keys from gopass
+├── private_dot_vibe/                # ~/.vibe/ — Vibe CLI config; symlink_skills.tmpl points ~/.vibe/skills → ~/git/claude/skills
 ├── private_Library/                 # ~/Library/ — macOS app configs
 ├── run_once_before_10-setup-config-from-gopass.sh.tmpl
 ├── run_after_35-install-homebrew.sh.tmpl
 ├── run_after_40-install-packages.sh.tmpl
 ├── run_after_55-install-custom-tools.sh.tmpl
-├── run_after_56-post-install-hooks.sh.tmpl
+├── run_after_56-post-install-hooks.sh.tmpl  # MCP servers, Claude skills, fabric patterns (see below)
 ├── run_after_60-upgrades.sh.tmpl
-└── run_once_after_90-finalize.sh.tmpl
+└── run_once_after_90-finalize.sh.tmpl       # Prezto, tmux TPM+plugins, gopass push URLs, login shell
 ```
 
 ## File Naming Conventions
@@ -166,6 +167,18 @@ packages:
 Format: `type: description` (under 72 chars)
 Types: `feat`, `fix`, `docs`, `style`, `refactor`, `chore`
 
+## run_after_56: Post-Install Hooks
+
+Runs on every `chezmoi apply` for `dev` and `mac` profiles. Four responsibilities in order:
+
+1. **Yazi plugins** — `ya pkg install` inside `~/.config/yazi/` (only if yazi is in the profile)
+2. **Claude MCP servers** — registers servers via `claude mcp add --scope user`, each gated on a `~/.env` var:
+   - `context7` (HTTP) — requires `CONTEXT7_API_KEY`
+   - `service-hub` (HTTP) — requires `SERVICEHUB_URL`
+   - `firecrawl` (HTTP) — requires `FIRECRAWL_MCP`
+3. **Claude skills** — clones/pulls `git@github.com:cloonix/claude.git` → `~/git/claude`, then copies `skills/` to `~/.claude/skills/`
+4. **Fabric patterns** — clones/pulls personal patterns (`cloonix/fabric` → `~/git/fabric`) on every run; runs `fabric-ai -U` for upstream patterns only if >7 days since last update
+
 ## setup-chezmoi-remote Script
 
 `~/.local/bin/setup-chezmoi-remote` bootstraps chezmoi on a remote host over SSH without requiring gopass there.
@@ -224,3 +237,5 @@ setup-chezmoi-remote -c dev -u claus -a arm64 my-server
 **Modify config**: Edit in `dot_config/`, verify with `chezmoi diff`, apply with `chezmoi apply`
 
 **Work config override**: `dot_config-work/` and `dot_local/share-work/` hold work-specific configs. The `ocw()` shell function (in `dot_aliases.tmpl`) launches opencode with `OPENCODE_CONFIG_DIR` and `XDG_DATA_HOME` overridden to work paths, keeping personal and work sessions separated.
+
+**Claude skills**: Managed in the separate `cloonix/claude` repo (`~/git/claude`). `run_after_56` keeps it up to date and deploys `skills/` to `~/.claude/skills/`. The `~/.vibe/skills` symlink (rendered from `private_dot_vibe/symlink_skills.tmpl`) points to the same `~/git/claude/skills` directory, so both tools share one skills source.
