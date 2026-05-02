@@ -38,7 +38,7 @@ custom:
   vibe:
     check: "vibe"
     url: "https://mistral.ai/vibe/install.sh"
-    install_when: "missing"
+    install_when: "always"
     requires: []
 
 # Package installation combines basic + profile:
