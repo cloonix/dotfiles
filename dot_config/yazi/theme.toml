@@ -85,10 +85,6 @@ cwd = { fg = "#7dcfff", bold = true }
 hovered = { reversed = true }
 preview_hovered = { underline = true }
 
-# Selection styling
-folder_offset = [1, 0, 1, 0]
-preview_offset = [1, 1, 1, 1]
-
 # Tab bar styling
 [tab]
 active = { fg = "#1a1b26", bg = "#7aa2f7", bold = true }
