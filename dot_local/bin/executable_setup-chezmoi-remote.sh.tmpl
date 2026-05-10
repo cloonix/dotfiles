@@ -184,6 +184,7 @@ render_and_copy_dotfiles() {
     --format tar \
     | ssh -A "$ssh_target" "
         mkdir -p '$remote_home'
+        chmod -R u+w '$remote_home/.config/yazi' 2>/dev/null || true
         tar -x --no-same-owner --overwrite -C '$remote_home'
       "
   finish
